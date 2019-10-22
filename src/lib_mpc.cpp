@@ -122,8 +122,8 @@ Eigen::VectorXd Propagate(Eigen::VectorXd x ,Eigen::VectorXd u) {
   x_propagate(1) = x(1) + x(3)*sin(x(2))*DT;
   x_propagate(2) = x(2) - x(3)/LF*u(0)*DT;
   x_propagate(3) = x(3) + u(1)*DT;
-  x_propagate(4) = x_propagate(4);
-  x_propagate(5) = x_propagate(4);
+  x_propagate(4) = x(4);
+  x_propagate(5) = x(5);
   return x_propagate;
 };
 
