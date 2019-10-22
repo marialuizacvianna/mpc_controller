@@ -6,5 +6,5 @@ CXX_FLAGS = -Wall   -std=c++14 -O3
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/usr/local/include -I/home/maria/Documents/MPC/mpc_controller/src/Eigen-3.3 
+CXX_INCLUDES = -I/usr/local/include -I/usr/include/python3.6m -I/home/maria/Documents/MPC/mpc_controller/src/Eigen-3.3 
 

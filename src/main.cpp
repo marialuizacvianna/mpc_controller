@@ -9,7 +9,8 @@
 #include "lib_mpc.h"
 #include <vector>
 #include <math.h>
-
+#include "lib_mpc.h"
+#include "Matplotlib/matplotlibcpp.h"
 int main(int argc, char *argv[]) {
   int referece_count = 0; // reference step
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions

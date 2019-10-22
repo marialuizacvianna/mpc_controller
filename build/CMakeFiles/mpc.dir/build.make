@@ -116,6 +116,7 @@ mpc_EXTERNAL_OBJECTS =
 mpc: CMakeFiles/mpc.dir/src/lib_mpc.cpp.o
 mpc: CMakeFiles/mpc.dir/src/main.cpp.o
 mpc: CMakeFiles/mpc.dir/build.make
+mpc: /usr/lib/x86_64-linux-gnu/libpython3.6m.so
 mpc: CMakeFiles/mpc.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable mpc"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mpc.dir/link.txt --verbose=$(VERBOSE)
