@@ -5,6 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/maria/Documents/MPC/mpc_controller/src/lib_mpc.cpp" "/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles/mpc.dir/src/lib_mpc.cpp.o"
+  "/home/maria/Documents/MPC/mpc_controller/src/lib_plot.cpp" "/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles/mpc.dir/src/lib_plot.cpp.o"
   "/home/maria/Documents/MPC/mpc_controller/src/main.cpp" "/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles/mpc.dir/src/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")

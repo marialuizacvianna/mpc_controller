@@ -150,6 +150,33 @@ src/lib_mpc.cpp.s:
 	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/lib_mpc.cpp.s
 .PHONY : src/lib_mpc.cpp.s
 
+src/lib_plot.o: src/lib_plot.cpp.o
+
+.PHONY : src/lib_plot.o
+
+# target to build an object file
+src/lib_plot.cpp.o:
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/lib_plot.cpp.o
+.PHONY : src/lib_plot.cpp.o
+
+src/lib_plot.i: src/lib_plot.cpp.i
+
+.PHONY : src/lib_plot.i
+
+# target to preprocess a source file
+src/lib_plot.cpp.i:
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/lib_plot.cpp.i
+.PHONY : src/lib_plot.cpp.i
+
+src/lib_plot.s: src/lib_plot.cpp.s
+
+.PHONY : src/lib_plot.s
+
+# target to generate assembly for a file
+src/lib_plot.cpp.s:
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/lib_plot.cpp.s
+.PHONY : src/lib_plot.cpp.s
+
 src/main.o: src/main.cpp.o
 
 .PHONY : src/main.o
@@ -189,6 +216,9 @@ help:
 	@echo "... src/lib_mpc.o"
 	@echo "... src/lib_mpc.i"
 	@echo "... src/lib_mpc.s"
+	@echo "... src/lib_plot.o"
+	@echo "... src/lib_plot.i"
+	@echo "... src/lib_plot.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

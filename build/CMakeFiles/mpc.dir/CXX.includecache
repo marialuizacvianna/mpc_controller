@@ -814,9 +814,27 @@ cppad/cppad.hpp
 cppad/ipopt/solve.hpp
 -
 
+/home/maria/Documents/MPC/mpc_controller/src/lib/plot/lib_plot.h
+../Eigen-3.3/Eigen/Core
+/home/maria/Documents/MPC/mpc_controller/src/lib/Eigen-3.3/Eigen/Core
+../Eigen-3.3/Eigen/QR
+/home/maria/Documents/MPC/mpc_controller/src/lib/Eigen-3.3/Eigen/QR
+math.h
+-
+vector
+-
+
 /home/maria/Documents/MPC/mpc_controller/src/lib_mpc.cpp
 lib/mpc/lib_mpc.h
 /home/maria/Documents/MPC/mpc_controller/src/lib/mpc/lib_mpc.h
+
+/home/maria/Documents/MPC/mpc_controller/src/lib_plot.cpp
+lib/Matplotlib/matplotlibcpp.h
+/home/maria/Documents/MPC/mpc_controller/src/lib/Matplotlib/matplotlibcpp.h
+lib/plot/lib_plot.h
+/home/maria/Documents/MPC/mpc_controller/src/lib/plot/lib_plot.h
+stdio.h
+-
 
 /home/maria/Documents/MPC/mpc_controller/src/main.cpp
 iostream
@@ -827,8 +845,8 @@ vector
 -
 math.h
 -
-lib/Matplotlib/matplotlibcpp.h
-/home/maria/Documents/MPC/mpc_controller/src/lib/Matplotlib/matplotlibcpp.h
+lib/plot/lib_plot.h
+/home/maria/Documents/MPC/mpc_controller/src/lib/plot/lib_plot.h
 
 /usr/include/python3.6m/Python.h
 patchlevel.h

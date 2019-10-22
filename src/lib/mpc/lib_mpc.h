@@ -12,7 +12,7 @@
 #define LF                 1.0
 #define DT                 0.1
 #define CONTROL_HORIZON    10
-
+#define T                  10
 
 #define REF_V                            1.0
 #define REF_OFFSET                       0.0
