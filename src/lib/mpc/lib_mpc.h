@@ -1,5 +1,5 @@
-#include "Eigen-3.3/Eigen/Core"
-#include "Eigen-3.3/Eigen/QR"
+#include "../Eigen-3.3/Eigen/Core"
+#include "../Eigen-3.3/Eigen/QR"
 #include <math.h>
 #include <stdio.h>
 #include <vector>

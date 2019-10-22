@@ -6,11 +6,13 @@
 */
 
 #include <iostream>
-#include "lib_mpc.h"
+#include "lib/mpc/lib_mpc.h"
 #include <vector>
 #include <math.h>
-#include "lib_mpc.h"
-#include "Matplotlib/matplotlibcpp.h"
+#include "lib/Matplotlib/matplotlibcpp.h"
+
+namespace plt = matplotlibcpp;
+
 int main(int argc, char *argv[]) {
   int referece_count = 0; // reference step
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
@@ -27,6 +29,9 @@ int main(int argc, char *argv[]) {
   for(i = 0; i < SIZE_INPUT; i++){
     u(i) = 0.0; //vehicle position
   }
+
+  plt::plot({1,3,2,4});
+  plt::show();
 
   while(1){
 
@@ -57,8 +62,6 @@ int main(int argc, char *argv[]) {
     // solve mpc for state and reference trajectory
     // returns [steering_angle, acceleration]
     Solve_MPC(x,poly_coeffs);
-
-
   }
 
 

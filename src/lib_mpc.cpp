@@ -1,4 +1,4 @@
-#include "lib_mpc.h"
+#include "lib/mpc/lib_mpc.h"
 
 // The solver takes all the state variables and actuator
 // variables in a singular vector. Thus, we should to establish
