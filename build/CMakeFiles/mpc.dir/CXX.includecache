@@ -847,6 +847,16 @@ math.h
 -
 lib/plot/lib_plot.h
 /home/maria/Documents/MPC/mpc_controller/src/lib/plot/lib_plot.h
+fstream
+-
+chrono
+-
+ctime
+-
+string.h
+-
+sstream
+-
 
 /usr/include/python3.6m/Python.h
 patchlevel.h

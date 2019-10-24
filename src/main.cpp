@@ -9,10 +9,15 @@
 #include "lib/mpc/lib_mpc.h"
 #include <vector>
 #include <math.h>
-#include "lib/plot/lib_plot.h"
-
+#include "lib/io/lib_io.h"
+#include <fstream>
+#include <chrono>
+#include <ctime>
+#include <string.h>
+#include <sstream>
 
 int main(int argc, char *argv[]) {
+  // std::offstream result_file;
   int referece_count = 0; // reference step
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
   Eigen::VectorXd ref_y(NB_POINTS_POLYFIT); //vector with reference y positions
@@ -21,7 +26,27 @@ int main(int argc, char *argv[]) {
   std::vector<double> result_mpc;
   int i = 0; //iterator
   float j = 0.0;
-  
+  std::chrono::time_point<std::chrono::system_clock> start;
+
+  start = std::chrono::system_clock::now();
+  std::time_t start_t = std::chrono::system_clock::to_time_t(start);
+  std::string start_s = std::ctime(&start_t);
+  std::string month = start_s.substr(4,3);
+  std::string day = start_s.substr(8,2);
+  std::string year = start_s.substr(20,4);
+  std::string hour = start_s.substr(11,2);
+  std::string mins = start_s.substr(14,2);
+  std::string secs = start_s.substr(17,2);
+  std::vector<std::string> month_vec = {"Jan", "Feb", "Mar", "Apr", "May", "Jui", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+  std::vector<std::string>::iterator it = std::find (month_vec.begin(), month_vec.end(), month);
+  int month_nb = it - month_vec.begin() + 1;
+  std::stringstream txt_title_aux;
+  txt_title_aux<< month_nb << day << year<< hour << mins << secs;
+  std::string txt_title = txt_title_aux.str();
+  std::cout << "txt_title = " << txt_title << std::endl;
+  std::cout << "start = " << start_s << std::endl;
+  // result_file.open("reults/result_run.txt")
+
   for(i = 0; i < SIZE_STATE; i++){
     x(i) = 0.0; //vehicle position
   }
@@ -35,8 +60,6 @@ int main(int argc, char *argv[]) {
 
 
   for(j = 0.0; j < T; j=j+DT){
-    std::cout << "j = " << j << std::endl;
-    std::cout << "DT = " << DT << std::endl;
     // draw_car(x);
     // draw_tank(x ,"blue" , 0.3);
 
@@ -47,7 +70,6 @@ int main(int argc, char *argv[]) {
     referece_count += NB_POINTS_POLYFIT;
 
     x = Propagate(x,u);
-    std::cout << "x = " << x << std::endl;
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
       ref_y(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
       ref_x(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
