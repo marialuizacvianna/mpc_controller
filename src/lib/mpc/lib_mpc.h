@@ -5,6 +5,7 @@
 #include <vector>
 #include <cppad/cppad.hpp>
 #include <cppad/ipopt/solve.hpp>
+#include <fstream>
 
 #define NB_POINTS_POLYFIT   10
 #define SIZE_STATE          6
