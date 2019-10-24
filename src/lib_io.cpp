@@ -62,5 +62,5 @@ void create_txt_file(std::ofstream * file){
 
 
 void write_results(std::ofstream * file, Eigen::VectorXd x, Eigen::VectorXd u){
-  *file << x(0) << "," << x(1) << "," << x(2) << "," << x(3) << "," << u(0) << "," << u(1) << "\n";
+  *file << x(0) << "," << x(1) << "," << x(2) << "," << x(3) << "," << x(4) << "," << x(5) << "," << u(0) << "," << u(1) << "\n";
 }
