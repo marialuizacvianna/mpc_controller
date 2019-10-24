@@ -26,7 +26,9 @@ int main(int argc, char *argv[]) {
   std::chrono::time_point<std::chrono::system_clock> start;
 
   create_txt_file(&result_file);
-  // result_file.open("reults/result_run.txt")
+
+  if(result_file.is_open())
+    std::cout << "Created file for writing results \n";
 
   for(i = 0; i < SIZE_STATE; i++){
     x(i) = 0.0; //vehicle position

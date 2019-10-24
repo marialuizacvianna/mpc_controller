@@ -1,3 +1,6 @@
+#ifndef LIB_MPC
+#define LIB_MPC
+
 #include "../Eigen-3.3/Eigen/Core"
 #include "../Eigen-3.3/Eigen/QR"
 #include <math.h>
@@ -23,3 +26,5 @@
 Eigen::VectorXd Propagate(Eigen::VectorXd,Eigen::VectorXd);
 Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n);
 std::vector<double> Solve_MPC(Eigen::VectorXd state, Eigen::VectorXd coeffs);
+
+#endif
