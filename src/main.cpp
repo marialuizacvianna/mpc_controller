@@ -79,6 +79,7 @@ int main(int argc, char *argv[]) {
 
   }
 
+  std::cout << "End simulation \n";
   result_file.close();
 
   return 0;
