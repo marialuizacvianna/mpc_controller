@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/mpc.dir/src/lib_mpc.cpp.o"
   "CMakeFiles/mpc.dir/src/main.cpp.o"
+  "CMakeFiles/mpc.dir/src/lib_io.cpp.o"
   "mpc.pdb"
   "mpc"
 )

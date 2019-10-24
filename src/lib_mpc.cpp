@@ -39,7 +39,7 @@ class FG_eval
     for (int t = 0; t < CONTROL_HORIZON; t++)
     {
       fg[0] += 100*CppAD::pow(vars[offset_start + t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
-      fg[0] += 100*CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
+      fg[0] += 10*CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
       fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
 
@@ -122,8 +122,8 @@ Eigen::VectorXd Propagate(Eigen::VectorXd x ,Eigen::VectorXd u) {
   x_propagate(1) = x(1) + x(3)*sin(x(2))*DT;
   x_propagate(2) = x(2) - x(3)/LF*u(0)*DT;
   x_propagate(3) = x(3) + u(1)*DT;
-  x_propagate(4) = x_propagate(4);
-  x_propagate(5) = x_propagate(4);
+  x_propagate(4) = x(4);
+  x_propagate(5) = x(5);
   return x_propagate;
 };
 
@@ -191,8 +191,8 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x, Eigen::VectorXd poly_coeffs){
   // degrees (values in radians).
   for (int i = delta_start; i < a_start; i++)
   {
-    vars_lowerbound[i] = -0.436332;
-    vars_upperbound[i] = 0.436332;
+    vars_lowerbound[i] = -0.836332;
+    vars_upperbound[i] = 0.836332;
   }
 
   // Acceleration/decceleration upper and lower limits.
@@ -260,7 +260,6 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x, Eigen::VectorXd poly_coeffs){
 
   // Cost
   auto cost = solution.obj_value;
-  std::cout << "Cost " << cost << std::endl;
 
   // set x_pred_vals and y_pred_vals for plotting
   x_pred_vals.clear();

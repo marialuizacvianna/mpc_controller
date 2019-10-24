@@ -9,40 +9,53 @@
 #include "lib/mpc/lib_mpc.h"
 #include <vector>
 #include <math.h>
-#include "lib/Matplotlib/matplotlibcpp.h"
-
-namespace plt = matplotlibcpp;
+#include "lib/io/lib_io.h"
+#include <string.h>
+#include <sstream>
 
 int main(int argc, char *argv[]) {
+  std::ofstream result_file;
   int referece_count = 0; // reference step
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
   Eigen::VectorXd ref_y(NB_POINTS_POLYFIT); //vector with reference y positions
   Eigen::VectorXd x(SIZE_STATE);//x y psi v err_offset err_psi
   Eigen::VectorXd u(SIZE_INPUT);//steering angle rate  acceleration
+  std::vector<double> result_mpc;
+  int i = 0; //iterator
+  float j = 0.0;
+  std::chrono::time_point<std::chrono::system_clock> start;
 
-  int i,j = 0; //iterator
+  create_txt_file(&result_file);
+  if(result_file.is_open())
+    std::cout << "Created file for writing results \n";
+
+
 
   for(i = 0; i < SIZE_STATE; i++){
     x(i) = 0.0; //vehicle position
   }
 
+  x(1) = 5.0; //y
+  x(2) = -3.14; //theta
+  x(3) = 5.0; //speed
+
   for(i = 0; i < SIZE_INPUT; i++){
-    u(i) = 0.0; //vehicle position
+    u(i) = 0.0;
   }
 
-  plt::plot({1,3,2,4});
-  plt::show();
-
-  while(1){
+  std::cout << "Begin simulation \n";
+  for(j = 0.0; j < T; j=j+DT){
+    write_results(&result_file,x,u);
+    // draw_car(x);
+    // draw_tank(x ,"blue" , 0.3);
 
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
-      ref_y(i) = 1.0;
-      ref_x(i) = i + referece_count;
+      ref_y(i) = 0.0;
+      ref_x(i) = x(0) + (DT*(i+1));
     }
     referece_count += NB_POINTS_POLYFIT;
 
     x = Propagate(x,u);
-
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
       ref_y(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
       ref_x(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
@@ -56,16 +69,19 @@ int main(int argc, char *argv[]) {
     // f(x) is the polynomial defining the reference trajectory
     // f'(x) = 3Ax^2 + 2Bx + C
     // double d_f_x = 3*poly_coeffs[3]*pow(px,2) + 2*poly_coeffs[2]*px + poly_coeffs[1];
-    double d_f_x = poly_coeffs[1];
+    double d_f_x = poly_coeffs(1);
     x(5) = -atan(d_f_x);
 
     // solve mpc for state and reference trajectory
     // returns [steering_angle, acceleration]
-    Solve_MPC(x,poly_coeffs);
+    result_mpc = Solve_MPC(x,poly_coeffs);
+    u(0) = result_mpc.at(0);
+    u(1) = result_mpc.at(1);
+
   }
 
-
-
+  std::cout << "End simulation \n";
+  result_file.close();
 
   return 0;
 }
