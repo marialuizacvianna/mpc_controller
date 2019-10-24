@@ -35,8 +35,8 @@ int main(int argc, char *argv[]) {
     x(i) = 0.0; //vehicle position
   }
 
-  x(1) = 5.0; //y
-  x(2) = -3.14; //theta
+  // x(1) = 5.0; //y
+  // x(2) = -3.14; //theta
   x(3) = 5.0; //speed
 
   for(i = 0; i < SIZE_INPUT; i++){
@@ -46,12 +46,17 @@ int main(int argc, char *argv[]) {
   std::cout << "Begin simulation \n";
   for(j = 0.0; j < T; j=j+DT){
     write_results(&result_file,x,u);
-    // draw_car(x);
-    // draw_tank(x ,"blue" , 0.3);
 
+    //line
+    // for(i = 0; i < NB_POINTS_POLYFIT; i++){
+    //   ref_y(i) = 0.0;
+    //   ref_x(i) = x(0) + (DT*(i+1));
+    // }
+
+    //sinus
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
-      ref_y(i) = 0.0;
       ref_x(i) = x(0) + (DT*(i+1));
+      ref_y(i) = sin(0.1*ref_x(i));
     }
     referece_count += NB_POINTS_POLYFIT;
 
