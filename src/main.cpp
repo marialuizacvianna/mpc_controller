@@ -35,11 +35,12 @@ int main(int argc, char *argv[]) {
     x(i) = 0.0; //vehicle position
   }
 
-  x(1) = -1.0; //speed
+  x(1) = 5.0; //y
+  x(2) = 0.4; //theta
   x(3) = 5.0; //speed
 
   for(i = 0; i < SIZE_INPUT; i++){
-    u(i) = 0.0; //vehicle position
+    u(i) = 0.0;
   }
 
   std::cout << "Begin simulation \n";
