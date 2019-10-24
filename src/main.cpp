@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   }
 
   x(1) = 5.0; //y
-  x(2) = 0.4; //theta
+  x(2) = -3.14; //theta
   x(3) = 5.0; //speed
 
   for(i = 0; i < SIZE_INPUT; i++){
