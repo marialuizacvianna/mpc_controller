@@ -13,7 +13,10 @@ const std::string io_path = "../results/";
 
 void draw_tank(Eigen::VectorXd x,char* color , float r);
 void draw_car(Eigen::VectorXd x);
-void create_txt_file(std::ofstream * file);
 Eigen::MatrixXd move_motif(Eigen::MatrixXd M, float x, float y,float psi);
+
+void create_txt_file(std::ofstream * file);
+void write_results(std::ofstream * file, Eigen::VectorXd x, Eigen::VectorXd u);
+
 
 #endif

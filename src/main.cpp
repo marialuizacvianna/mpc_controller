@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
   std::cout << "Begin simulation \n";
   for(j = 0.0; j < T; j=j+DT){
-    result_file << x(0) << "," << x(1) << "," << x(2) << "," << x(3) << "," << u(0) << "," << u(1) << "\n";
+    write_results(&result_file,x,u);
     // draw_car(x);
     // draw_tank(x ,"blue" , 0.3);
 
