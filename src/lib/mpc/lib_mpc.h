@@ -6,13 +6,13 @@
 #include <cppad/cppad.hpp>
 #include <cppad/ipopt/solve.hpp>
 
-#define NB_POINTS_POLYFIT   5
+#define NB_POINTS_POLYFIT   10
 #define SIZE_STATE          6
 #define SIZE_INPUT          2
 #define LF                 1.0
-#define DT                 0.1
+#define DT                 0.01
 #define CONTROL_HORIZON    10
-#define T                  10
+#define T                  0.5
 
 #define REF_V                            1.0
 #define REF_OFFSET                       0.0

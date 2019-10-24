@@ -5,9 +5,7 @@ namespace plt = matplotlibcpp;
 
 void draw_tank(Eigen::VectorXd x ,char* color , float r = 0.3){
   Eigen::MatrixXd M(2, 15);
-
   M.row(0) << 1,-1,0,0,-1,-1,0,0,-1,1,0,0,3,3,0;
-
   M.row(1) << -2,-2,-2,-1,-1,1,1,2,2,2,2,1,0.5,-0.5,-1;
 
   M = move_motif(M,x(0),x(1),x(2));
@@ -23,7 +21,10 @@ void draw_tank(Eigen::VectorXd x ,char* color , float r = 0.3){
   plt::plot(x_plot, y_plot);
 
   plt::show();
+
+  // plt.pause(0.01);
 }
+
 
 Eigen::MatrixXd move_motif(Eigen::MatrixXd M, float x, float y,float psi){
   Eigen::MatrixXd M1 = Eigen::MatrixXd::Constant(1, M.cols(), 1.0);

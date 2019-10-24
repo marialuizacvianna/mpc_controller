@@ -4,4 +4,5 @@
 #include <vector>
 
 void draw_tank(Eigen::VectorXd x,char* color , float r);
+void draw_car(Eigen::VectorXd x);
 Eigen::MatrixXd move_motif(Eigen::MatrixXd M, float x, float y,float psi);
