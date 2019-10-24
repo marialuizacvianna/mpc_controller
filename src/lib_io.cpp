@@ -57,9 +57,5 @@ void create_txt_file(std::ofstream * file){
   std::stringstream txt_title_aux;
   txt_title_aux<< io_path << month_nb << day << year<< hour << mins << secs << ".txt";
   std::string txt_title = txt_title_aux.str();
-  std::cout << "txt_title = " << txt_title << std::endl;
-
   file->open(txt_title);
-  if(file->is_open())
-    std::cout << "file open \n";
 }

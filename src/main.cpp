@@ -26,9 +26,10 @@ int main(int argc, char *argv[]) {
   std::chrono::time_point<std::chrono::system_clock> start;
 
   create_txt_file(&result_file);
-
   if(result_file.is_open())
     std::cout << "Created file for writing results \n";
+
+
 
   for(i = 0; i < SIZE_STATE; i++){
     x(i) = 0.0; //vehicle position
@@ -41,8 +42,9 @@ int main(int argc, char *argv[]) {
     u(i) = 0.0; //vehicle position
   }
 
-
+  std::cout << "Begin simulation \n";
   for(j = 0.0; j < T; j=j+DT){
+    result_file << x(0) << "," << x(1) << "," << x(2) << "," << x(3) << "," << u(0) << "," << u(1) << "\n";
     // draw_car(x);
     // draw_tank(x ,"blue" , 0.3);
 
@@ -74,7 +76,10 @@ int main(int argc, char *argv[]) {
     result_mpc = Solve_MPC(x,poly_coeffs);
     u(0) = result_mpc.at(0);
     u(1) = result_mpc.at(1);
+
   }
+
+  result_file.close();
 
   return 0;
 }
