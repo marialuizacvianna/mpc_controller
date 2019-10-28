@@ -22,7 +22,8 @@ int main(int argc, char *argv[]) {
   Eigen::VectorXd u(SIZE_INPUT);//steering angle rate  acceleration
   std::vector<double> result_mpc;
   int i = 0; //iterator
-  float j = 0.0;
+  float last_x = 0;
+  float j = 0.0;//iterator
   std::chrono::time_point<std::chrono::system_clock> start;
 
   create_txt_file(&result_file);
@@ -35,9 +36,11 @@ int main(int argc, char *argv[]) {
     x(i) = 0.0; //vehicle position
   }
 
-  // x(1) = 5.0; //y
-  // x(2) = -3.14; //theta
+  x(1) = 5.0; //y
+  x(2) = -3.14; //theta
   x(3) = 5.0; //speed
+
+  last_x = x(0);
 
   for(i = 0; i < SIZE_INPUT; i++){
     u(i) = 0.0;
@@ -48,16 +51,19 @@ int main(int argc, char *argv[]) {
     write_results(&result_file,x,u);
 
     //line
-    // for(i = 0; i < NB_POINTS_POLYFIT; i++){
-    //   ref_y(i) = 0.0;
-    //   ref_x(i) = x(0) + (DT*(i+1));
-    // }
+    for(i = 0; i < NB_POINTS_POLYFIT; i++){
+      ref_y(i) = 0.0;
+      ref_x(i) = last_x + (DT*(i+1));
+
+      if(i == NB_POINTS_POLYFIT - 1)
+        last_x =  ref_x(i);
+    }
 
     //sinus
-    for(i = 0; i < NB_POINTS_POLYFIT; i++){
-      ref_x(i) = x(0) + (DT*(i+1));
-      ref_y(i) = sin(0.1*ref_x(i));
-    }
+    // for(i = 0; i < NB_POINTS_POLYFIT; i++){
+    //   ref_x(i) = x(0) + (DT*(i+1));
+    //   ref_y(i) = sin(0.1*ref_x(i));
+    // }
     referece_count += NB_POINTS_POLYFIT;
 
     x = Propagate(x,u);

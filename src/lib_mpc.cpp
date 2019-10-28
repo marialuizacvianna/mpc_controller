@@ -39,7 +39,7 @@ class FG_eval
     for (int t = 0; t < CONTROL_HORIZON; t++)
     {
       fg[0] += 100*CppAD::pow(vars[offset_start + t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
-      fg[0] += 100*CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
+      fg[0] += 10*CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
       fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
 
