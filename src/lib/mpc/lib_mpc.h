@@ -18,7 +18,7 @@
 #define CONTROL_HORIZON    10
 #define T                  100.0
 
-#define REF_V                            1.0
+#define REF_V                            5.0
 #define REF_OFFSET                       0.0
 #define REF_PSI_ERR                      0.0
 
