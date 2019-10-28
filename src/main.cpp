@@ -22,7 +22,8 @@ int main(int argc, char *argv[]) {
   Eigen::VectorXd u(SIZE_INPUT);//steering angle rate  acceleration
   std::vector<double> result_mpc;
   int i = 0; //iterator
-  float j = 0.0;
+  float last_x = 0;
+  float j = 0.0;//iterator
   std::chrono::time_point<std::chrono::system_clock> start;
 
   create_txt_file(&result_file);
@@ -39,6 +40,8 @@ int main(int argc, char *argv[]) {
   x(2) = -3.14; //theta
   x(3) = 5.0; //speed
 
+  last_x = x(0);
+
   for(i = 0; i < SIZE_INPUT; i++){
     u(i) = 0.0;
   }
@@ -46,13 +49,18 @@ int main(int argc, char *argv[]) {
   std::cout << "Begin simulation \n";
   for(j = 0.0; j < T; j=j+DT){
     write_results(&result_file,x,u);
-    // draw_car(x);
-    // draw_tank(x ,"blue" , 0.3);
 
+    //line
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
       ref_y(i) = 0.0;
       ref_x(i) = x(0) + (DT*(i+1));
     }
+
+    //sinus
+    // for(i = 0; i < NB_POINTS_POLYFIT; i++){
+    //   ref_x(i) = x(0) + (DT*(i+1));
+    //   ref_y(i) = sin(0.1*ref_x(i));
+    // }
     referece_count += NB_POINTS_POLYFIT;
 
     x = Propagate(x,u);
