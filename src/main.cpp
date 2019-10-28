@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 
     //line
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
-      ref_y(i) = 0.0;
+      ref_y(i) = 1.0;
       ref_x(i) = x(0) + (DT*(i+1));
     }
 
