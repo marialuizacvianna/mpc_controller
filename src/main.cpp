@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
   }
 
   x(1) = 5.0; //y
-  x(2) = -0.1; //theta
+  x(2) = -3.14; //theta
   x(3) = 5.0; //speed
 
   last_x = x(0);
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 
     //line
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
-      ref_y(i) = 1.0;
+      ref_y(i) = 0.0;
       ref_x(i) = x(0) + (DT*(i+1));
     }
 

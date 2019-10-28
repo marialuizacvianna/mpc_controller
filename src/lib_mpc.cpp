@@ -38,7 +38,7 @@ class FG_eval
     // 3. diff bw v and ref_v
     for (int t = 0; t < CONTROL_HORIZON; t++)
     {
-      fg[0] += 150*CppAD::pow(vars[offset_start + t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
+      fg[0] += 100*CppAD::pow(vars[offset_start + t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
       fg[0] += 10*CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
       fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
@@ -53,7 +53,7 @@ class FG_eval
     // Minimize the value gap between sequential actuations.
     for (int t = 0; t < CONTROL_HORIZON - 2; t++)
     {
-      fg[0] += 100000*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+      fg[0] += 130000*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
       fg[0] += 100*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
     }
 
