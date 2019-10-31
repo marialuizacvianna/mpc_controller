@@ -54,16 +54,8 @@ void timer(int id) {
     glutPostRedisplay();
 }
 
-void drawPendulum(double time, double theta, double v) {
-    double x1 = 0, y1 = 0;
-    // Reference line
-    glLineWidth(0.5);
-    glColor3f(1.0, 0.0, 0.0);
-    glBegin(GL_LINES);
-    glVertex2f(-100,y1);
-    glVertex2f( 100,y1);
-    glEnd();
-
+void drawTank(double time, double theta, double v) {
+    // Tank
     Eigen::MatrixXd M(2, 15);
     M.row(0) << 1,-1,0,0,-1,-1,0,0,-1,1,0,0,3,3,0;
     M.row(1) << -2,-2,-2,-1,-1,1,1,2,2,2,2,1,0.5,-0.5,-1;
@@ -77,61 +69,22 @@ void drawPendulum(double time, double theta, double v) {
     }
     glEnd();
 
-
-
-    // The pendulum support anchor block
-    // glColor3f(0.0, 0.0, 1.0);
-    // glBegin(GL_QUADS);
-    // glNormal3f( 0.0,  0.0,  1.0);
-    // glVertex3d(-0.8,  0.0,  0.0);
-    // glVertex3d( 0.8,  0.0,  0.0);
-    // glVertex3d( 0.8,  0.8,  0.0);
-    // glVertex3d(-0.8,  0.8,  0.0);
-    // glEnd();
-
-
-
-    // // The pendulum bob
-    double pi = 3.1416;
-    double x2, y2;
-    // if(0 <= theta < pi/2){
-    //         x2 = l*cos(pi/2-theta);
-    //         y2 = -l*sin(pi/2-theta);
-    // }
-    // else if(pi/2 <= theta < pi){
-    //         x2 = l*cos(theta - pi/2);
-    //         y2 = l*sin(theta - pi/2);
-    // }
-    // else if(-pi/2 <= theta < 0){
-    //         x2 = -l*cos(pi/2-abs(theta));
-    //         y2 = -l*sin(pi/2-abs(theta));
-    // }
-    // else if(-pi <= theta < -pi/2){
-    //         x2 = -l*cos(abs(theta) - pi/2);
-    //         y2 = l*sin(abs(theta) - pi/2);
-    // }
-    // else{
-    //     printf("invalid theta\n");
-    // }
-
-    // glColor3f(0.2, 0.65, 0.4);
-    // glPushMatrix();
-    // glTranslated(x2, y2, 0.0);
-    // glutWireSphere(0.82, 50, 50);
-    // glPopMatrix();
-
-    // // thick line connecting the two
-    // glLineWidth(200);
-    // glColor3f(0.8, 0.25, 0.4);
-    // glBegin(GL_LINES);
-    // glVertex2f(x1,y1);
-    // glVertex2f(x2,y2);
-    // glEnd();
-
+    // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
     sprintf(mystr,"Time %4.2f : %4.2f : %4.2f\n", ti,time,tf);
     printString(mystr, -10, 5, 2);
     free(mystr);
+}
+
+
+void drawReference() {
+    // Reference line
+    glLineWidth(0.5);
+    glColor3f(1.0, 0.0, 0.0);
+    glBegin(GL_LINES);
+    glVertex2f(-100,0);
+    glVertex2f( 100,0);
+    glEnd();
 }
 
 void display(void) {
@@ -141,7 +94,8 @@ void display(void) {
     glLoadIdentity();
     glTranslatef(0,0,-20);
     glColor3f(1,1,1);
-    drawPendulum(0.0,0.0,0.0);
+    drawTank(0.0,0.0,0.0);
+    drawReference();
     glutSwapBuffers();
 }
 
