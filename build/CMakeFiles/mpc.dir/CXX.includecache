@@ -813,6 +813,12 @@ ctime
 -
 fstream
 -
+GL/glut.h
+-
+GL/gl.h
+-
+GL/glu.h
+-
 
 /home/maria/Documents/MPC/mpc_controller/src/lib/mpc/lib_mpc.h
 ../Eigen-3.3/Eigen/Core
@@ -837,6 +843,8 @@ lib/Matplotlib/matplotlibcpp.h
 /home/maria/Documents/MPC/mpc_controller/src/lib/Matplotlib/matplotlibcpp.h
 lib/io/lib_io.h
 /home/maria/Documents/MPC/mpc_controller/src/lib/io/lib_io.h
+lib/mpc/lib_mpc.h
+/home/maria/Documents/MPC/mpc_controller/src/lib/mpc/lib_mpc.h
 stdio.h
 -
 

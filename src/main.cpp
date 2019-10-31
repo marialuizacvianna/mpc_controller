@@ -14,6 +14,9 @@
 #include <sstream>
 
 int main(int argc, char *argv[]) {
+  std::vector<double> result_x;
+  std::vector<double> result_y;
+  std::vector<double> result_psi;
   std::ofstream result_file;
   int referece_count = 0; // reference step
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
@@ -29,8 +32,6 @@ int main(int argc, char *argv[]) {
   create_txt_file(&result_file);
   if(result_file.is_open())
     std::cout << "Created file for writing results \n";
-
-
 
   for(i = 0; i < SIZE_STATE; i++){
     x(i) = 0.0; //vehicle position
@@ -48,6 +49,9 @@ int main(int argc, char *argv[]) {
 
   std::cout << "Begin simulation \n";
   for(j = 0.0; j < T; j=j+DT){
+    result_x.push_back(x(0));
+    result_y.push_back(x(1));
+    result_psi.push_back(x(2));
     write_results(&result_file,x,u);
 
     //line
@@ -56,11 +60,7 @@ int main(int argc, char *argv[]) {
       ref_x(i) = x(0) + (DT*(i+1));
     }
 
-    //sinus
-    // for(i = 0; i < NB_POINTS_POLYFIT; i++){
-    //   ref_x(i) = x(0) + (DT*(i+1));
-    //   ref_y(i) = sin(0.1*ref_x(i));
-    // }
+
     referece_count += NB_POINTS_POLYFIT;
 
     x = Propagate(x,u);
@@ -87,6 +87,20 @@ int main(int argc, char *argv[]) {
     u(1) = result_mpc.at(1);
 
   }
+  std::cout << "Begin visualisation \n";
+  glGetResults(result_x,result_y,result_psi);
+  glutInit (&argc, argv);
+  glutInitDisplayMode (GLUT_DOUBLE);
+  glutInitWindowSize (2000, 1000);
+  glutInitWindowPosition (0, 0);
+  glutCreateWindow ("MPC Simulation");
+
+  glutDisplayFunc (display);
+  glutIdleFunc (display);
+  glutReshapeFunc (reshape);
+
+  initgLOptions();
+  glutMainLoop ();
 
   std::cout << "End simulation \n";
   result_file.close();

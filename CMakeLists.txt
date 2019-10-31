@@ -4,7 +4,7 @@ cmake_minimum_required (VERSION 3.5)
 
 # -g allows for gdb debugging
 # turn on -03 for best performance
-add_definitions(-std=c++14 -O3)
+add_definitions(-std=c++14 -O3 )
 
 find_package(PythonLibs REQUIRED)
 
@@ -18,14 +18,6 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 link_directories(/usr/local/lib)
 include_directories(src/Eigen-3.3)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-include_directories(/usr/local/opt/openssl/include)
-link_directories(/usr/local/opt/openssl/lib)
-link_directories(/usr/local/Cellar/libuv/1*/lib)
-
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
 add_executable(mpc ${sources})
 
-target_link_libraries(mpc ipopt z ssl uv uWS ${PYTHON_LIBRARIES})
+target_link_libraries(mpc ipopt z ssl uv uWS glut GLU GL ${PYTHON_LIBRARIES})

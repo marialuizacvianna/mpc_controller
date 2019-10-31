@@ -9,12 +9,28 @@
 #include <ctime>
 #include <fstream>
 
+#include <GL/glut.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 const std::string io_path = "../results/";
 
-void draw_tank(Eigen::VectorXd x,char* color , float r);
-void draw_car(Eigen::VectorXd x);
+void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi);
+
+//OpenGL functions
+void printString(const char *str, double x, double y, double size);
+void timer(int id);
+void drawTank();
+void drawReference();
+void display();
+void reshape (int w, int h);
+void initgLOptions();
+
+
+//Translate and Rotate tank points matrix
 Eigen::MatrixXd move_motif(Eigen::MatrixXd M, float x, float y,float psi);
 
+//Text file output
 void create_txt_file(std::ofstream * file);
 void write_results(std::ofstream * file, Eigen::VectorXd x, Eigen::VectorXd u);
 
