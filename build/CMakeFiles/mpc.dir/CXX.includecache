@@ -859,6 +859,12 @@ string.h
 -
 sstream
 -
+GL/glut.h
+-
+GL/gl.h
+-
+GL/glu.h
+-
 
 /usr/include/python3.6m/Python.h
 patchlevel.h
