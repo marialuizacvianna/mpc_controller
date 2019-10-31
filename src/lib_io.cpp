@@ -92,8 +92,8 @@ void drawReference() {
     glLineWidth(0.5);
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINES);
-    glVertex2f(-1000,0);
-    glVertex2f( 1000,0);
+    glVertex2f(-1000,LINE);
+    glVertex2f( 1000,LINE);
     glEnd();
 }
 

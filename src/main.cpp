@@ -18,15 +18,18 @@ int main(int argc, char *argv[]) {
   std::vector<double> result_y;
   std::vector<double> result_psi;
   std::ofstream result_file;
-  int referece_count = 0; // reference step
+
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
   Eigen::VectorXd ref_y(NB_POINTS_POLYFIT); //vector with reference y positions
+
   Eigen::VectorXd x(SIZE_STATE);//x y psi v err_offset err_psi
   Eigen::VectorXd u(SIZE_INPUT);//steering angle rate  acceleration
+
   std::vector<double> result_mpc;
+
   int i = 0; //iterator
-  float last_x = 0;
   float j = 0.0;//iterator
+
   std::chrono::time_point<std::chrono::system_clock> start;
 
   create_txt_file(&result_file);
@@ -41,7 +44,6 @@ int main(int argc, char *argv[]) {
   x(2) = -3.14; //theta
   x(3) = 5.0; //speed
 
-  last_x = x(0);
 
   for(i = 0; i < SIZE_INPUT; i++){
     u(i) = 0.0;
@@ -56,12 +58,9 @@ int main(int argc, char *argv[]) {
 
     //line
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
-      ref_y(i) = 0.0;
+      ref_y(i) = LINE;
       ref_x(i) = x(0) + (DT*(i+1));
     }
-
-
-    referece_count += NB_POINTS_POLYFIT;
 
     x = Propagate(x,u);
     for(i = 0; i < NB_POINTS_POLYFIT; i++){

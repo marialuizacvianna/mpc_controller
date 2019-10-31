@@ -260,7 +260,7 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x, Eigen::VectorXd poly_coeffs){
 
   // Cost
   auto cost = solution.obj_value;
-
+  std::cout << "cost = " << cost << std::endl;
   // set x_pred_vals and y_pred_vals for plotting
   x_pred_vals.clear();
   y_pred_vals.clear();
