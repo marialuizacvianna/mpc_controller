@@ -74,7 +74,11 @@ void drawTank() {
     // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
     sprintf(mystr,"Time %4.2f : %4.2f : %4.2f\n", ti,time,tf);
-    printString(mystr, 2, 8, 0.5);
+    if(trans_corr > -1)
+      printString(mystr, 2+ (trans_corr*35), 8, 0.5);
+    else
+      printString(mystr, 2, 8, 0.5);  
+
     free(mystr);
 }
 
@@ -101,7 +105,6 @@ void display(void) {
     }
     else{
         deltax = result_x.at(time_step_counter) - trans_lastx;
-        std::cout << "deltax =" << deltax << std::endl;
         if (deltax >= 35 ){
             trans_corr ++ ;
             trans_lastx = result_x.at(time_step_counter);
