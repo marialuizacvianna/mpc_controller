@@ -24,11 +24,13 @@ int ms_per_frame = 5;
 std::vector<double> result_x;
 std::vector<double> result_y;
 std::vector<double> result_psi;
+double trans_lastx;
+double trans_corr = -1;
 
 void printString(const char *str, double x, double y, double size) {
    glPushMatrix();
    glTranslatef(x,y,0);
-   glScalef(size/1000.0,size/1000.0,1.0);
+   glScalef(size/153.0,size/153.0,1.0);
    int lineCt = 0;
    int len = strlen(str);
    for (int i = 0; i < len; i++) {
@@ -72,7 +74,7 @@ void drawTank() {
     // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
     sprintf(mystr,"Time %4.2f : %4.2f : %4.2f\n", ti,time,tf);
-    printString(mystr, -10, 5, 2);
+    printString(mystr, 2, 8, 0.5);
     free(mystr);
 }
 
@@ -82,17 +84,31 @@ void drawReference() {
     glLineWidth(0.5);
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINES);
-    glVertex2f(-5,0);
+    glVertex2f(-1000,0);
     glVertex2f( 1000,0);
     glEnd();
 }
 
 void display(void) {
+    double deltax;
     glutTimerFunc(ms_per_frame,timer,1);
     glClearColor (0.0,0.0,0.0,1.0);
     glClear (GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
-    glTranslatef(0,0,-20);
+    if(trans_corr == -1){
+      trans_lastx = result_x.at(time_step_counter);
+      trans_corr = 0;
+    }
+    else{
+        deltax = result_x.at(time_step_counter) - trans_lastx;
+        std::cout << "deltax =" << deltax << std::endl;
+        if (deltax >= 35 ){
+            trans_corr ++ ;
+            trans_lastx = result_x.at(time_step_counter);
+        }
+    }
+
+    glTranslatef(-15 - (trans_corr*35),0,-20);
     glColor3f(1,1,1);
     drawTank();
     drawReference();
@@ -100,7 +116,7 @@ void display(void) {
 }
 
 void reshape (int w, int h) {
-    glViewport (-100, 0, (GLsizei)w, (GLsizei)h);
+    glViewport (0, 0, (GLsizei)w, (GLsizei)h);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity ();
     gluPerspective (60, (GLfloat)w / (GLfloat)h, 0.1, 100.0);
@@ -205,7 +221,7 @@ int main(int argc, char *argv[]) {
   std::cout << "Begin visualisation \n";
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
-  glutInitWindowSize (1200, 800);
+  glutInitWindowSize (2000, 1000);
   glutInitWindowPosition (0, 0);
   glutCreateWindow ("MPC Simulation");
 
