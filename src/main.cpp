@@ -19,13 +19,16 @@
 // pendulum parameters
 int l = 10, N = 2500;
 double ti = 0, tf = 20;
-int time_step_counter = -1, pause_flag = 0;
+int time_step_counter = 0, pause_flag = 0;
 int ms_per_frame = 5;
+std::vector<double> result_x;
+std::vector<double> result_y;
+std::vector<double> result_psi;
 
 void printString(const char *str, double x, double y, double size) {
    glPushMatrix();
    glTranslatef(x,y,0);
-   glScalef(size/153.0,size/153.0,1.0);
+   glScalef(size/1000.0,size/1000.0,1.0);
    int lineCt = 0;
    int len = strlen(str);
    for (int i = 0; i < len; i++) {
@@ -47,9 +50,6 @@ void printString(const char *str, double x, double y, double size) {
 void timer(int id) {
     if(pause_flag == 0){
         time_step_counter++;
-        if(time_step_counter >= N){
-            time_step_counter = 0;
-        }
     }
     glutPostRedisplay();
 }
@@ -59,8 +59,8 @@ void drawTank(double time, double theta, double v) {
     Eigen::MatrixXd M(2, 15);
     M.row(0) << 1,-1,0,0,-1,-1,0,0,-1,1,0,0,3,3,0;
     M.row(1) << -2,-2,-2,-1,-1,1,1,2,2,2,2,1,0.5,-0.5,-1;
-
-    M = move_motif(M,0.0,0.0,0.0);
+    std::cout << "time_step_counter = " << time_step_counter << std::endl;
+    M = move_motif(M,result_x.at(time_step_counter),result_y.at(time_step_counter),result_psi.at(time_step_counter));
 
     glColor3f(1.0, 0.0, 1.0);
     glBegin(GL_LINE_STRIP);
@@ -132,23 +132,6 @@ void initgLOptions() {
 }
 
 int main(int argc, char *argv[]) {
-  //visualisation
-  glutInit (&argc, argv);
-  glutInitDisplayMode (GLUT_DOUBLE);
-  glutInitWindowSize (1200, 800);
-  glutInitWindowPosition (0, 0);
-  glutCreateWindow ("MPC Simulation");
-
-
-  glutDisplayFunc (display);
-  glutIdleFunc (display);
-  glutReshapeFunc (reshape);
-  glutKeyboardFunc (keyboard);
-
-
-  initgLOptions();
-  glutMainLoop ();
-
   std::ofstream result_file;
   int referece_count = 0; // reference step
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
@@ -164,8 +147,6 @@ int main(int argc, char *argv[]) {
   create_txt_file(&result_file);
   if(result_file.is_open())
     std::cout << "Created file for writing results \n";
-
-
 
   for(i = 0; i < SIZE_STATE; i++){
     x(i) = 0.0; //vehicle position
@@ -183,6 +164,9 @@ int main(int argc, char *argv[]) {
 
   std::cout << "Begin simulation \n";
   for(j = 0.0; j < T; j=j+DT){
+    result_x.push_back(x(0));
+    result_y.push_back(x(1));
+    result_psi.push_back(x(2));
     write_results(&result_file,x,u);
 
     //line
@@ -191,11 +175,7 @@ int main(int argc, char *argv[]) {
       ref_x(i) = x(0) + (DT*(i+1));
     }
 
-    //sinus
-    // for(i = 0; i < NB_POINTS_POLYFIT; i++){
-    //   ref_x(i) = x(0) + (DT*(i+1));
-    //   ref_y(i) = sin(0.1*ref_x(i));
-    // }
+
     referece_count += NB_POINTS_POLYFIT;
 
     x = Propagate(x,u);
@@ -222,6 +202,20 @@ int main(int argc, char *argv[]) {
     u(1) = result_mpc.at(1);
 
   }
+
+  glutInit (&argc, argv);
+  glutInitDisplayMode (GLUT_DOUBLE);
+  glutInitWindowSize (1200, 800);
+  glutInitWindowPosition (0, 0);
+  glutCreateWindow ("MPC Simulation");
+
+  glutDisplayFunc (display);
+  glutIdleFunc (display);
+  glutReshapeFunc (reshape);
+  glutKeyboardFunc (keyboard);
+
+  initgLOptions();
+  glutMainLoop ();
 
   std::cout << "End simulation \n";
   result_file.close();
