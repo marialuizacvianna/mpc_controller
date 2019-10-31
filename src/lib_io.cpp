@@ -55,6 +55,7 @@ void timer(int id) {
 
 void drawTank() {
     double time = time_step_counter*DT + ti;
+
     // Tank
     Eigen::MatrixXd M(2, 15);
     M.row(0) << 1/5.0,-1/5.0,0,0,-1/5.0,-1/5.0,0,0,-1/5.0,1/5.0,0,0,3/5.0,3/5.0,0;
@@ -69,12 +70,10 @@ void drawTank() {
     glEnd();
 
     glColor3f(0.0, 0.0, 1.0);
-    if(time_step_counter > 0){
-      glBegin(GL_LINE_STRIP);
-      for(int i = 0; i <= time_step_counter ; i ++)
-        glVertex3d(result_x.at(i),  result_y.at(i),  0.0);
-      glEnd();
-    }
+    glBegin(GL_LINE_STRIP);
+    for(int i = 0; i <= time_step_counter ; i ++)
+      glVertex3d(result_x.at(i),  result_y.at(i),  0.0);
+    glEnd();
 
     // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
