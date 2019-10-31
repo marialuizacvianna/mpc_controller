@@ -18,7 +18,7 @@
 
 // pendulum parameters
 int l = 10, N = 2500;
-double ti = 0, tf = 20;
+double ti = 0, tf = T;
 int time_step_counter = 0, pause_flag = 0;
 int ms_per_frame = 5;
 std::vector<double> result_x;
@@ -54,12 +54,12 @@ void timer(int id) {
     glutPostRedisplay();
 }
 
-void drawTank(double time, double theta, double v) {
+void drawTank() {
+    double time = time_step_counter*DT + ti;
     // Tank
     Eigen::MatrixXd M(2, 15);
-    M.row(0) << 1,-1,0,0,-1,-1,0,0,-1,1,0,0,3,3,0;
-    M.row(1) << -2,-2,-2,-1,-1,1,1,2,2,2,2,1,0.5,-0.5,-1;
-    std::cout << "time_step_counter = " << time_step_counter << std::endl;
+    M.row(0) << 1/5.0,-1/5.0,0,0,-1/5.0,-1/5.0,0,0,-1/5.0,1/5.0,0,0,3/5.0,3/5.0,0;
+    M.row(1) << -2/5.0,-2/5.0,-2/5.0,-1/5.0,-1/5.0,1/5.0,1/5.0,2/5.0,2/5.0,2/5.0,2/5.0,1/5.0,0.5/5.0,-0.5/5.0,-1/5.0;
     M = move_motif(M,result_x.at(time_step_counter),result_y.at(time_step_counter),result_psi.at(time_step_counter));
 
     glColor3f(1.0, 0.0, 1.0);
@@ -82,8 +82,8 @@ void drawReference() {
     glLineWidth(0.5);
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINES);
-    glVertex2f(-100,0);
-    glVertex2f( 100,0);
+    glVertex2f(-5,0);
+    glVertex2f( 1000,0);
     glEnd();
 }
 
@@ -94,13 +94,13 @@ void display(void) {
     glLoadIdentity();
     glTranslatef(0,0,-20);
     glColor3f(1,1,1);
-    drawTank(0.0,0.0,0.0);
+    drawTank();
     drawReference();
     glutSwapBuffers();
 }
 
 void reshape (int w, int h) {
-    glViewport (0, 0, (GLsizei)w, (GLsizei)h);
+    glViewport (-100, 0, (GLsizei)w, (GLsizei)h);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity ();
     gluPerspective (60, (GLfloat)w / (GLfloat)h, 0.1, 100.0);
@@ -171,7 +171,7 @@ int main(int argc, char *argv[]) {
 
     //line
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
-      ref_y(i) = 1.0;
+      ref_y(i) = 0.0;
       ref_x(i) = x(0) + (DT*(i+1));
     }
 
@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
     u(1) = result_mpc.at(1);
 
   }
-
+  std::cout << "Begin visualisation \n";
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (1200, 800);
