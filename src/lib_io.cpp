@@ -1,28 +1,143 @@
 #include "lib/Matplotlib/matplotlibcpp.h"
 #include "lib/io/lib_io.h"
+#include "lib/mpc/lib_mpc.h"
 #include <stdio.h>
 namespace plt = matplotlibcpp;
 
-void draw_tank(Eigen::VectorXd x ,char* color , float r = 0.3){
-  Eigen::MatrixXd M(2, 15);
-  M.row(0) << 1,-1,0,0,-1,-1,0,0,-1,1,0,0,3,3,0;
-  M.row(1) << -2,-2,-2,-1,-1,1,1,2,2,2,2,1,0.5,-0.5,-1;
+double ti = 0.0, tf = T;
+int time_step_counter = 0, pause_flag = 0;
+int ms_per_frame = 5;
+double trans_lastx;
+double trans_corr = -1;
 
-  M = move_motif(M,x(0),x(1),x(2));
 
-  std::vector<float> x_plot;
-  std::vector<float> y_plot;
+std::vector<double> result_x;
+std::vector<double> result_y;
+std::vector<double> result_psi;
 
-  for(int i = 0; i < 15; i ++){
-    x_plot.push_back(M(0,i));
-    y_plot.push_back(M(1,i));
-  }
 
-  plt::plot(x_plot, y_plot);
+void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi){
+  result_x = x;
+  result_y = y;
+  result_psi = psi;
+}
 
-  plt::show();
 
-  // plt.pause(0.01);
+void printString(const char *str, double x, double y, double size) {
+   glPushMatrix();
+   glTranslatef(x,y,0);
+   glScalef(size/153.0,size/153.0,1.0);
+   int lineCt = 0;
+   int len = strlen(str);
+   for (int i = 0; i < len; i++) {
+      if (str[i] == '\n') {
+         lineCt++;
+         glPopMatrix();
+         glPushMatrix();
+         glTranslatef(x,y-size*1.15*lineCt,0);
+         glScalef(size/153.0,size/153.0,1.0);
+      }
+      else {
+         glutStrokeCharacter(GLUT_STROKE_ROMAN,str[i]);
+         //glutStrokeCharacter(GLUT_BITMAP_TIMES_ROMAN_24,str[i]);
+      }
+   }
+   glPopMatrix();
+}
+
+void timer(int id) {
+    if(pause_flag == 0){
+        time_step_counter++;
+    }
+    glutPostRedisplay();
+}
+
+
+void drawTank() {
+    double time = time_step_counter*DT + ti;
+    // Tank
+    Eigen::MatrixXd M(2, 15);
+    M.row(0) << 1/5.0,-1/5.0,0,0,-1/5.0,-1/5.0,0,0,-1/5.0,1/5.0,0,0,3/5.0,3/5.0,0;
+    M.row(1) << -2/5.0,-2/5.0,-2/5.0,-1/5.0,-1/5.0,1/5.0,1/5.0,2/5.0,2/5.0,2/5.0,2/5.0,1/5.0,0.5/5.0,-0.5/5.0,-1/5.0;
+    M = move_motif(M,result_x.at(time_step_counter),result_y.at(time_step_counter),result_psi.at(time_step_counter));
+
+    glColor3f(1.0, 0.0, 1.0);
+    glBegin(GL_LINE_STRIP);
+    for(int i = 0; i < 15; i ++){
+      glVertex3d(M(0,i),  M(1,i),  0.0);
+    }
+    glEnd();
+
+    glColor3f(0.0, 0.0, 1.0);
+    if(time_step_counter > 0){
+      glBegin(GL_LINE_STRIP);
+      for(int i = 0; i <= time_step_counter ; i ++)
+        glVertex3d(result_x.at(i),  result_y.at(i),  0.0);
+      glEnd();
+    }
+
+    // Time string
+    char *mystr = (char*)malloc(100*sizeof(char));
+    sprintf(mystr,"Time %4.2f : %4.2f : %4.2f\n", ti,time,tf);
+    if(trans_corr > -1)
+      printString(mystr, 2+ (trans_corr*35), 8, 0.5);
+    else
+      printString(mystr, 2, 8, 0.5);
+
+    free(mystr);
+}
+
+
+void drawReference() {
+    // Reference line
+    glLineWidth(0.5);
+    glColor3f(1.0, 0.0, 0.0);
+    glBegin(GL_LINES);
+    glVertex2f(-1000,0);
+    glVertex2f( 1000,0);
+    glEnd();
+}
+
+
+void display() {
+    double deltax;
+    glutTimerFunc(ms_per_frame,timer,1);
+    glClearColor (0.0,0.0,0.0,1.0);
+    glClear (GL_COLOR_BUFFER_BIT);
+    glLoadIdentity();
+    if(trans_corr == -1){
+      trans_lastx = result_x.at(time_step_counter);
+      trans_corr = 0;
+    }
+    else{
+        deltax = result_x.at(time_step_counter) - trans_lastx;
+        if (deltax >= 35 ){
+            trans_corr ++ ;
+            trans_lastx = result_x.at(time_step_counter);
+        }
+    }
+
+    glTranslatef(-15 - (trans_corr*35),0,-20);
+    glColor3f(1,1,1);
+    drawTank();
+    drawReference();
+    glutSwapBuffers();
+}
+
+void reshape (int w, int h) {
+    glViewport (0, 0, (GLsizei)w, (GLsizei)h);
+    glMatrixMode (GL_PROJECTION);
+    glLoadIdentity ();
+    gluPerspective (60, (GLfloat)w / (GLfloat)h, 0.1, 100.0);
+    glMatrixMode (GL_MODELVIEW);
+}
+
+
+/* opengl options */
+void initgLOptions() {
+   glEnable(GL_BLEND);
+   glEnable(GL_LINE_SMOOTH);
+   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 }
 
 

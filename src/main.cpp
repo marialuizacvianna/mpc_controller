@@ -12,145 +12,11 @@
 #include "lib/io/lib_io.h"
 #include <string.h>
 #include <sstream>
-#include <GL/glut.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-
-// pendulum parameters
-int l = 10, N = 2500;
-double ti = 0, tf = T;
-int time_step_counter = 0, pause_flag = 0;
-int ms_per_frame = 5;
-std::vector<double> result_x;
-std::vector<double> result_y;
-std::vector<double> result_psi;
-double trans_lastx;
-double trans_corr = -1;
-
-void printString(const char *str, double x, double y, double size) {
-   glPushMatrix();
-   glTranslatef(x,y,0);
-   glScalef(size/153.0,size/153.0,1.0);
-   int lineCt = 0;
-   int len = strlen(str);
-   for (int i = 0; i < len; i++) {
-      if (str[i] == '\n') {
-         lineCt++;
-         glPopMatrix();
-         glPushMatrix();
-         glTranslatef(x,y-size*1.15*lineCt,0);
-         glScalef(size/153.0,size/153.0,1.0);
-      }
-      else {
-         glutStrokeCharacter(GLUT_STROKE_ROMAN,str[i]);
-         //glutStrokeCharacter(GLUT_BITMAP_TIMES_ROMAN_24,str[i]);
-      }
-   }
-   glPopMatrix();
-}
-
-void timer(int id) {
-    if(pause_flag == 0){
-        time_step_counter++;
-    }
-    glutPostRedisplay();
-}
-
-void drawTank() {
-    double time = time_step_counter*DT + ti;
-    // Tank
-    Eigen::MatrixXd M(2, 15);
-    M.row(0) << 1/5.0,-1/5.0,0,0,-1/5.0,-1/5.0,0,0,-1/5.0,1/5.0,0,0,3/5.0,3/5.0,0;
-    M.row(1) << -2/5.0,-2/5.0,-2/5.0,-1/5.0,-1/5.0,1/5.0,1/5.0,2/5.0,2/5.0,2/5.0,2/5.0,1/5.0,0.5/5.0,-0.5/5.0,-1/5.0;
-    M = move_motif(M,result_x.at(time_step_counter),result_y.at(time_step_counter),result_psi.at(time_step_counter));
-
-    glColor3f(1.0, 0.0, 1.0);
-    glBegin(GL_LINE_STRIP);
-    for(int i = 0; i < 15; i ++){
-      glVertex3d(M(0,i),  M(1,i),  0.0);
-    }
-    glEnd();
-
-    // Time string
-    char *mystr = (char*)malloc(100*sizeof(char));
-    sprintf(mystr,"Time %4.2f : %4.2f : %4.2f\n", ti,time,tf);
-    if(trans_corr > -1)
-      printString(mystr, 2+ (trans_corr*35), 8, 0.5);
-    else
-      printString(mystr, 2, 8, 0.5);  
-
-    free(mystr);
-}
-
-
-void drawReference() {
-    // Reference line
-    glLineWidth(0.5);
-    glColor3f(1.0, 0.0, 0.0);
-    glBegin(GL_LINES);
-    glVertex2f(-1000,0);
-    glVertex2f( 1000,0);
-    glEnd();
-}
-
-void display(void) {
-    double deltax;
-    glutTimerFunc(ms_per_frame,timer,1);
-    glClearColor (0.0,0.0,0.0,1.0);
-    glClear (GL_COLOR_BUFFER_BIT);
-    glLoadIdentity();
-    if(trans_corr == -1){
-      trans_lastx = result_x.at(time_step_counter);
-      trans_corr = 0;
-    }
-    else{
-        deltax = result_x.at(time_step_counter) - trans_lastx;
-        if (deltax >= 35 ){
-            trans_corr ++ ;
-            trans_lastx = result_x.at(time_step_counter);
-        }
-    }
-
-    glTranslatef(-15 - (trans_corr*35),0,-20);
-    glColor3f(1,1,1);
-    drawTank();
-    drawReference();
-    glutSwapBuffers();
-}
-
-void reshape (int w, int h) {
-    glViewport (0, 0, (GLsizei)w, (GLsizei)h);
-    glMatrixMode (GL_PROJECTION);
-    glLoadIdentity ();
-    gluPerspective (60, (GLfloat)w / (GLfloat)h, 0.1, 100.0);
-    glMatrixMode (GL_MODELVIEW);
-}
-
-/* quit on escape key press and toggle start/stop of simulation with s key */
-void keyboard(unsigned char key, int x, int y){
-    switch (key) {
-        case 27:
-            exit(0);
-            break;
-        case 115:
-            if(pause_flag == 0){
-                pause_flag = 1;
-            }
-            else{
-                pause_flag = 0;
-            }
-            break;
-    }
-}
-
-/* opengl options */
-void initgLOptions() {
-   glEnable(GL_BLEND);
-   glEnable(GL_LINE_SMOOTH);
-   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-}
 
 int main(int argc, char *argv[]) {
+  std::vector<double> result_x;
+  std::vector<double> result_y;
+  std::vector<double> result_psi;
   std::ofstream result_file;
   int referece_count = 0; // reference step
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
@@ -222,6 +88,7 @@ int main(int argc, char *argv[]) {
 
   }
   std::cout << "Begin visualisation \n";
+  glGetResults(result_x,result_y,result_psi);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);
@@ -231,7 +98,6 @@ int main(int argc, char *argv[]) {
   glutDisplayFunc (display);
   glutIdleFunc (display);
   glutReshapeFunc (reshape);
-  glutKeyboardFunc (keyboard);
 
   initgLOptions();
   glutMainLoop ();

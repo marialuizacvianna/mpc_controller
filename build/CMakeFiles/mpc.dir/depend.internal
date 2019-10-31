@@ -162,6 +162,7 @@ CMakeFiles/mpc.dir/src/lib_io.cpp.o
  /home/maria/Documents/MPC/mpc_controller/src/lib/Eigen-3.3/Eigen/src/plugins/MatrixCwiseUnaryOps.h
  /home/maria/Documents/MPC/mpc_controller/src/lib/Matplotlib/matplotlibcpp.h
  /home/maria/Documents/MPC/mpc_controller/src/lib/io/lib_io.h
+ /home/maria/Documents/MPC/mpc_controller/src/lib/mpc/lib_mpc.h
  /home/maria/Documents/MPC/mpc_controller/src/lib_io.cpp
  /usr/include/python3.6m/Python.h
  /usr/include/python3.6m/abstract.h
