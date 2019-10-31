@@ -16,7 +16,7 @@
 const std::string io_path = "../results/";
 
 void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi);
-
+void glGetCosts(std::vector<double> costs);
 //OpenGL functions
 void printString(const char *str, double x, double y, double size);
 void timer(int id);

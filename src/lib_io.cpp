@@ -15,6 +15,8 @@ std::vector<double> result_x;
 std::vector<double> result_y;
 std::vector<double> result_psi;
 
+std::vector<double> result_cost;
+
 
 void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi){
   result_x = x;
@@ -22,6 +24,9 @@ void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<dou
   result_psi = psi;
 }
 
+void glGetCosts(std::vector<double> costs){
+  result_cost = costs;
+}
 
 void printString(const char *str, double x, double y, double size) {
    glPushMatrix();
@@ -77,11 +82,15 @@ void drawTank() {
 
     // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
-    sprintf(mystr,"Time %4.2f : %4.2f : %4.2f\n", ti,time,tf);
-    if(trans_corr > -1)
+    sprintf(mystr,"Time %4.2f : %4.2f : %4.2f  --  Cost = %4.2f\n", ti,time,tf,result_cost.at(time_step_counter));
+
+    if(trans_corr > -1){
       printString(mystr, 2+ (trans_corr*35), 8, 0.5);
-    else
+    }
+    else{
       printString(mystr, 2, 8, 0.5);
+    }
+
 
     free(mystr);
 }

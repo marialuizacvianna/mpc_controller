@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
   std::vector<double> result_x;
   std::vector<double> result_y;
   std::vector<double> result_psi;
+  std::vector<double> result_cost;
   std::ofstream result_file;
 
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
@@ -40,9 +41,9 @@ int main(int argc, char *argv[]) {
     x(i) = 0.0; //vehicle position
   }
 
-  x(1) = 5.0; //y
-  x(2) = -3.14; //theta
-  x(3) = 5.0; //speed
+  x(1) = X1; //y
+  x(2) = X2; //theta
+  x(3) = X3; //speed
 
 
   for(i = 0; i < SIZE_INPUT; i++){
@@ -51,6 +52,7 @@ int main(int argc, char *argv[]) {
 
   std::cout << "Begin simulation \n";
   for(j = 0.0; j < T; j=j+DT){
+    std::cout << "Time = " << j << std::endl;
     result_x.push_back(x(0));
     result_y.push_back(x(1));
     result_psi.push_back(x(2));
@@ -71,6 +73,7 @@ int main(int argc, char *argv[]) {
     Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y, 3);
     //it  actualizes the function offset error
     x(4) = poly_coeffs(0);
+    std::cout << "x(4) = " << x(4) << std::endl;;
 
     // it calculate the vehicle's orientation error
     // f(x) is the polynomial defining the reference trajectory
@@ -84,9 +87,11 @@ int main(int argc, char *argv[]) {
     result_mpc = Solve_MPC(x,poly_coeffs);
     u(0) = result_mpc.at(0);
     u(1) = result_mpc.at(1);
+    result_cost.push_back(result_mpc.at(2));
 
   }
   std::cout << "Begin visualisation \n";
+  glGetCosts(result_cost);
   glGetResults(result_x,result_y,result_psi);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
