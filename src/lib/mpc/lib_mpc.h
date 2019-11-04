@@ -16,11 +16,11 @@
 #define LF                 1.0
 #define DT                 0.01
 #define CONTROL_HORIZON    10
-#define T                  50
+#define T                  30
 #define LINE               0.0
 #define X1                 5.0 //y
 #define X2                 0.0 //yaw
-#define X3                 5.0 // sped
+#define X3                 1.0 // sped
 
 #define REF_V                            1.0
 #define REF_OFFSET                       0.0

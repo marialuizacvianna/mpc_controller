@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
 
   std::vector<double> result_mpc;
 
+  double last_x = 0.0;
+
   int i = 0; //iterator
   float j = 0.0;//iterator
 
@@ -62,10 +64,13 @@ int main(int argc, char *argv[]) {
     //line
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
       ref_y(i) = LINE;
-      ref_x(i) = x(0) + (DT*(i));
+      ref_x(i) = last_x + (DT*(i));
     }
 
+    last_x = ref_x(NB_POINTS_POLYFIT - 1);
+
     x = Propagate(x,u);
+    
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
       ref_y(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
       ref_x(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
