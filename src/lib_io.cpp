@@ -9,7 +9,7 @@ int time_step_counter = 0, pause_flag = 0;
 int ms_per_frame = 5;
 double trans_lastx;
 double trans_corr = -1;
-
+double last_x = 0.0;
 
 std::vector<double> result_x;
 std::vector<double> result_y;
@@ -118,12 +118,24 @@ void drawRobotReference() {
     }
     glEnd();
 
-    std::cout << "ref_x = " << ref_x << std::endl;
-    std::cout << "ref_y = " << ref_y << std::endl;
+    glLineWidth(10.0);
+    glColor3f(255,20,147);
+    glBegin(GL_LINE_STRIP);
 
-    std::cout << "psi = " << result_psi.at(time_step_counter) << std::endl;
+    for (int i=0; i < NB_POINTS_POLYFIT; i ++){
+      glVertex2f(result_x.at(time_step_counter) + (DT*(i + 1)),LINE);
+    }
 
-    getchar();
+    glEnd();
+
+    last_x = ref_x(NB_POINTS_POLYFIT - 1);
+
+    // std::cout << "ref_x = " << ref_x << std::endl;
+    // std::cout << "ref_y = " << ref_y << std::endl;
+    //
+    // std::cout << "psi = " << result_psi.at(time_step_counter) << std::endl;
+    //
+    // getchar();
 
     // float begin_x = poly_coeffs(4);
     // float end_x = poly_coeffs(5);

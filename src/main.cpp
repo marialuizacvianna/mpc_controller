@@ -34,15 +34,10 @@ int main(int argc, char *argv[]) {
   int i = 0; //iterator
   float j = 0.0;//iterator
 
-  std::chrono::time_point<std::chrono::system_clock> start;
-
   create_txt_file(&result_file);
   if(result_file.is_open())
     std::cout << "Created file for writing results \n";
 
-  for(i = 0; i < SIZE_STATE; i++){
-    x(i) = 0.0; //vehicle position
-  }
 
   x(1) = X1; //y
   x(2) = X2; //theta
@@ -64,7 +59,7 @@ int main(int argc, char *argv[]) {
     //line
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
       ref_y(i) = LINE;
-      ref_x(i) = last_x + (DT*(i + 1));
+      ref_x(i) = x(0) + (DT*(i + 1));
     }
 
     last_x = ref_x(NB_POINTS_POLYFIT - 1);
