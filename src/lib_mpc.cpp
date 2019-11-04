@@ -44,18 +44,18 @@ class FG_eval
     // 3. diff bw v and ref_v
     for (int t = 0; t < CONTROL_HORIZON; t++)
     {
-      fg[0] += 5*CppAD::pow(vars[offset_start + t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
-      fg[0] += 0.01*CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
+      fg[0] += 1000*CppAD::pow(vars[offset_start + t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
+      fg[0] += CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
       // fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
 
-    //Minimize the use of actuators
+    // Minimize the use of actuators
     // for (int t = 0; t < CONTROL_HORIZON - 1; t++)
     // {
     //   fg[0] += 0.001*CppAD::pow(vars[delta_start + t], 2);
     //   // fg[0] += 10*CppAD::pow(vars[a_start + t], 2);
     // }
-
+    //
     // Minimize the value gap between sequential actuations.
     // for (int t = 0; t < CONTROL_HORIZON - 2; t++)
     // {
@@ -271,6 +271,7 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x, Eigen::VectorXd poly_coeffs){
   // Cost
   auto cost = solution.obj_value;
   std::cout << "cost = " << cost << std::endl;
+
   // set x_pred_vals and y_pred_vals for plotting
   x_pred_vals.clear();
   y_pred_vals.clear();
