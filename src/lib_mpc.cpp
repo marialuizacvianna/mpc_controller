@@ -16,7 +16,7 @@ size_t a_start = delta_start + CONTROL_HORIZON - 1;
 // Set the number of model variables (includes both states and inputs).
 size_t n_vars = SIZE_STATE*CONTROL_HORIZON + SIZE_INPUT*(CONTROL_HORIZON-1);
 // Set the number of constraints
-size_t n_constraints = (SIZE_STATE*CONTROL_HORIZON) + (CONTROL_HORIZON - 1);
+size_t n_constraints = (SIZE_STATE*CONTROL_HORIZON) ;//+ (CONTROL_HORIZON - 1);
 
 //Following the example from:
 //https://www.coin-or.org/CppAD/Doc/ipopt_solve_get_started.cpp.htm
@@ -45,7 +45,7 @@ class FG_eval
     for (int t = 0; t < CONTROL_HORIZON; t++)
     {
       fg[0] += CppAD::pow(vars[offset_start + t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
-      // fg[0] += 0.1*CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
+      fg[0] += 0.01*CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
       // fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
 
@@ -118,7 +118,7 @@ class FG_eval
       fg[1 + epsi_start + t] =
           epsi1 - ((psi0 - psides0) - v0 * delta0 / LF * DT);
 
-      fg[n_constraints - 1 - ((CONTROL_HORIZON - 1 - t))] = x1 - x0;
+      // fg[n_constraints - 1 - ((CONTROL_HORIZON - 1 - t))] = x1 - x0;
     }
   }
 };
@@ -215,11 +215,11 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x, Eigen::VectorXd poly_coeffs){
     constraints_upperbound[i] = 0;
   }
 
-  for (int i = 0; i <(CONTROL_HORIZON - 1) ; i++)
-  {
-    constraints_lowerbound[n_constraints - 1 - ((CONTROL_HORIZON - 1 - i))] = DT;
-    constraints_upperbound[n_constraints - 1 - ((CONTROL_HORIZON - 1 - i))] = 1.0e19;
-  }
+  // for (int i = 0; i <(CONTROL_HORIZON - 1) ; i++)
+  // {
+  //   constraints_lowerbound[n_constraints - 1 - ((CONTROL_HORIZON - 1 - i))] = DT;
+  //   constraints_upperbound[n_constraints - 1 - ((CONTROL_HORIZON - 1 - i))] = 1.0e19;
+  // }
 
   constraints_lowerbound[x_start] = x[0];
   constraints_lowerbound[y_start] = x[1];
