@@ -17,11 +17,13 @@ const std::string io_path = "../results/";
 
 void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi);
 void glGetCosts(std::vector<double> costs);
+void glGetCoefficients(std::vector<double> poly_coeffs_input);
 //OpenGL functions
 void printString(const char *str, double x, double y, double size);
 void timer(int id);
 void drawTank();
 void drawReference();
+void drawRobotReference();
 void display();
 void reshape (int w, int h);
 void initgLOptions();

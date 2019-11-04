@@ -17,6 +17,11 @@ std::vector<double> result_psi;
 
 std::vector<double> result_cost;
 
+std::vector<double> poly_coeffs_vector;
+
+void glGetCoefficients(std::vector<double> poly_coeffs_input){
+  poly_coeffs_vector = poly_coeffs_input;
+}
 
 void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi){
   result_x = x;
@@ -95,6 +100,29 @@ void drawTank() {
     free(mystr);
 }
 
+void drawRobotReference() {
+    // Reference line
+    float ref_x, ref_y;
+
+    glLineWidth(2.5);
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_LINE_STRIP);
+
+    for (int i=0; i < NB_POINTS_POLYFIT; i ++){
+      ref_x = poly_coeffs_vector.at((time_step_counter*(NB_POINTS_POLYFIT*2)) + i);
+      ref_y = poly_coeffs_vector.at((time_step_counter*(NB_POINTS_POLYFIT*2)) + i + NB_POINTS_POLYFIT);
+      glVertex2f(ref_x,ref_y);
+    }
+
+    glEnd();
+
+    // float begin_x = poly_coeffs(4);
+    // float end_x = poly_coeffs(5);
+    //
+    // float line_begin = poly_coeffs(0) + poly_coeffs(1)*begin_x + poly_coeffs(2)*(begin_x*begin_x) + poly_coeffs(3)*(begin_x*begin_x*begin_x);
+    // float line_end = poly_coeffs(0) + poly_coeffs(1)*end_x + poly_coeffs(2)*(end_x*end_x) + poly_coeffs(3)*(end_x*end_x*end_x);
+
+}
 
 void drawReference() {
     // Reference line
@@ -128,6 +156,7 @@ void display() {
     glTranslatef(-15 - (trans_corr*35),0,-20);
     glColor3f(1,1,1);
     drawTank();
+    drawRobotReference();
     drawReference();
     glutSwapBuffers();
 }
