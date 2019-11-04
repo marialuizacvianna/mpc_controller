@@ -30,5 +30,6 @@
 Eigen::VectorXd Propagate(Eigen::VectorXd,Eigen::VectorXd);
 Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n);
 std::vector<double> Solve_MPC(Eigen::VectorXd state, Eigen::VectorXd coeffs);
+double test_cost(Eigen::VectorXd solution_offset,Eigen::VectorXd solution_epsi);
 
 #endif
