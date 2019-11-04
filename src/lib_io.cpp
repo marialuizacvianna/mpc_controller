@@ -17,10 +17,12 @@ std::vector<double> result_psi;
 
 std::vector<double> result_cost;
 
-std::vector<double> poly_coeffs_vector;
+std::vector<double> ref_x_vector;
+std::vector<double> ref_y_vector;
 
-void glGetCoefficients(std::vector<double> poly_coeffs_input){
-  poly_coeffs_vector = poly_coeffs_input;
+void glGetCoefficients(std::vector<double> ref_x_vector_input,std::vector<double>  ref_y_vector_input){
+  ref_x_vector = ref_x_vector_input;
+  ref_y_vector = ref_y_vector_input;
 }
 
 void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi){
@@ -102,19 +104,26 @@ void drawTank() {
 
 void drawRobotReference() {
     // Reference line
-    float ref_x, ref_y;
+    Eigen::VectorXd ref_x(NB_POINTS_POLYFIT);
+    Eigen::VectorXd ref_y(NB_POINTS_POLYFIT);
 
     glLineWidth(2.5);
     glColor3f(1.0, 1.0, 0.0);
     glBegin(GL_LINE_STRIP);
 
     for (int i=0; i < NB_POINTS_POLYFIT; i ++){
-      ref_x = poly_coeffs_vector.at((time_step_counter*(NB_POINTS_POLYFIT*2)) + i);
-      ref_y = poly_coeffs_vector.at((time_step_counter*(NB_POINTS_POLYFIT*2)) + i + NB_POINTS_POLYFIT);
-      glVertex2f(ref_x,ref_y);
+      ref_x(i) = ref_x_vector.at((time_step_counter*(NB_POINTS_POLYFIT)) + i);
+      ref_y(i) = ref_y_vector.at((time_step_counter*(NB_POINTS_POLYFIT)) + i);
+      glVertex2f(ref_x(i),ref_y(i));
     }
-
     glEnd();
+
+    std::cout << "ref_x = " << ref_x << std::endl;
+    std::cout << "ref_y = " << ref_y << std::endl;
+
+    std::cout << "psi = " << result_psi.at(time_step_counter) << std::endl;
+
+    getchar();
 
     // float begin_x = poly_coeffs(4);
     // float end_x = poly_coeffs(5);

@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
   std::vector<double> result_y;
   std::vector<double> result_psi;
   std::vector<double> result_cost;
-  std::vector<double> poly_coeffs_vector;
+  std::vector<double> ref_x_vector, ref_y_vector;
   std::ofstream result_file;
 
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
@@ -64,18 +64,18 @@ int main(int argc, char *argv[]) {
     //line
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
       ref_y(i) = LINE;
-      ref_x(i) = last_x + (DT*(i));
+      ref_x(i) = last_x + (DT*(i + 1));
     }
 
     last_x = ref_x(NB_POINTS_POLYFIT - 1);
 
     x = Propagate(x,u);
-    
+
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
       ref_y(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
       ref_x(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
-      poly_coeffs_vector.push_back(ref_x(i));
-      poly_coeffs_vector.push_back(ref_y(i));
+      ref_x_vector.push_back(ref_x(i));
+      ref_y_vector.push_back(ref_y(i));
     }
 
     Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y, 3);
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
   }
   std::cout << "Begin visualisation \n";
   glGetCosts(result_cost);
-  glGetCoefficients(poly_coeffs_vector);
+  glGetCoefficients(ref_x_vector,ref_y_vector);
   glGetResults(result_x,result_y,result_psi);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
