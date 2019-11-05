@@ -34,7 +34,7 @@ double test_cost_1(Eigen::VectorXd solution_epsi ){
   double cost = 0.0;
   for (int t = 0; t < CONTROL_HORIZON; t++)
   {
-    cost += pow(solution_epsi[t] - REF_PSI_ERR, 2);
+    cost += 10*pow(solution_epsi[t] - REF_PSI_ERR, 2);
 
   }
 
@@ -69,7 +69,7 @@ class FG_eval
     for (int t = 0; t < CONTROL_HORIZON; t++)
     {
       fg[0] += 1000*CppAD::pow(vars[offset_start + t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
-      fg[0] += CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
+      fg[0] += 10*CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
       // fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
 
