@@ -19,20 +19,24 @@ size_t n_vars = SIZE_STATE*CONTROL_HORIZON + SIZE_INPUT*(CONTROL_HORIZON-1);
 size_t n_constraints = (SIZE_STATE*CONTROL_HORIZON) ;//+ (CONTROL_HORIZON - 1);
 
 
-double test_cost(Eigen::VectorXd solution_offset,Eigen::VectorXd solution_epsi ){
+double test_cost_0(Eigen::VectorXd solution_offset){
   double cost = 0.0;
-  double cost_aux = 0.0;
   for (int t = 0; t < CONTROL_HORIZON; t++)
   {
     cost += 1000*pow(solution_offset[ t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
   }
-  std::cout << "test_cost 0 = " << cost << std::endl;
+  return cost;
+
+}
+
+
+double test_cost_1(Eigen::VectorXd solution_epsi ){
+  double cost = 0.0;
   for (int t = 0; t < CONTROL_HORIZON; t++)
   {
     cost += pow(solution_epsi[t] - REF_PSI_ERR, 2);
-    cost_aux += pow(solution_epsi[t] - REF_PSI_ERR, 2);
+
   }
-  std::cout << "test_cost 1 = " << cost_aux << std::endl;
 
   return cost;
 
@@ -301,9 +305,9 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x, Eigen::VectorXd poly_coeffs){
     solution_epsi(t) = solution.x[epsi_start + t];
   }
 
-  double test_cost_result = test_cost(solution_offset, solution_epsi);
+  double test_cost_0_result = test_cost_0(solution_offset);
+  double test_cost_1_result = test_cost_1(solution_epsi);
 
-  std::cout << "test_cost = " << test_cost_result << std::endl;
 
-  return {solution.x[delta_start], solution.x[a_start], cost};
+  return {solution.x[delta_start], solution.x[a_start], cost,test_cost_0_result,test_cost_1_result};
 }

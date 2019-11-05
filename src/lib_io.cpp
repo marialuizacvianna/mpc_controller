@@ -16,6 +16,8 @@ std::vector<double> result_y;
 std::vector<double> result_psi;
 
 std::vector<double> result_cost;
+std::vector<double> result_cost_0;
+std::vector<double> result_cost_1;
 
 std::vector<double> ref_x_vector;
 std::vector<double> ref_y_vector;
@@ -31,8 +33,10 @@ void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<dou
   result_psi = psi;
 }
 
-void glGetCosts(std::vector<double> costs){
+void glGetCosts(std::vector<double> costs,std::vector<double> costs_0,std::vector<double> costs_1){
   result_cost = costs;
+  result_cost_0 = costs_0;
+  result_cost_1 = costs_1;
 }
 
 void printString(const char *str, double x, double y, double size) {
@@ -89,7 +93,8 @@ void drawTank() {
 
     // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
-    sprintf(mystr,"Time %4.2f : %4.2f : %4.2f  --  Cost = %4.2f\n", ti,time,tf,result_cost.at(time_step_counter));
+    sprintf(mystr,"Time %4.2f : %4.2f : %4.2f  --  Cost = %4.2f, Cost offset  = %4.2f,  Cost epsi = %4.2f\n",
+     ti,time,tf,result_cost.at(time_step_counter),result_cost_0.at(time_step_counter),result_cost_1.at(time_step_counter));
 
     if(trans_corr > -1){
       printString(mystr, 2+ (trans_corr*35), 8, 0.5);
@@ -180,7 +185,7 @@ void display() {
     drawRobotReference();
     drawReference();
     glutSwapBuffers();
-     getchar();
+     // getchar();
 }
 
 void reshape (int w, int h) {

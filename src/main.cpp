@@ -18,6 +18,8 @@ int main(int argc, char *argv[]) {
   std::vector<double> result_y;
   std::vector<double> result_psi;
   std::vector<double> result_cost;
+  std::vector<double> result_cost_0;
+  std::vector<double> result_cost_1;
   std::vector<double> ref_x_vector, ref_y_vector;
   std::ofstream result_file;
 
@@ -92,10 +94,12 @@ int main(int argc, char *argv[]) {
     u(0) = result_mpc.at(0);
     u(1) = result_mpc.at(1);
     result_cost.push_back(result_mpc.at(2));
+    result_cost_0.push_back(result_mpc.at(3));
+    result_cost_1.push_back(result_mpc.at(4));
 
   }
   std::cout << "Begin visualisation \n";
-  glGetCosts(result_cost);
+  glGetCosts(result_cost,result_cost_0,result_cost_1);
   glGetCoefficients(ref_x_vector,ref_y_vector);
   glGetResults(result_x,result_y,result_psi);
   glutInit (&argc, argv);
