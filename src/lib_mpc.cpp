@@ -24,7 +24,6 @@ double test_cost_0(Eigen::VectorXd solution_offset){
   for (int t = 0; t < CONTROL_HORIZON; t++)
   {
     cost += 1000*pow(solution_offset[t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
-    std::cout << "t = " << t << " solution_offset[t] =  " << solution_offset[t] << "  REF_OFFSET  =  " << REF_OFFSET << std::endl;
   }
   return cost;
 
@@ -295,7 +294,6 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x, Eigen::VectorXd poly_coeffs){
 
   // Cost
   auto cost = solution.obj_value;
-  std::cout << "cost = " << cost << std::endl;
 
   Eigen::VectorXd solution_offset(CONTROL_HORIZON);
   Eigen::VectorXd solution_epsi(CONTROL_HORIZON);

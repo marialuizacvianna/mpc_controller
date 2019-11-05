@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
   std::vector<double> result_cost_0;
   std::vector<double> result_cost_1;
   std::vector<double> ref_x_vector, ref_y_vector;
-  std::ofstream result_file;
+  // std::ofstream result_file;
 
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
   Eigen::VectorXd ref_y(NB_POINTS_POLYFIT); //vector with reference y positions
@@ -36,9 +36,9 @@ int main(int argc, char *argv[]) {
   int i = 0; //iterator
   float j = 0.0;//iterator
 
-  create_txt_file(&result_file);
-  if(result_file.is_open())
-    std::cout << "Created file for writing results \n";
+  // create_txt_file(&result_file);
+  // if(result_file.is_open())
+  //   std::cout << "Created file for writing results \n";
 
 
   x(1) = X1; //y
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
     result_x.push_back(x(0));
     result_y.push_back(x(1));
     result_psi.push_back(x(2));
-    write_results(&result_file,x,u);
+    // write_results(&result_file,x,u);
 
     //line
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
   glutMainLoop ();
 
   std::cout << "End simulation \n";
-  result_file.close();
+  // result_file.close();
 
   return 0;
 }

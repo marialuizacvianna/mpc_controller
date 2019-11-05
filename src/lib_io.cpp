@@ -93,8 +93,8 @@ void drawTank() {
 
     // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
-    sprintf(mystr,"Time %4.2f : %4.2f : %4.2f  --  Cost = %4.2f, Cost offset  = %4.2f,  Cost epsi = %4.2f\n",
-     ti,time,tf,result_cost.at(time_step_counter),result_cost_0.at(time_step_counter),result_cost_1.at(time_step_counter));
+    sprintf(mystr,"Time %4.2f : %4.2f : %4.2f  --  Cost = %4.2f\n",
+     ti,time,tf,result_cost.at(time_step_counter));
 
     if(trans_corr > -1){
       printString(mystr, 2+ (trans_corr*35), 8, 0.5);
@@ -134,19 +134,6 @@ void drawRobotReference() {
     glEnd();
 
     last_x = ref_x(NB_POINTS_POLYFIT - 1);
-
-    // std::cout << "ref_x = " << ref_x << std::endl;
-    // std::cout << "ref_y = " << ref_y << std::endl;
-    //
-    // std::cout << "psi = " << result_psi.at(time_step_counter) << std::endl;
-    //
-    // getchar();
-
-    // float begin_x = poly_coeffs(4);
-    // float end_x = poly_coeffs(5);
-    //
-    // float line_begin = poly_coeffs(0) + poly_coeffs(1)*begin_x + poly_coeffs(2)*(begin_x*begin_x) + poly_coeffs(3)*(begin_x*begin_x*begin_x);
-    // float line_end = poly_coeffs(0) + poly_coeffs(1)*end_x + poly_coeffs(2)*(end_x*end_x) + poly_coeffs(3)*(end_x*end_x*end_x);
 
 }
 
