@@ -142,7 +142,7 @@ class FG_eval
       fg[1 + offset_start + t] =
           cte1 - ((cte0) - (v0 * CppAD::sin(epsi0) * DT));
       fg[1 + epsi_start + t] =
-          epsi1 - ((psi0 - psides0) - v0 * delta0 / LF * DT);
+          epsi1 - (epsi0 - v0 * delta0 / LF * DT);
 
       // fg[n_constraints - 1 - ((CONTROL_HORIZON - 1 - t))] = x1 - x0;
     }
