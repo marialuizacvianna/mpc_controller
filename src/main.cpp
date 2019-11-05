@@ -64,6 +64,9 @@ int main(int argc, char *argv[]) {
       ref_x(i) = x(0) + (DT*(i + 1));
     }
 
+    // std::cout << "ref_x = " << ref_x <<std::endl;
+    // std::cout << "ref_y = " << ref_y <<std::endl;
+
     last_x = ref_x(NB_POINTS_POLYFIT - 1);
 
     x = Propagate(x,u);
@@ -77,9 +80,11 @@ int main(int argc, char *argv[]) {
 
     Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y, 3);
 
+
+    // std::cout << "ref_x = " << ref_x <<std::endl;
+    // std::cout << "ref_y = " << ref_y <<std::endl;
     //it  actualizes the function offset error
     x(4) = poly_coeffs(0);
-    std::cout << "x(4) = " << x(4) << std::endl;
 
     // it calculate the vehicle's orientation error
     // f(x) is the polynomial defining the reference trajectory
@@ -87,6 +92,10 @@ int main(int argc, char *argv[]) {
     // double d_f_x = 3*poly_coeffs[3]*pow(px,2) + 2*poly_coeffs[2]*px + poly_coeffs[1];
     double d_f_x = poly_coeffs(1);
     x(5) = -atan(d_f_x);
+
+
+
+    // getchar();
 
     // solve mpc for state and reference trajectory
     // returns [steering_angle, acceleration]
@@ -96,6 +105,7 @@ int main(int argc, char *argv[]) {
     result_cost.push_back(result_mpc.at(2));
     result_cost_0.push_back(result_mpc.at(3));
     result_cost_1.push_back(result_mpc.at(4));
+    // getchar();
 
   }
   std::cout << "Begin visualisation \n";

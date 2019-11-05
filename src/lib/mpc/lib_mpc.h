@@ -16,9 +16,9 @@
 #define LF                 1.0
 #define DT                 0.01
 #define CONTROL_HORIZON    10
-#define T                  100
-#define LINE               0.0
-#define X1                 -7.0 //y
+#define T                  30
+#define LINE               10.0
+#define X1                 2.0 //y
 #define X2                 0.0 //yaw
 #define X3                 1.0 // speed
 
