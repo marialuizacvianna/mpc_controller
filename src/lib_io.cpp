@@ -185,7 +185,7 @@ void display() {
     drawRobotReference();
     drawReference();
     glutSwapBuffers();
-     // getchar();
+    // getchar();
 }
 
 void reshape (int w, int h) {

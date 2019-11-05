@@ -23,7 +23,8 @@ double test_cost_0(Eigen::VectorXd solution_offset){
   double cost = 0.0;
   for (int t = 0; t < CONTROL_HORIZON; t++)
   {
-    cost += 1000*pow(solution_offset[ t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
+    cost += 1000*pow(solution_offset[t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
+    std::cout << "t = " << t << " solution_offset[t] =  " << solution_offset[t] << "  REF_OFFSET  =  " << REF_OFFSET << std::endl;
   }
   return cost;
 
@@ -74,11 +75,11 @@ class FG_eval
     }
 
     // Minimize the use of actuators
-    // for (int t = 0; t < CONTROL_HORIZON - 1; t++)
-    // {
-    //   fg[0] += 0.001*CppAD::pow(vars[delta_start + t], 2);
-    //   // fg[0] += 10*CppAD::pow(vars[a_start + t], 2);
-    // }
+    for (int t = 0; t < CONTROL_HORIZON - 1; t++)
+    {
+      fg[0] += CppAD::pow(vars[delta_start + t], 2);
+      fg[0] += CppAD::pow(vars[a_start + t], 2);
+    }
     //
     // Minimize the value gap between sequential actuations.
     // for (int t = 0; t < CONTROL_HORIZON - 2; t++)
