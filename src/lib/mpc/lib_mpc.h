@@ -10,16 +10,16 @@
 #include <cppad/ipopt/solve.hpp>
 #include <fstream>
 
-#define NB_POINTS_POLYFIT   50
+#define NB_POINTS_POLYFIT   100
 #define SIZE_STATE          6
 #define SIZE_INPUT          2
 #define LF                 1.0
 #define DT                 0.01
 #define CONTROL_HORIZON    10
-#define T                  30
+#define T                  100
 #define LINE               0.0
-#define X1                 5.0 //y
-#define X2                 -3.14 //yaw
+#define X1                 -7.0 //y
+#define X2                 0.0 //yaw
 #define X3                 1.0 // speed
 
 #define REF_V                            1.0

@@ -96,6 +96,9 @@ void drawTank() {
     sprintf(mystr,"Time %4.2f : %4.2f : %4.2f  --  Cost = %4.2f\n",
      ti,time,tf,result_cost.at(time_step_counter));
 
+    std::cout << "cost offset = " << result_cost_0.at(time_step_counter) << std::endl;
+    std::cout << "cost epsi = " << result_cost_1.at(time_step_counter) << std::endl;
+
     if(trans_corr > -1){
       printString(mystr, 2+ (trans_corr*35), 8, 0.5);
     }
