@@ -23,8 +23,9 @@ double test_cost_0(Eigen::VectorXd solution_offset){
   double cost = 0.0;
   for (int t = 0; t < CONTROL_HORIZON; t++)
   {
-    cost += 1000*pow(solution_offset[t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
+    cost += 100*pow(solution_offset[t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
   }
+  std::cout << "solution_offset = " <<  solution_offset << std::endl;
   return cost;
 
 }
@@ -68,17 +69,17 @@ class FG_eval
     // 3. diff bw v and ref_v
     for (int t = 0; t < CONTROL_HORIZON; t++)
     {
-      fg[0] += 1000*CppAD::pow(vars[offset_start + t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
+      fg[0] += 100*CppAD::pow(vars[offset_start + t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
       fg[0] += 10*CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
       // fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
 
     // Minimize the use of actuators
-    for (int t = 0; t < CONTROL_HORIZON - 1; t++)
-    {
-      fg[0] += 10*CppAD::pow(vars[delta_start + t], 2);
-      fg[0] += 10*CppAD::pow(vars[a_start + t], 2);
-    }
+    // for (int t = 0; t < CONTROL_HORIZON - 1; t++)
+    // {
+    //   fg[0] += 10*CppAD::pow(vars[delta_start + t], 2);
+    //   fg[0] += 10*CppAD::pow(vars[a_start + t], 2);
+    // }
     //
     // Minimize the value gap between sequential actuations.
     // for (int t = 0; t < CONTROL_HORIZON - 2; t++)
@@ -125,6 +126,7 @@ class FG_eval
 
       CppAD::AD<double> psides0 = CppAD::atan(f0prime);
 
+
       // equations for the model:
       // x_[t] = x[t-1] + v[t-1] * cos(psi[t-1]) * dt
       // y_[t] = y[t-1] + v[t-1] * sin(psi[t-1]) * dt
@@ -138,7 +140,7 @@ class FG_eval
       fg[1 + psi_start + t] = psi1 - (psi0 - v0 * delta0 / LF * DT);
       fg[1 + v_start + t] = v1 - (v0 + a0 * DT);
       fg[1 + offset_start + t] =
-          cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * DT));
+          cte1 - ((cte0) - (v0 * CppAD::sin(epsi0) * DT));
       fg[1 + epsi_start + t] =
           epsi1 - ((psi0 - psides0) - v0 * delta0 / LF * DT);
 
