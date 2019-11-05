@@ -12,6 +12,36 @@ size_t epsi_start = offset_start + CONTROL_HORIZON;
 size_t delta_start = epsi_start + CONTROL_HORIZON;
 size_t a_start = delta_start + CONTROL_HORIZON - 1;
 
+
+// Set the number of model variables (includes both states and inputs).
+size_t n_vars = SIZE_STATE*CONTROL_HORIZON + SIZE_INPUT*(CONTROL_HORIZON-1);
+// Set the number of constraints
+size_t n_constraints = (SIZE_STATE*CONTROL_HORIZON) ;//+ (CONTROL_HORIZON - 1);
+
+
+double test_cost_0(Eigen::VectorXd solution_offset){
+  double cost = 0.0;
+  for (int t = 0; t < CONTROL_HORIZON; t++)
+  {
+    cost += 1000*pow(solution_offset[t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
+  }
+  return cost;
+
+}
+
+
+double test_cost_1(Eigen::VectorXd solution_epsi ){
+  double cost = 0.0;
+  for (int t = 0; t < CONTROL_HORIZON; t++)
+  {
+    cost += 10*pow(solution_epsi[t] - REF_PSI_ERR, 2);
+
+  }
+
+  return cost;
+
+}
+
 //Following the example from:
 //https://www.coin-or.org/CppAD/Doc/ipopt_solve_get_started.cpp.htm
 class FG_eval
@@ -38,9 +68,9 @@ class FG_eval
     // 3. diff bw v and ref_v
     for (int t = 0; t < CONTROL_HORIZON; t++)
     {
-      fg[0] += 100*CppAD::pow(vars[offset_start + t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
+      fg[0] += 1000*CppAD::pow(vars[offset_start + t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
       fg[0] += 10*CppAD::pow(vars[epsi_start + t] - REF_PSI_ERR, 2);
-      fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
+      // fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
 
     // Minimize the use of actuators
@@ -49,13 +79,13 @@ class FG_eval
       fg[0] += 10*CppAD::pow(vars[delta_start + t], 2);
       fg[0] += 10*CppAD::pow(vars[a_start + t], 2);
     }
-
+    //
     // Minimize the value gap between sequential actuations.
-    for (int t = 0; t < CONTROL_HORIZON - 2; t++)
-    {
-      fg[0] += 130000*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
-      fg[0] += 100*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
-    }
+    // for (int t = 0; t < CONTROL_HORIZON - 2; t++)
+    // {
+    //   fg[0] += 130000*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+    //   fg[0] += 100*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
+    // }
 
     // -----------------------  model constraints
 
@@ -111,6 +141,8 @@ class FG_eval
           cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * DT));
       fg[1 + epsi_start + t] =
           epsi1 - ((psi0 - psides0) - v0 * delta0 / LF * DT);
+
+      // fg[n_constraints - 1 - ((CONTROL_HORIZON - 1 - t))] = x1 - x0;
     }
   }
 };
@@ -157,11 +189,6 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x, Eigen::VectorXd poly_coeffs){
   std::vector<double> x_pred_vals;
   std::vector<double> y_pred_vals;
 
-  // Set the number of model variables (includes both states and inputs).
-  size_t n_vars = SIZE_STATE*CONTROL_HORIZON + SIZE_INPUT*(CONTROL_HORIZON-1);
-  // Set the number of constraints
-  size_t n_constraints = SIZE_STATE*CONTROL_HORIZON;
-
   // Initial value of the independent variables.
   // SHOULD BE 0 besides initial state.
   Dvector vars(n_vars);
@@ -206,11 +233,18 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x, Eigen::VectorXd poly_coeffs){
   // Should be 0 besides initial state.
   Dvector constraints_lowerbound(n_constraints);
   Dvector constraints_upperbound(n_constraints);
-  for (int i = 0; i < n_constraints; i++)
+  for (int i = 0; i < n_constraints - (CONTROL_HORIZON - 1) ; i++)
   {
     constraints_lowerbound[i] = 0;
     constraints_upperbound[i] = 0;
   }
+
+  // for (int i = 0; i <(CONTROL_HORIZON - 1) ; i++)
+  // {
+  //   constraints_lowerbound[n_constraints - 1 - ((CONTROL_HORIZON - 1 - i))] = DT;
+  //   constraints_upperbound[n_constraints - 1 - ((CONTROL_HORIZON - 1 - i))] = 1.0e19;
+  // }
+
   constraints_lowerbound[x_start] = x[0];
   constraints_lowerbound[y_start] = x[1];
   constraints_lowerbound[psi_start] = x[2];
@@ -261,19 +295,18 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x, Eigen::VectorXd poly_coeffs){
   // Cost
   auto cost = solution.obj_value;
 
-  // set x_pred_vals and y_pred_vals for plotting
-  x_pred_vals.clear();
-  y_pred_vals.clear();
-  for (int i = 1; i<CONTROL_HORIZON; ++i)
+  Eigen::VectorXd solution_offset(CONTROL_HORIZON);
+  Eigen::VectorXd solution_epsi(CONTROL_HORIZON);
+
+  for (int t = 0; t < CONTROL_HORIZON; t++)
   {
-    x_pred_vals.push_back(solution.x[x_start+i]);
-    y_pred_vals.push_back(solution.x[y_start+i]);
+    solution_offset(t) = solution.x[offset_start + t];
+    solution_epsi(t) = solution.x[epsi_start + t];
   }
 
-  //  Return the first actuator values. The variables can be accessed with
-  // `solution.x[i]`.
-  //
-  // {...} is shorthand for creating a vector, so auto x1 = {1.0,2.0}
-  // creates a 2 element double vector.
-  return {solution.x[delta_start], solution.x[a_start]};
+  double test_cost_0_result = test_cost_0(solution_offset);
+  double test_cost_1_result = test_cost_1(solution_epsi);
+
+
+  return {solution.x[delta_start], solution.x[a_start], cost,test_cost_0_result,test_cost_1_result};
 }

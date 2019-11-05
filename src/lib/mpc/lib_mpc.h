@@ -10,13 +10,17 @@
 #include <cppad/ipopt/solve.hpp>
 #include <fstream>
 
-#define NB_POINTS_POLYFIT   5
+#define NB_POINTS_POLYFIT   100
 #define SIZE_STATE          6
 #define SIZE_INPUT          2
 #define LF                 1.0
 #define DT                 0.01
 #define CONTROL_HORIZON    10
-#define T                  100.0
+#define T                  100
+#define LINE               0.0
+#define X1                 -7.0 //y
+#define X2                 0.0 //yaw
+#define X3                 1.0 // speed
 
 #define REF_V                            1.0
 #define REF_OFFSET                       0.0
@@ -26,5 +30,7 @@
 Eigen::VectorXd Propagate(Eigen::VectorXd,Eigen::VectorXd);
 Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n);
 std::vector<double> Solve_MPC(Eigen::VectorXd state, Eigen::VectorXd coeffs);
+double test_cost_0(Eigen::VectorXd solution_offset);
+double test_cost_1(Eigen::VectorXd solution_epsi);
 
 #endif

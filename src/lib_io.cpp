@@ -9,12 +9,23 @@ int time_step_counter = 0, pause_flag = 0;
 int ms_per_frame = 5;
 double trans_lastx;
 double trans_corr = -1;
-
+double last_x = 0.0;
 
 std::vector<double> result_x;
 std::vector<double> result_y;
 std::vector<double> result_psi;
 
+std::vector<double> result_cost;
+std::vector<double> result_cost_0;
+std::vector<double> result_cost_1;
+
+std::vector<double> ref_x_vector;
+std::vector<double> ref_y_vector;
+
+void glGetCoefficients(std::vector<double> ref_x_vector_input,std::vector<double>  ref_y_vector_input){
+  ref_x_vector = ref_x_vector_input;
+  ref_y_vector = ref_y_vector_input;
+}
 
 void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi){
   result_x = x;
@@ -22,6 +33,11 @@ void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<dou
   result_psi = psi;
 }
 
+void glGetCosts(std::vector<double> costs,std::vector<double> costs_0,std::vector<double> costs_1){
+  result_cost = costs;
+  result_cost_0 = costs_0;
+  result_cost_1 = costs_1;
+}
 
 void printString(const char *str, double x, double y, double size) {
    glPushMatrix();
@@ -77,23 +93,60 @@ void drawTank() {
 
     // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
-    sprintf(mystr,"Time %4.2f : %4.2f : %4.2f\n", ti,time,tf);
-    if(trans_corr > -1)
+    sprintf(mystr,"Time %4.2f : %4.2f : %4.2f  --  Cost = %4.2f\n",
+     ti,time,tf,result_cost.at(time_step_counter));
+
+    std::cout << "cost offset = " << result_cost_0.at(time_step_counter) << std::endl;
+    std::cout << "cost epsi = " << result_cost_1.at(time_step_counter) << std::endl;
+
+    if(trans_corr > -1){
       printString(mystr, 2+ (trans_corr*35), 8, 0.5);
-    else
+    }
+    else{
       printString(mystr, 2, 8, 0.5);
+    }
+
 
     free(mystr);
 }
 
+void drawRobotReference() {
+    // Reference line
+    Eigen::VectorXd ref_x(NB_POINTS_POLYFIT);
+    Eigen::VectorXd ref_y(NB_POINTS_POLYFIT);
+
+    glLineWidth(2.5);
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_LINE_STRIP);
+
+    for (int i=0; i < NB_POINTS_POLYFIT; i ++){
+      ref_x(i) = ref_x_vector.at((time_step_counter*(NB_POINTS_POLYFIT)) + i);
+      ref_y(i) = ref_y_vector.at((time_step_counter*(NB_POINTS_POLYFIT)) + i);
+      glVertex2f(ref_x(i),ref_y(i));
+    }
+    glEnd();
+
+    glLineWidth(10.0);
+    glColor3f(255,20,147);
+    glBegin(GL_LINE_STRIP);
+
+    for (int i=0; i < NB_POINTS_POLYFIT; i ++){
+      glVertex2f(result_x.at(time_step_counter) + (DT*(i + 1)),LINE);
+    }
+
+    glEnd();
+
+    last_x = ref_x(NB_POINTS_POLYFIT - 1);
+
+}
 
 void drawReference() {
     // Reference line
     glLineWidth(0.5);
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINES);
-    glVertex2f(-1000,0);
-    glVertex2f( 1000,0);
+    glVertex2f(-1000,LINE);
+    glVertex2f( 1000,LINE);
     glEnd();
 }
 
@@ -119,8 +172,10 @@ void display() {
     glTranslatef(-15 - (trans_corr*35),0,-20);
     glColor3f(1,1,1);
     drawTank();
+    drawRobotReference();
     drawReference();
     glutSwapBuffers();
+    // getchar();
 }
 
 void reshape (int w, int h) {
