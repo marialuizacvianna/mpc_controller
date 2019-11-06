@@ -14,6 +14,7 @@ double last_x = X0;
 std::vector<double> result_x;
 std::vector<double> result_y;
 std::vector<double> result_psi;
+std::vector<double> result_off;
 
 std::vector<double> result_cost;
 std::vector<double> result_cost_0;
@@ -27,10 +28,11 @@ void glGetCoefficients(std::vector<double> ref_x_vector_input,std::vector<double
   ref_y_vector = ref_y_vector_input;
 }
 
-void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi){
+void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi, std::vector<double> off){
   result_x = x;
   result_y = y;
   result_psi = psi;
+  result_off = off;
 }
 
 void glGetCosts(std::vector<double> costs,std::vector<double> costs_0,std::vector<double> costs_1){

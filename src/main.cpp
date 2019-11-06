@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
   std::vector<double> result_y;
   std::vector<double> result_psi;
   std::vector<double> result_cost;
+  std::vector<double> result_off;
   std::vector<double> result_cost_0;
   std::vector<double> result_cost_1;
   std::vector<double> ref_x_vector, ref_y_vector;
@@ -25,6 +26,9 @@ int main(int argc, char *argv[]) {
 
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
   Eigen::VectorXd ref_y(NB_POINTS_POLYFIT); //vector with reference y positions
+
+  Eigen::VectorXd ref_x_robot(NB_POINTS_POLYFIT); //vector with reference x positions
+  Eigen::VectorXd ref_y_robot(NB_POINTS_POLYFIT); //vector with reference y positions
 
   Eigen::VectorXd x(SIZE_STATE);//x y psi v err_offset err_psi
   Eigen::VectorXd u(SIZE_INPUT);//steering angle rate  acceleration
@@ -56,6 +60,7 @@ int main(int argc, char *argv[]) {
     result_x.push_back(x(0));
     result_y.push_back(x(1));
     result_psi.push_back(x(2));
+    result_off.push_back(x(4));
     // write_results(&result_file,x,u);
 
     //line
@@ -69,21 +74,20 @@ int main(int argc, char *argv[]) {
         ref_x(i) = last_x + (DT*(i + 1));
     }
 
-
     x = Propagate(x,u);
 
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
-      ref_y(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
-      ref_x(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
-      ref_x_vector.push_back(ref_x(i));
-      ref_y_vector.push_back(ref_y(i));
+      ref_y_robot(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
+      ref_x_robot(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
+
+      ref_x_vector.push_back(ref_x_robot(i));
+      ref_y_vector.push_back(ref_y_robot(i));
     }
 
-    Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y, 3);
+
+    Eigen::VectorXd poly_coeffs = Polyfit(ref_x_robot, ref_y_robot, 3);
 
 
-    // std::cout << "ref_x = " << ref_x <<std::endl;
-    // std::cout << "ref_y = " << ref_y <<std::endl;
     //it  actualizes the function offset error
     x(4) = poly_coeffs(0);
 
@@ -93,7 +97,6 @@ int main(int argc, char *argv[]) {
     // double d_f_x = 3*poly_coeffs[3]*pow(px,2) + 2*poly_coeffs[2]*px + poly_coeffs[1];
     double d_f_x = poly_coeffs(1);
     x(5) = -atan(d_f_x);
-
 
 
     // getchar();
@@ -112,7 +115,7 @@ int main(int argc, char *argv[]) {
   std::cout << "Begin visualisation \n";
   glGetCosts(result_cost,result_cost_0,result_cost_1);
   glGetCoefficients(ref_x_vector,ref_y_vector);
-  glGetResults(result_x,result_y,result_psi);
+  glGetResults(result_x,result_y,result_psi,result_off);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);

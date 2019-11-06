@@ -25,7 +25,7 @@ double test_cost_0(Eigen::VectorXd solution_offset){
   {
     cost += 100*pow(solution_offset[t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
   }
-  // std::cout << "solution_offset = " <<  solution_offset << std::endl;
+
   return cost;
 
 }
@@ -126,7 +126,6 @@ class FG_eval
 
       CppAD::AD<double> psides0 = CppAD::atan(f0prime);
 
-
       // equations for the model:
       // x_[t] = x[t-1] + v[t-1] * cos(psi[t-1]) * dt
       // y_[t] = y[t-1] + v[t-1] * sin(psi[t-1]) * dt
@@ -139,10 +138,8 @@ class FG_eval
       fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * DT);
       fg[1 + psi_start + t] = psi1 - (psi0 - v0 * delta0 / LF * DT);
       fg[1 + v_start + t] = v1 - (v0 + a0 * DT);
-      fg[1 + offset_start + t] =
-          cte1 - ((cte0) - (v0 * CppAD::sin(epsi0) * DT));
-      fg[1 + epsi_start + t] =
-          epsi1 - ((psi0 - psides0) - v0 * delta0 / LF * DT);
+      fg[1 + offset_start + t] = cte1 - ((cte0) - (v0 * CppAD::sin(epsi0) * DT));
+      fg[1 + epsi_start + t] = epsi1 - ((psi0 - psides0) - v0 * delta0 / LF * DT);
 
       // fg[n_constraints - 1 - ((CONTROL_HORIZON - 1 - t))] = x1 - x0;
     }
@@ -166,6 +163,9 @@ Eigen::VectorXd Propagate(Eigen::VectorXd x ,Eigen::VectorXd u) {
 // Adapted from
 // https://github.com/JuliaMath/Polynomials.jl/blob/master/src/Polynomials.jl#L676-L716
 Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n) {
+  // std::cout << "\n\n\n Inside polyfit" << x << std::endl;
+  // std::cout << "x = " << x << std::endl;
+  // std::cout << "y = " << y << std::endl;
   assert(x.size() == y.size());
   assert(n >= 1 && n <= x.size() - 1);
   Eigen::MatrixXd A(x.size(), n + 1);
