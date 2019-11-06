@@ -18,9 +18,11 @@
 #define CONTROL_HORIZON    10
 #define T                  30
 #define LINE               -3.0
+
+//intial conditions
 #define X0                 0.0 //x
 #define X1                 1.0 //y
-#define X2                 0.0//yaw
+#define X2                 0.5//yaw
 #define X3                 3.0 // speed
 
 #define REF_V                            1.0
