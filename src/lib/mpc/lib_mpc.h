@@ -19,7 +19,7 @@
 #define T                  30
 #define LINE               -3.0
 #define X0                 0.0 //x
-#define X1                 2.0 //y
+#define X1                 1.0 //y
 #define X2                 0.0//yaw
 #define X3                 3.0 // speed
 

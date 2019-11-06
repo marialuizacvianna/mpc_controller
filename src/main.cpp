@@ -98,6 +98,19 @@ int main(int argc, char *argv[]) {
     double d_f_x = poly_coeffs(1);
     x(5) = -atan(d_f_x);
 
+    // std::cout << "x = " << x << std::endl;
+    //
+    // std::cout << "poly_coeffs = " << poly_coeffs << std::endl;
+
+    // if(abs(x(2)) > 1.57){
+    //   x(5) = -(3.1415926535897931 - x(5));
+    //   poly_coeffs(1) = tan(-x(5));
+    // }
+
+    // std::cout << "x = " << x << std::endl;
+    // std::cout << "poly_coeffs = " << poly_coeffs << std::endl;
+    //
+    // std::cout << "-atan(d_f_x) = " << -atan(d_f_x) << std::endl;
 
     // getchar();
 

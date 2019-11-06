@@ -117,6 +117,7 @@ class FG_eval
       CppAD::AD<double> cte0 = vars[offset_start + t - 1];
       CppAD::AD<double> epsi0 = vars[epsi_start + t - 1];
 
+
       // Only consider the actuation at time t.
       CppAD::AD<double> delta0 = vars[delta_start + t - 1];
       CppAD::AD<double> a0 = vars[a_start + t - 1];
