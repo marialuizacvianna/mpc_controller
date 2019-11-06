@@ -25,7 +25,7 @@ double test_cost_0(Eigen::VectorXd solution_offset){
   {
     cost += 100*pow(solution_offset[t] - REF_OFFSET, 2); //CppAD::exp(-t*0.1)*
   }
-  std::cout << "solution_offset = " <<  solution_offset << std::endl;
+  // std::cout << "solution_offset = " <<  solution_offset << std::endl;
   return cost;
 
 }
@@ -142,7 +142,7 @@ class FG_eval
       fg[1 + offset_start + t] =
           cte1 - ((cte0) - (v0 * CppAD::sin(epsi0) * DT));
       fg[1 + epsi_start + t] =
-          epsi1 - (epsi0 - v0 * delta0 / LF * DT);
+          epsi1 - ((psi0 - psides0) - v0 * delta0 / LF * DT);
 
       // fg[n_constraints - 1 - ((CONTROL_HORIZON - 1 - t))] = x1 - x0;
     }

@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
   std::vector<double> result_mpc;
 
-  double last_x = 0.0;
+  double last_x = X0;
 
   int i = 0; //iterator
   float j = 0.0;//iterator
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
   // if(result_file.is_open())
   //   std::cout << "Created file for writing results \n";
 
-
+  x(0) = X0; //x
   x(1) = X1; //y
   x(2) = X2; //theta
   x(3) = X3; //speed
@@ -61,13 +61,14 @@ int main(int argc, char *argv[]) {
     //line
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
       ref_y(i) = LINE;
-      ref_x(i) = x(0) + (DT*(i + 1));
+      if(x(0) >= last_x ){
+        ref_x(i) = x(0) + (DT*(i + 1));
+        last_x = x(0);
+      }
+      else
+        ref_x(i) = last_x + (DT*(i + 1));
     }
 
-    // std::cout << "ref_x = " << ref_x <<std::endl;
-    // std::cout << "ref_y = " << ref_y <<std::endl;
-
-    last_x = ref_x(NB_POINTS_POLYFIT - 1);
 
     x = Propagate(x,u);
 
