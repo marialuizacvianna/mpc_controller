@@ -32,7 +32,7 @@
 
 Eigen::VectorXd Propagate(Eigen::VectorXd,Eigen::VectorXd);
 Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n);
-std::vector<double> Solve_MPC(Eigen::VectorXd state,std::vector<double> ref_x_world,std::vector<double> ref_y_world,double ref_theta);
+std::vector<double> Solve_MPC(Eigen::VectorXd state,Eigen::VectorXd ref_x_world,Eigen::VectorXd ref_y_world,double ref_theta);
 Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n);
 
 #endif

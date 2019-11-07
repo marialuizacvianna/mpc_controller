@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
 
     // solve mpc for state and reference trajectory
     // returns [steering_angle, acceleration]
-    result_mpc = Solve_MPC(x,ref_x_vector,ref_y_vector,ref_theta);
+    result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta);
     u(0) = result_mpc.at(0);
     u(1) = result_mpc.at(1);
     result_cost.push_back(result_mpc.at(2));

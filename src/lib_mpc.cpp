@@ -48,11 +48,11 @@ class FG_eval
 {
  public:
   // Fitted polynomial coefficients
-  std::vector<double> ref_x;
-  std::vector<double> ref_y;
+  Eigen::VectorXd ref_x;
+  Eigen::VectorXd ref_y;
   double ref_t;
 
-  FG_eval(std::vector<double> ref_x, std::vector<double> ref_y, double ref_theta) {
+  FG_eval(Eigen::VectorXd ref_x, Eigen::VectorXd ref_y, double ref_theta) {
     this->ref_x = ref_x;
     this->ref_y = ref_y;
     this->ref_t = ref_theta;
@@ -76,7 +76,7 @@ class FG_eval
     for (int t = 0; t < CONTROL_HORIZON; t++)
     {
       // fg[0] += 100*CppAD::pow(vars[x_start + t] - this->ref_x.at(t), 2); //CppAD::exp(-t*0.1)*
-      fg[0] += 100*CppAD::pow(vars[y_start + t] - this->ref_y.at(t), 2);
+      fg[0] += 100*CppAD::pow(vars[y_start + t] - this->ref_y(t), 2);
       // fg[0] += 40*CppAD::pow(vars[psi_start + t] - this->ref_t , 2);
       // fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
@@ -151,7 +151,7 @@ Eigen::VectorXd Propagate(Eigen::VectorXd x ,Eigen::VectorXd u) {
   return x_propagate;
 };
 
-std::vector<double> Solve_MPC(Eigen::VectorXd x,std::vector<double> ref_x_world,std::vector<double> ref_y_world, double ref_theta){
+std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eigen::VectorXd ref_y_world, double ref_theta){
   typedef CPPAD_TESTVECTOR(double) Dvector;
   bool ok = true;
   std::vector<double> x_pred_vals;
