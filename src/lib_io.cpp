@@ -14,31 +14,21 @@ double last_x = X0;
 std::vector<double> result_x;
 std::vector<double> result_y;
 std::vector<double> result_psi;
-std::vector<double> result_off;
+
 
 std::vector<double> result_cost;
-std::vector<double> result_cost_0;
-std::vector<double> result_cost_1;
 
 std::vector<double> ref_x_vector;
 std::vector<double> ref_y_vector;
 
-void glGetCoefficients(std::vector<double> ref_x_vector_input,std::vector<double>  ref_y_vector_input){
-  ref_x_vector = ref_x_vector_input;
-  ref_y_vector = ref_y_vector_input;
-}
-
-void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi, std::vector<double> off){
+void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi){
   result_x = x;
   result_y = y;
   result_psi = psi;
-  result_off = off;
 }
 
-void glGetCosts(std::vector<double> costs,std::vector<double> costs_0,std::vector<double> costs_1){
+void glGetCosts(std::vector<double> costs){
   result_cost = costs;
-  result_cost_0 = costs_0;
-  result_cost_1 = costs_1;
 }
 
 void printString(const char *str, double x, double y, double size) {
@@ -98,8 +88,6 @@ void drawTank() {
     sprintf(mystr,"Time %4.2f : %4.2f : %4.2f  --  Cost = %4.2f\n",
      ti,time,tf,result_cost.at(time_step_counter));
 
-    std::cout << "cost offset = " << result_cost_0.at(time_step_counter) << std::endl;
-    std::cout << "cost epsi = " << result_cost_1.at(time_step_counter) << std::endl;
 
     if(trans_corr > -1){
       printString(mystr, 2+ (trans_corr*35), 8, 0.5);
@@ -114,25 +102,20 @@ void drawTank() {
 
 void drawRobotReference() {
     // Reference line
-    Eigen::VectorXd ref_x(NB_POINTS_POLYFIT);
-    Eigen::VectorXd ref_y(NB_POINTS_POLYFIT);
+    Eigen::VectorXd ref_x(CONTROL_HORIZON);
+    Eigen::VectorXd ref_y(CONTROL_HORIZON);
 
-    glLineWidth(2.5);
-    glColor3f(1.0, 1.0, 0.0);
-    glBegin(GL_LINE_STRIP);
-
-    for (int i=0; i < NB_POINTS_POLYFIT; i ++){
-      ref_x(i) = ref_x_vector.at((time_step_counter*(NB_POINTS_POLYFIT)) + i);
-      ref_y(i) = ref_y_vector.at((time_step_counter*(NB_POINTS_POLYFIT)) + i);
-      glVertex2f(ref_x(i),ref_y(i));
-    }
-    glEnd();
-
+    // glLineWidth(2.5);
+    // glColor3f(1.0, 1.0, 0.0);
+    // glBegin(GL_LINE_STRIP);
+    // for (int i=0; i < CONTROL_HORIZON; i ++){
+    //   glVertex2f(ref_x(i),ref_y(i));
+    // }
+    // glEnd();
     glLineWidth(10.0);
     glColor3f(255,20,147);
     glBegin(GL_LINE_STRIP);
-
-    for (int i=1; i < NB_POINTS_POLYFIT; i ++){
+    for (int i=1; i < CONTROL_HORIZON; i ++){
       if(result_x.at(time_step_counter) >= last_x ){
         glVertex2f(result_x.at(time_step_counter) + (DT*(i + 1)),LINE);
         last_x = result_x.at(time_step_counter);
@@ -140,11 +123,7 @@ void drawRobotReference() {
       else
         glVertex2f(last_x + (DT*(i + 1)),LINE);
     }
-
     glEnd();
-
-    // last_x = ref_x(NB_POINTS_POLYFIT - 1);
-
 }
 
 void drawReference() {

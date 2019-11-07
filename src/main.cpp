@@ -24,11 +24,11 @@ int main(int argc, char *argv[]) {
   std::vector<double> ref_x_vector, ref_y_vector;
   // std::ofstream result_file;
 
-  Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
-  Eigen::VectorXd ref_y(NB_POINTS_POLYFIT); //vector with reference y positions
+  Eigen::VectorXd ref_x(CONTROL_HORIZON); //vector with reference x positions
+  Eigen::VectorXd ref_y(CONTROL_HORIZON); //vector with reference y positions
 
-  Eigen::VectorXd ref_x_robot(NB_POINTS_POLYFIT); //vector with reference x positions
-  Eigen::VectorXd ref_y_robot(NB_POINTS_POLYFIT); //vector with reference y positions
+  Eigen::VectorXd ref_x_robot(CONTROL_HORIZON); //vector with reference x positions
+  Eigen::VectorXd ref_y_robot(CONTROL_HORIZON); //vector with reference y positions
 
   Eigen::VectorXd x(SIZE_STATE);//x y psi v err_offset err_psi
   Eigen::VectorXd u(SIZE_INPUT);//steering angle rate  acceleration
@@ -60,75 +60,40 @@ int main(int argc, char *argv[]) {
     result_x.push_back(x(0));
     result_y.push_back(x(1));
     result_psi.push_back(x(2));
-    result_off.push_back(x(4));
+
     // write_results(&result_file,x,u);
 
     //line
-    for(i = 0; i < NB_POINTS_POLYFIT; i++){
+    for(i = 0; i < CONTROL_HORIZON; i++){
       ref_y(i) = LINE;
       if(x(0) >= last_x ){
-        ref_x(i) = x(0) + (DT*(i + 1));
+        ref_x(i) = x(0) + (DT*(i + 5));
         last_x = x(0);
       }
       else
         ref_x(i) = last_x + (DT*(i + 1));
+
+      ref_x_vector.push_back(ref_x(i));
+      ref_y_vector.push_back(ref_y(i));
     }
+
 
     x = Propagate(x,u);
 
-    for(i = 0; i < NB_POINTS_POLYFIT; i++){
-      ref_y_robot(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
-      ref_x_robot(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
-
-      ref_x_vector.push_back(ref_x_robot(i));
-      ref_y_vector.push_back(ref_y_robot(i));
-    }
-
-
-    Eigen::VectorXd poly_coeffs = Polyfit(ref_x_robot, ref_y_robot, 3);
-
-
-    //it  actualizes the function offset error
-    x(4) = poly_coeffs(0);
-
-    // it calculate the vehicle's orientation error
-    // f(x) is the polynomial defining the reference trajectory
-    // f'(x) = 3Ax^2 + 2Bx + C
-    // double d_f_x = 3*poly_coeffs[3]*pow(px,2) + 2*poly_coeffs[2]*px + poly_coeffs[1];
-    double d_f_x = poly_coeffs(1);
-    x(5) = -atan(d_f_x);
-
-    // std::cout << "x = " << x << std::endl;
-    //
-    // std::cout << "poly_coeffs = " << poly_coeffs << std::endl;
-
-    // if(abs(x(2)) > 1.57){
-    //   x(5) = -(3.1415926535897931 - x(5));
-    //   poly_coeffs(1) = tan(-x(5));
-    // }
-
-    // std::cout << "x = " << x << std::endl;
-    // std::cout << "poly_coeffs = " << poly_coeffs << std::endl;
-    //
-    // std::cout << "-atan(d_f_x) = " << -atan(d_f_x) << std::endl;
-
-    // getchar();
-
     // solve mpc for state and reference trajectory
     // returns [steering_angle, acceleration]
-    result_mpc = Solve_MPC(x,poly_coeffs);
+    result_mpc = Solve_MPC(x,ref_x_vector,ref_y_vector);
     u(0) = result_mpc.at(0);
     u(1) = result_mpc.at(1);
     result_cost.push_back(result_mpc.at(2));
-    result_cost_0.push_back(result_mpc.at(3));
-    result_cost_1.push_back(result_mpc.at(4));
+
     // getchar();
 
   }
   std::cout << "Begin visualisation \n";
-  glGetCosts(result_cost,result_cost_0,result_cost_1);
-  glGetCoefficients(ref_x_vector,ref_y_vector);
-  glGetResults(result_x,result_y,result_psi,result_off);
+  glGetCosts(result_cost);
+  // glGetCoefficients(ref_x_vector,ref_y_vector);
+  glGetResults(result_x,result_y,result_psi);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);
