@@ -146,8 +146,10 @@ void drawReference() {
     glLineWidth(0.5);
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINE_STRIP);
-    glVertex2f(-1000,LINE);
-    glVertex2f( 1000,LINE);
+    for(int i = 0; i < ref_x_vector_w.size(); i++){
+      glVertex2f(ref_x_vector_w.at(i),ref_y_vector_w.at(i));
+    }
+
     glEnd();
 }
 
