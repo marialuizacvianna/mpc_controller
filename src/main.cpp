@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
   std::vector<double> result_y;
   std::vector<double> result_psi;
   std::vector<double> result_cost;
+  std::vector<double> result_off;
   std::vector<double> result_cost_0;
   std::vector<double> result_cost_1;
   std::vector<double> ref_x_vector, ref_y_vector;
@@ -26,12 +27,15 @@ int main(int argc, char *argv[]) {
   Eigen::VectorXd ref_x(NB_POINTS_POLYFIT); //vector with reference x positions
   Eigen::VectorXd ref_y(NB_POINTS_POLYFIT); //vector with reference y positions
 
+  Eigen::VectorXd ref_x_robot(NB_POINTS_POLYFIT); //vector with reference x positions
+  Eigen::VectorXd ref_y_robot(NB_POINTS_POLYFIT); //vector with reference y positions
+
   Eigen::VectorXd x(SIZE_STATE);//x y psi v err_offset err_psi
   Eigen::VectorXd u(SIZE_INPUT);//steering angle rate  acceleration
 
   std::vector<double> result_mpc;
 
-  double last_x = 0.0;
+  double last_x = X0;
 
   int i = 0; //iterator
   float j = 0.0;//iterator
@@ -40,7 +44,7 @@ int main(int argc, char *argv[]) {
   // if(result_file.is_open())
   //   std::cout << "Created file for writing results \n";
 
-
+  x(0) = X0; //x
   x(1) = X1; //y
   x(2) = X2; //theta
   x(3) = X3; //speed
@@ -56,33 +60,34 @@ int main(int argc, char *argv[]) {
     result_x.push_back(x(0));
     result_y.push_back(x(1));
     result_psi.push_back(x(2));
+    result_off.push_back(x(4));
     // write_results(&result_file,x,u);
 
     //line
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
       ref_y(i) = LINE;
-      ref_x(i) = x(0) + (DT*(i + 1));
+      if(x(0) >= last_x ){
+        ref_x(i) = x(0) + (DT*(i + 1));
+        last_x = x(0);
+      }
+      else
+        ref_x(i) = last_x + (DT*(i + 1));
     }
-
-    // std::cout << "ref_x = " << ref_x <<std::endl;
-    // std::cout << "ref_y = " << ref_y <<std::endl;
-
-    last_x = ref_x(NB_POINTS_POLYFIT - 1);
 
     x = Propagate(x,u);
 
     for(i = 0; i < NB_POINTS_POLYFIT; i++){
-      ref_y(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
-      ref_x(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
-      ref_x_vector.push_back(ref_x(i));
-      ref_y_vector.push_back(ref_y(i));
+      ref_y_robot(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
+      ref_x_robot(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
+
+      ref_x_vector.push_back(ref_x_robot(i));
+      ref_y_vector.push_back(ref_y_robot(i));
     }
 
-    Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y, 3);
+
+    Eigen::VectorXd poly_coeffs = Polyfit(ref_x_robot, ref_y_robot, 3);
 
 
-    // std::cout << "ref_x = " << ref_x <<std::endl;
-    // std::cout << "ref_y = " << ref_y <<std::endl;
     //it  actualizes the function offset error
     x(4) = poly_coeffs(0);
 
@@ -93,7 +98,19 @@ int main(int argc, char *argv[]) {
     double d_f_x = poly_coeffs(1);
     x(5) = -atan(d_f_x);
 
+    // std::cout << "x = " << x << std::endl;
+    //
+    // std::cout << "poly_coeffs = " << poly_coeffs << std::endl;
 
+    // if(abs(x(2)) > 1.57){
+    //   x(5) = -(3.1415926535897931 - x(5));
+    //   poly_coeffs(1) = tan(-x(5));
+    // }
+
+    // std::cout << "x = " << x << std::endl;
+    // std::cout << "poly_coeffs = " << poly_coeffs << std::endl;
+    //
+    // std::cout << "-atan(d_f_x) = " << -atan(d_f_x) << std::endl;
 
     // getchar();
 
@@ -111,7 +128,7 @@ int main(int argc, char *argv[]) {
   std::cout << "Begin visualisation \n";
   glGetCosts(result_cost,result_cost_0,result_cost_1);
   glGetCoefficients(ref_x_vector,ref_y_vector);
-  glGetResults(result_x,result_y,result_psi);
+  glGetResults(result_x,result_y,result_psi,result_off);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);
