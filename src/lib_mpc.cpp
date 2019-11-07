@@ -77,7 +77,7 @@ class FG_eval
     {
       // fg[0] += 100*CppAD::pow(vars[x_start + t] - this->ref_x.at(t), 2); //CppAD::exp(-t*0.1)*
       fg[0] += 100*CppAD::pow(vars[y_start + t] - this->ref_y(t), 2);
-      // fg[0] += 40*CppAD::pow(vars[psi_start + t] - this->ref_t , 2);
+      fg[0] += 0.10*CppAD::pow(vars[psi_start + t] - this->ref_t , 2);
       // fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
 
