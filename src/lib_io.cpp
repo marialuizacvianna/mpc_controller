@@ -169,8 +169,6 @@ void display() {
     drawRobotReference();
     drawReference();
     glutSwapBuffers();
-    std::cout << " result_x = " << result_x.at(time_step_counter) << std::endl;
-    std::cout << " result_y = " << result_y.at(time_step_counter) << std::endl;
     // getchar();
 }
 
