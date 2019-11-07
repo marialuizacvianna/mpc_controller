@@ -113,30 +113,21 @@ void drawTank() {
 
 void drawRobotReference() {
     // Reference line
-    Eigen::VectorXd ref_x(CONTROL_HORIZON);
-    Eigen::VectorXd ref_y(CONTROL_HORIZON);
 
     glLineWidth(2.5);
     glColor3f(1.0, 1.0, 0.0);
     glBegin(GL_LINE_STRIP);
 
     for (int i=0; i < CONTROL_HORIZON; i ++){
-      ref_x(i) = ref_x_vector_r.at((time_step_counter*(CONTROL_HORIZON)) + i);
-      ref_y(i) = ref_x_vector_r.at((time_step_counter*(CONTROL_HORIZON)) + i);
-      glVertex2f(ref_x(i),ref_y(i));
+      glVertex2f(ref_x_vector_r.at((time_step_counter*(CONTROL_HORIZON)) + i),ref_y_vector_r.at((time_step_counter*(CONTROL_HORIZON)) + i));
     }
     glEnd();
 
     glLineWidth(10.0);
     glColor3f(255,20,147);
     glBegin(GL_LINE_STRIP);
-    for (int i=1; i < CONTROL_HORIZON; i ++){
-      if(result_x.at(time_step_counter) >= last_x ){
-        glVertex2f(result_x.at(time_step_counter) + (DT*(i + 1)),LINE + 2*sin(result_x.at(time_step_counter) + (DT*(i + 1))));
-        last_x = result_x.at(time_step_counter);
-      }
-      else
-        glVertex2f(last_x + (DT*(i + 1)),LINE+ 2*sin(last_x + (DT*(i + 1))));
+    for (int i=0; i < CONTROL_HORIZON; i ++){
+        glVertex2f(ref_x_vector_w.at((time_step_counter*CONTROL_HORIZON) + i), ref_y_vector_w.at((time_step_counter*CONTROL_HORIZON) + i));
     }
     glEnd();
 }
