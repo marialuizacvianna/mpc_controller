@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
   }
   std::cout << "Begin visualisation \n";
   glGetCosts(result_cost);
-  glGetCoefficients(ref_x_vector_robot,ref_y_vector_robot);
+  glGetCoefficients(ref_x_vector,ref_y_vector,ref_x_vector_robot,ref_y_vector_robot);
   glGetResults(result_x,result_y,result_psi);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);

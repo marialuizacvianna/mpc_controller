@@ -18,12 +18,17 @@ std::vector<double> result_psi;
 
 std::vector<double> result_cost;
 
-std::vector<double> ref_x_vector;
-std::vector<double> ref_y_vector;
+std::vector<double> ref_x_vector_w;
+std::vector<double> ref_y_vector_w;
+std::vector<double> ref_x_vector_r;
+std::vector<double> ref_y_vector_r;
 
-void glGetCoefficients(std::vector<double> ref_x_vector_input,std::vector<double>  ref_y_vector_input){
-  ref_x_vector = ref_x_vector_input;
-  ref_y_vector = ref_y_vector_input;
+void glGetCoefficients(std::vector<double> ref_x_vector,std::vector<double>  ref_y_vector,
+  std::vector<double> ref_x_vector_robot,std::vector<double>  ref_y_vector_robot){
+  ref_x_vector_w = ref_x_vector;
+  ref_y_vector_w = ref_y_vector;
+  ref_x_vector_r = ref_x_vector_robot;
+  ref_y_vector_r = ref_y_vector_robot;
 }
 
 
@@ -116,8 +121,8 @@ void drawRobotReference() {
     glBegin(GL_LINE_STRIP);
 
     for (int i=0; i < CONTROL_HORIZON; i ++){
-      ref_x(i) = ref_x_vector.at((time_step_counter*(CONTROL_HORIZON)) + i);
-      ref_y(i) = ref_y_vector.at((time_step_counter*(CONTROL_HORIZON)) + i);
+      ref_x(i) = ref_x_vector_r.at((time_step_counter*(CONTROL_HORIZON)) + i);
+      ref_y(i) = ref_x_vector_r.at((time_step_counter*(CONTROL_HORIZON)) + i);
       glVertex2f(ref_x(i),ref_y(i));
     }
     glEnd();

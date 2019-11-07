@@ -18,7 +18,8 @@ const std::string io_path = "../results/";
 
 void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi);
 void glGetCosts(std::vector<double> costs);
-void glGetCoefficients(std::vector<double> ref_x_vector_input_w,std::vector<double>  ref_y_vector_input_w);
+void glGetCoefficients(std::vector<double> ref_x_vector,std::vector<double>  ref_y_vector,
+  std::vector<double> ref_x_vector_robot,std::vector<double>  ref_y_vector_robot);
 //OpenGL functions
 void printString(const char *str, double x, double y, double size);
 void timer(int id);
