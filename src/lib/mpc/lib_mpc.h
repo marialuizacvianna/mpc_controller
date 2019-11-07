@@ -22,7 +22,7 @@
 //intial conditions
 #define X0                 0.0 //x
 #define X1                 1.0 //y
-#define X2                 -3.14//yaw
+#define X2                 1.7//yaw
 #define X3                 3.0 // speed
 
 #define REF_V                            1.0
