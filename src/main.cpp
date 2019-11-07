@@ -18,10 +18,8 @@ int main(int argc, char *argv[]) {
   std::vector<double> result_y;
   std::vector<double> result_psi;
   std::vector<double> result_cost;
-  std::vector<double> result_off;
-  std::vector<double> result_cost_0;
-  std::vector<double> result_cost_1;
   std::vector<double> ref_x_vector, ref_y_vector;
+  std::vector<double> ref_x_vector_robot, ref_y_vector_robot;
   // std::ofstream result_file;
 
   Eigen::VectorXd ref_x(CONTROL_HORIZON); //vector with reference x positions
@@ -67,24 +65,36 @@ int main(int argc, char *argv[]) {
     for(i = 0; i < CONTROL_HORIZON; i++){
       if(x(0) >= last_x ){
         ref_x(i) = x(0) + (DT*(i + 5));
-        ref_y(i) = LINE + sin(ref_x(i));
+        ref_y(i) = LINE + 2*sin(ref_x(i));
         last_x = x(0);
       }
       else{
         ref_x(i) = last_x + (DT*(i + 1));
-        ref_y(i) = LINE + sin(ref_x(i));
+        ref_y(i) = LINE + 2*sin(ref_x(i));
       }
 
       ref_x_vector.push_back(ref_x(i));
       ref_y_vector.push_back(ref_y(i));
     }
 
+    Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y,2);
+
+    double ref_theta = -atan(poly_coeffs(1));
 
     x = Propagate(x,u);
 
+    for(i = 0; i < CONTROL_HORIZON; i++){
+      ref_y_robot(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
+      ref_x_robot(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
+
+      ref_x_vector_robot.push_back(ref_x_robot(i));
+      ref_y_vector_robot.push_back(ref_y_robot(i));
+    }
+
+
     // solve mpc for state and reference trajectory
     // returns [steering_angle, acceleration]
-    result_mpc = Solve_MPC(x,ref_x_vector,ref_y_vector);
+    result_mpc = Solve_MPC(x,ref_x_vector,ref_y_vector,ref_theta);
     u(0) = result_mpc.at(0);
     u(1) = result_mpc.at(1);
     result_cost.push_back(result_mpc.at(2));
@@ -94,7 +104,7 @@ int main(int argc, char *argv[]) {
   }
   std::cout << "Begin visualisation \n";
   glGetCosts(result_cost);
-  // glGetCoefficients(ref_x_vector,ref_y_vector);
+  glGetCoefficients(ref_x_vector_robot,ref_y_vector_robot);
   glGetResults(result_x,result_y,result_psi);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);

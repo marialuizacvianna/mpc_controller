@@ -21,6 +21,12 @@ std::vector<double> result_cost;
 std::vector<double> ref_x_vector;
 std::vector<double> ref_y_vector;
 
+void glGetCoefficients(std::vector<double> ref_x_vector_input,std::vector<double>  ref_y_vector_input){
+  ref_x_vector = ref_x_vector_input;
+  ref_y_vector = ref_y_vector_input;
+}
+
+
 void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi){
   result_x = x;
   result_y = y;
@@ -105,23 +111,27 @@ void drawRobotReference() {
     Eigen::VectorXd ref_x(CONTROL_HORIZON);
     Eigen::VectorXd ref_y(CONTROL_HORIZON);
 
-    // glLineWidth(2.5);
-    // glColor3f(1.0, 1.0, 0.0);
-    // glBegin(GL_LINE_STRIP);
-    // for (int i=0; i < CONTROL_HORIZON; i ++){
-    //   glVertex2f(ref_x(i),ref_y(i));
-    // }
-    // glEnd();
+    glLineWidth(2.5);
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_LINE_STRIP);
+
+    for (int i=0; i < CONTROL_HORIZON; i ++){
+      ref_x(i) = ref_x_vector.at((time_step_counter*(CONTROL_HORIZON)) + i);
+      ref_y(i) = ref_y_vector.at((time_step_counter*(CONTROL_HORIZON)) + i);
+      glVertex2f(ref_x(i),ref_y(i));
+    }
+    glEnd();
+
     glLineWidth(10.0);
     glColor3f(255,20,147);
     glBegin(GL_LINE_STRIP);
     for (int i=1; i < CONTROL_HORIZON; i ++){
       if(result_x.at(time_step_counter) >= last_x ){
-        glVertex2f(result_x.at(time_step_counter) + (DT*(i + 1)),LINE);
+        glVertex2f(result_x.at(time_step_counter) + (DT*(i + 1)),LINE + 2*sin(result_x.at(time_step_counter) + (DT*(i + 1))));
         last_x = result_x.at(time_step_counter);
       }
       else
-        glVertex2f(last_x + (DT*(i + 1)),LINE);
+        glVertex2f(last_x + (DT*(i + 1)),LINE+ 2*sin(last_x + (DT*(i + 1))));
     }
     glEnd();
 }
@@ -130,7 +140,7 @@ void drawReference() {
     // Reference line
     glLineWidth(0.5);
     glColor3f(1.0, 0.0, 0.0);
-    glBegin(GL_LINES);
+    glBegin(GL_LINE_STRIP);
     glVertex2f(-1000,LINE);
     glVertex2f( 1000,LINE);
     glEnd();
@@ -161,6 +171,8 @@ void display() {
     drawRobotReference();
     drawReference();
     glutSwapBuffers();
+    std::cout << " result_x = " << result_x.at(time_step_counter) << std::endl;
+    std::cout << " result_y = " << result_y.at(time_step_counter) << std::endl;
     // getchar();
 }
 

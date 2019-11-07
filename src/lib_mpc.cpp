@@ -16,6 +16,31 @@ size_t n_vars = SIZE_STATE*CONTROL_HORIZON + SIZE_INPUT*(CONTROL_HORIZON-1);
 // Set the number of constraints
 size_t n_constraints = (SIZE_STATE*CONTROL_HORIZON) ;//+ (CONTROL_HORIZON - 1);
 
+// Fit a polynomial.
+// Adapted from
+// https://github.com/JuliaMath/Polynomials.jl/blob/master/src/Polynomials.jl#L676-L716
+Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n) {
+  // std::cout << "\n\n\n Inside polyfit" << x << std::endl;
+  // std::cout << "x = " << x << std::endl;
+  // std::cout << "y = " << y << std::endl;
+  assert(x.size() == y.size());
+  assert(n >= 1 && n <= x.size() - 1);
+  Eigen::MatrixXd A(x.size(), n + 1);
+
+  for (int i = 0; i < x.size(); i++) {
+    A(i, 0) = 1.0;
+  }
+
+  for (int j = 0; j < x.size(); j++) {
+    for (int i = 0; i < n; i++) {
+      A(j, i + 1) = A(j, i) * x(j);
+    }
+  }
+
+  auto Q = A.householderQr();
+  auto result = Q.solve(y);
+  return result;
+}
 
 //Following the example from:
 //https://www.coin-or.org/CppAD/Doc/ipopt_solve_get_started.cpp.htm
@@ -25,10 +50,12 @@ class FG_eval
   // Fitted polynomial coefficients
   std::vector<double> ref_x;
   std::vector<double> ref_y;
+  double ref_t;
 
-  FG_eval(std::vector<double> ref_x, std::vector<double> ref_y) {
+  FG_eval(std::vector<double> ref_x, std::vector<double> ref_y, double ref_theta) {
     this->ref_x = ref_x;
     this->ref_y = ref_y;
+    this->ref_t = ref_theta;
   }
 
   typedef CPPAD_TESTVECTOR(CppAD::AD<double>) ADvector;
@@ -50,7 +77,7 @@ class FG_eval
     {
       // fg[0] += 100*CppAD::pow(vars[x_start + t] - this->ref_x.at(t), 2); //CppAD::exp(-t*0.1)*
       fg[0] += 100*CppAD::pow(vars[y_start + t] - this->ref_y.at(t), 2);
-      fg[0] += 100*CppAD::pow(vars[psi_start + t] , 2);
+      fg[0] += 40*CppAD::pow(vars[psi_start + t] - this->ref_t , 2);
       // fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
 
@@ -124,7 +151,7 @@ Eigen::VectorXd Propagate(Eigen::VectorXd x ,Eigen::VectorXd u) {
   return x_propagate;
 };
 
-std::vector<double> Solve_MPC(Eigen::VectorXd x,std::vector<double> ref_x_world,std::vector<double> ref_y_world){
+std::vector<double> Solve_MPC(Eigen::VectorXd x,std::vector<double> ref_x_world,std::vector<double> ref_y_world, double ref_theta){
   typedef CPPAD_TESTVECTOR(double) Dvector;
   bool ok = true;
   std::vector<double> x_pred_vals;
@@ -193,7 +220,7 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x,std::vector<double> ref_x_world,
   //Following the example from:
   //https://www.coin-or.org/CppAD/Doc/ipopt_solve_get_started.cpp.htm
   // object that computes objective and constraints
-  FG_eval fg_eval(ref_x_world, ref_y_world);
+  FG_eval fg_eval(ref_x_world, ref_y_world, ref_theta);
   //
   // NOTE: You don't have to worry about these options
   //
@@ -226,24 +253,24 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x,std::vector<double> ref_x_world,
   // Cost
   auto cost = solution.obj_value;
 
-  double cost_calc;
-
-  for (int t = 0; t < CONTROL_HORIZON; t++)
-  {
-    std::cout << "ref_x_world at  " << t << " = "<< ref_x_world.at(t) << std::endl;
-    std::cout << "solution.x[x_start + t] at  " << t << " = "<< solution.x[x_start + t] << std::endl;
-
-    std::cout << "ref_y_world at  " << t << " = "<< ref_y_world.at(t) << std::endl;
-    std::cout << "solution.x[y_start + t] at  " << t << " = "<< solution.x[y_start + t] << std::endl;
-
-
-
-    cost_calc = 100*pow(solution.x[x_start + t] - ref_x_world.at(t), 2); //CppAD::exp(-t*0.1)*
-    cost_calc = 100*pow(solution.x[y_start + t] - ref_y_world.at(t), 2); //CppAD::exp(-t*0.1)*
-    // fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
-  }
-
-  std::cout << "cost_calc at  = " << cost_calc << std::endl;
+  // double cost_calc;
+  //
+  // for (int t = 0; t < CONTROL_HORIZON; t++)
+  // {
+  //   std::cout << "ref_x_world at  " << t << " = "<< ref_x_world.at(t) << std::endl;
+  //   // std::cout << "solution.x[x_start + t] at  " << t << " = "<< solution.x[x_start + t] << std::endl;
+  //
+  //   std::cout << "ref_y_world at  " << t << " = "<< ref_y_world.at(t) << std::endl;
+  //   // std::cout << "solution.x[y_start + t] at  " << t << " = "<< solution.x[y_start + t] << std::endl;
+  //
+  //
+  //
+  //   cost_calc = 100*pow(solution.x[x_start + t] - ref_x_world.at(t), 2); //CppAD::exp(-t*0.1)*
+  //   cost_calc = 100*pow(solution.x[y_start + t] - ref_y_world.at(t), 2); //CppAD::exp(-t*0.1)*
+  //   // fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
+  // }
+  //
+  // std::cout << "cost_calc at  = " << cost_calc << std::endl;
 
   return {solution.x[delta_start], solution.x[a_start], cost};
 }
