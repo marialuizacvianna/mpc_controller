@@ -65,13 +65,15 @@ int main(int argc, char *argv[]) {
 
     //line
     for(i = 0; i < CONTROL_HORIZON; i++){
-      ref_y(i) = LINE;
       if(x(0) >= last_x ){
         ref_x(i) = x(0) + (DT*(i + 5));
+        ref_y(i) = LINE + sin(ref_x(i));
         last_x = x(0);
       }
-      else
+      else{
         ref_x(i) = last_x + (DT*(i + 1));
+        ref_y(i) = LINE + sin(ref_x(i));
+      }
 
       ref_x_vector.push_back(ref_x(i));
       ref_y_vector.push_back(ref_y(i));
