@@ -871,6 +871,20 @@ string.h
 -
 sstream
 -
+thread
+-
+unistd.h
+-
+stdio.h
+-
+sys/socket.h
+-
+stdlib.h
+-
+netinet/in.h
+-
+string.h
+-
 
 /usr/include/python3.6m/Python.h
 patchlevel.h
