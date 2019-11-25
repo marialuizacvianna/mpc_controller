@@ -80,8 +80,9 @@ class FG_eval
         fg[0] += 100*CppAD::pow(vars[psi_start + t] - this->ref_t , 2);
       else
         fg[0] += 1*CppAD::pow(vars[psi_start + t] - this->ref_t , 2);
-      fg[0] += 100*CppAD::pow(vars[y_start + t] - this->ref_y(t), 2);
 
+      fg[0] += 100*CppAD::pow(vars[y_start + t] - this->ref_y(t), 2);
+      fg[0] += 100*CppAD::pow(vars[x_start + t] - this->ref_x(t), 2);
       // fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
 
@@ -256,25 +257,6 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eige
 
   // Cost
   auto cost = solution.obj_value;
-
-  // double cost_calc;
-  //
-  // for (int t = 0; t < CONTROL_HORIZON; t++)
-  // {
-  //   std::cout << "ref_x_world at  " << t << " = "<< ref_x_world.at(t) << std::endl;
-  //   // std::cout << "solution.x[x_start + t] at  " << t << " = "<< solution.x[x_start + t] << std::endl;
-  //
-  //   std::cout << "ref_y_world at  " << t << " = "<< ref_y_world.at(t) << std::endl;
-  //   // std::cout << "solution.x[y_start + t] at  " << t << " = "<< solution.x[y_start + t] << std::endl;
-  //
-  //
-  //
-  //   cost_calc = 100*pow(solution.x[x_start + t] - ref_x_world.at(t), 2); //CppAD::exp(-t*0.1)*
-  //   cost_calc = 100*pow(solution.x[y_start + t] - ref_y_world.at(t), 2); //CppAD::exp(-t*0.1)*
-  //   // fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
-  // }
-  //
-  // std::cout << "cost_calc at  = " << cost_calc << std::endl;
 
   return {solution.x[delta_start], solution.x[a_start], cost};
 }

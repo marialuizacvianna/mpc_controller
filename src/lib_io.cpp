@@ -14,7 +14,6 @@ std::vector<double> result_x;
 std::vector<double> result_y;
 std::vector<double> result_psi;
 
-
 double result_cost;
 
 std::vector<double> ref_x_vector_w;
@@ -31,8 +30,7 @@ Eigen::VectorXd ref_y(CONTROL_HORIZON); //vector with reference y positions
 Eigen::VectorXd ref_x_robot(CONTROL_HORIZON); //vector with reference x positions
 Eigen::VectorXd ref_y_robot(CONTROL_HORIZON); //vector with reference y positions
 
-double last_x;
-
+double last_x, last_ray,angle2follow;
 
 void glInitMPC(){
   x(0) = X0; //x
@@ -46,26 +44,38 @@ void glInitMPC(){
   }
 
   last_x = X0;
-
+  last_ray = 1000;
+  angle2follow = 0.0;
 }
 
 void calculate_MPC(){
+  double cx = 20.0;
+  double cy = 0.0;
+  double circle_ray = 5.0;
+
   result_x.push_back(x(0));
   result_y.push_back(x(1));
   result_psi.push_back(x(2));
 
+  double ray = sqrt(pow(x(0) - cx,2) + pow(x(1)- cy,2)) ;
+
   //line
   for(int i = 0; i < CONTROL_HORIZON; i++){
-    if(x(0) >= last_x ){
-      ref_x(i) = x(0) + (DT*(i + 5));
-      ref_y(i) = cos(ref_x(i)) ;
-      last_x = x(0);
-    }
 
-    else{
-      ref_x(i) = last_x + (DT*(i + 1));
-      ref_y(i) = cos(ref_x(i)) ;
+    if(x(0) > (circle_ray*cos(angle2follow) + cx - 1.0) && x(0) < (circle_ray*cos(angle2follow) + cx + 1.0)
+      && x(1) > (circle_ray*sin(angle2follow) + cy - 1.0) && x(1) < (circle_ray*sin(angle2follow) + cy + 1.0)){
+      double angle2follow_it = angle2follow + i*DT;
+      ref_x(i) = circle_ray*cos(angle2follow_it) + cx;
+      ref_y(i) = circle_ray*sin(angle2follow_it) + cy;
+      angle2follow = angle2follow + DT;
     }
+    else{
+      double angle2follow_it = angle2follow + i*DT;
+      ref_x(i) = circle_ray*cos(angle2follow_it) + cx;
+      ref_y(i) = circle_ray*sin(angle2follow_it) + cy;
+    }
+    
+
 
     ref_x_vector_w.push_back(ref_x(i));
     ref_y_vector_w.push_back(ref_y(i));
@@ -94,25 +104,6 @@ void calculate_MPC(){
 }
 
 
-
-void glGetCoefficients(std::vector<double> ref_x_vector,std::vector<double>  ref_y_vector,
-  std::vector<double> ref_x_vector_robot,std::vector<double>  ref_y_vector_robot){
-  ref_x_vector_w = ref_x_vector;
-  ref_y_vector_w = ref_y_vector;
-  ref_x_vector_r = ref_x_vector_robot;
-  ref_y_vector_r = ref_y_vector_robot;
-}
-
-
-void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi){
-  result_x = x;
-  result_y = y;
-  result_psi = psi;
-}
-
-void glGetCosts(double cost){
-  result_cost = cost;
-}
 
 void printString(const char *str, double x, double y, double size) {
    glPushMatrix();
@@ -222,18 +213,25 @@ void drawReference() {
 
 
 void display() {
+    double deltax;
     double time = time_step_counter*DT + ti;
+    double size_vector;
+
     if(time >= tf){
         glutDestroyWindow(1);
         return;
     }
+
+    //Run MPC
     calculate_MPC();
-    double deltax;
+    size_vector  = result_x.size();
+
+    //Initialize window parameters
     glutTimerFunc(ms_per_frame,timer,1);
     glClearColor (0.0,0.0,0.0,1.0);
     glClear (GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
-    double size_vector  = result_x.size();
+
     if(trans_corr == -1){
       trans_lastx = result_x.at(size_vector - 1);
       trans_corr = 0;
@@ -245,8 +243,12 @@ void display() {
             trans_lastx = result_x.at(size_vector - 1);
         }
     }
+
     glTranslatef(-15 - (trans_corr*35),0,-20);
     glColor3f(1,1,1);
+
+
+    //Visualize MPC results
     drawTank();
     drawRobotReference();
     drawReference();
