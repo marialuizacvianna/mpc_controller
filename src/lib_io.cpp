@@ -16,7 +16,7 @@ std::vector<double> result_y;
 std::vector<double> result_psi;
 
 
-std::vector<double> result_cost;
+double result_cost;
 
 std::vector<double> ref_x_vector_w;
 std::vector<double> ref_y_vector_w;
@@ -38,8 +38,8 @@ void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<dou
   result_psi = psi;
 }
 
-void glGetCosts(std::vector<double> costs){
-  result_cost = costs;
+void glGetCosts(double cost){
+  result_cost = cost;
 }
 
 void printString(const char *str, double x, double y, double size) {
@@ -74,12 +74,12 @@ void timer(int id) {
 
 void drawTank() {
     double time = time_step_counter*DT + ti;
-
+    double size_vector = result_x.size();
     // Tank
     Eigen::MatrixXd M(2, 15);
     M.row(0) << 1/5.0,-1/5.0,0,0,-1/5.0,-1/5.0,0,0,-1/5.0,1/5.0,0,0,3/5.0,3/5.0,0;
     M.row(1) << -2/5.0,-2/5.0,-2/5.0,-1/5.0,-1/5.0,1/5.0,1/5.0,2/5.0,2/5.0,2/5.0,2/5.0,1/5.0,0.5/5.0,-0.5/5.0,-1/5.0;
-    M = move_motif(M,result_x.at(time_step_counter),result_y.at(time_step_counter),result_psi.at(time_step_counter));
+    M = move_motif(M,result_x.at(size_vector - 1),result_y.at(size_vector - 1),result_psi.at(size_vector - 1));
 
     glColor3f(1.0, 0.0, 1.0);
     glBegin(GL_LINE_STRIP);
@@ -97,7 +97,7 @@ void drawTank() {
     // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
     sprintf(mystr,"Time %4.2f : %4.2f : %4.2f  --  Cost = %4.2f\n",
-     ti,time,tf,result_cost.at(time_step_counter));
+     ti,time,tf,result_cost);
 
 
     if(trans_corr > -1){
@@ -118,16 +118,20 @@ void drawRobotReference() {
     glColor3f(1.0, 1.0, 0.0);
     glBegin(GL_LINE_STRIP);
 
+    double size_vector_ref = ref_x_vector_w.size();
+
     for (int i=0; i < CONTROL_HORIZON; i ++){
-      glVertex2f(ref_x_vector_r.at((time_step_counter*(CONTROL_HORIZON)) + i),ref_y_vector_r.at((time_step_counter*(CONTROL_HORIZON)) + i));
+      glVertex2f(ref_x_vector_r.at((size_vector_ref - CONTROL_HORIZON) + i),ref_y_vector_r.at((size_vector_ref - CONTROL_HORIZON) + i));
     }
     glEnd();
 
     glLineWidth(10.0);
     glColor3f(255,20,147);
     glBegin(GL_LINE_STRIP);
+
+
     for (int i=0; i < CONTROL_HORIZON; i ++){
-        glVertex2f(ref_x_vector_w.at((time_step_counter*CONTROL_HORIZON) + i), ref_y_vector_w.at((time_step_counter*CONTROL_HORIZON) + i));
+        glVertex2f(ref_x_vector_w.at((size_vector_ref - CONTROL_HORIZON) + i), ref_y_vector_w.at((size_vector_ref - CONTROL_HORIZON) + i));
     }
     glEnd();
 }
@@ -151,15 +155,16 @@ void display() {
     glClearColor (0.0,0.0,0.0,1.0);
     glClear (GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
+    double size_vector  = result_x.size();
     if(trans_corr == -1){
-      trans_lastx = result_x.at(time_step_counter);
+      trans_lastx = result_x.at(size_vector - 1);
       trans_corr = 0;
     }
     else{
         deltax = result_x.at(time_step_counter) - trans_lastx;
         if (deltax >= 35 ){
             trans_corr ++ ;
-            trans_lastx = result_x.at(time_step_counter);
+            trans_lastx = result_x.at(size_vector - 1);
         }
     }
 

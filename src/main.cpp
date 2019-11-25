@@ -15,79 +15,48 @@
 #include <thread>         // std::thread
 #include <unistd.h>
 #include <stdio.h>
-#include <sys/socket.h>
+#include <pthread.h>
 #include <stdlib.h>
-#include <netinet/in.h>
-#include <string.h>
-#define PORT 8080
+#include <algorithm>
+#include <mutex>
 
-// void foo()
-// {
-//   //
-//   //
-//   // std::cout << "Begin visualisation \n";
-//   // glGetCosts(result_cost);
-//   // glGetCoefficients(ref_x_vector,ref_y_vector,ref_x_vector_robot,ref_y_vector_robot);
-//   // glGetResults(result_x,result_y,result_psi);
-//   // glutInit (&argc, argv);
-//   // glutInitDisplayMode (GLUT_DOUBLE);
-//   // glutInitWindowSize (2000, 1000);
-//   // glutInitWindowPosition (0, 0);
-//   // glutCreateWindow ("MPC Simulation");
-//   //
-//   // glutDisplayFunc (display);
-//   // glutIdleFunc (display);
-//   // glutReshapeFunc (reshape);
-//   //
-//   // initgLOptions();
-//   // glutMainLoop ();
-//   //
-//   // std::cout << "End simulation \n";
+// global variables
+std::vector<double>result_x_global,result_y_global,result_psi_global;
+double result_cost_global;
+std::vector<double> ref_x_vector_global, ref_y_vector_global;
+std::vector<double> ref_x_vector_robot_global, ref_y_vector_robot_global;
+
+
+// a global instance of std::mutex to protect global variable
+std::mutex myMutex;
+
+void main_draw(){
+  std::cout << "Begin visualisation \n";
+  int argc;
+  char *argv[100];
+  std::lock_guard<std::mutex> guard(myMutex);
+  glGetCosts(result_cost_global);
+  glGetCoefficients(ref_x_vector_global,ref_y_vector_global,ref_x_vector_robot_global,ref_y_vector_robot_global);
+  glGetResults(result_x_global,result_y_global,result_psi_global);
+  glutInit (&argc, argv);
+  glutInitDisplayMode (GLUT_DOUBLE);
+  glutInitWindowSize (2000, 1000);
+  glutInitWindowPosition (0, 0);
+  glutCreateWindow ("MPC Simulation");
+
+  glutDisplayFunc (display);
+  glutIdleFunc (display);
+  glutReshapeFunc (reshape);
+
+  initgLOptions();
+  glutMainLoop ();
+
+  std::cout << "End simulation \n";
+
+}
 //
-// }
-
-
-int main(int argc, char *argv[]) {
-
-  int server_fd, new_socket, valread;
-  struct sockaddr_in address;
-  int opt = 1;
-  int addrlen = sizeof(address);
-  char buffer[1024] = {0};
-  char *hello = "Hello from server";
-
-  // Creating socket file descriptor
-  if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0){
-      perror("socket failed");
-      exit(EXIT_FAILURE);
-  }
-
-  // Forcefully attaching socket to the port 8080
-  if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,&opt, sizeof(opt))){
-      perror("setsockopt");
-      exit(EXIT_FAILURE);
-  }
-
-  address.sin_family = AF_INET;
-  address.sin_addr.s_addr = INADDR_ANY;
-  address.sin_port = htons( PORT );
-
-
-  // Forcefully attaching socket to the port 8080
-  if (bind(server_fd, (struct sockaddr *)&address,sizeof(address))<0){
-      perror("bind failed");
-      exit(EXIT_FAILURE);
-  }
-
-  if (listen(server_fd, 3) < 0){
-      perror("listen");
-      exit(EXIT_FAILURE);
-  }
-
-  if ((new_socket = accept(server_fd, (struct sockaddr *)&address,(socklen_t*)&addrlen))<0){
-      perror("accept");
-      exit(EXIT_FAILURE);
-  }
+void main_MPC(){
+  std::lock_guard<std::mutex> guard(myMutex);
 
   std::vector<double> result_x;
   std::vector<double> result_y;
@@ -126,8 +95,11 @@ int main(int argc, char *argv[]) {
   for(j = 0.0; j < T; j=j+DT){
     std::cout << "Time = " << j << std::endl;
     result_x.push_back(x(0));
+    result_x_global.push_back(x(0));
     result_y.push_back(x(1));
+    result_y_global.push_back(x(1));
     result_psi.push_back(x(2));
+    result_psi_global.push_back(x(2));
 
     //line
     for(i = 0; i < CONTROL_HORIZON; i++){
@@ -142,7 +114,9 @@ int main(int argc, char *argv[]) {
       }
 
       ref_x_vector.push_back(ref_x(i));
+      ref_x_vector_global.push_back(ref_x(i));
       ref_y_vector.push_back(ref_y(i));
+      ref_y_vector_global.push_back(ref_y(i));
     }
 
     Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y,2);
@@ -156,23 +130,36 @@ int main(int argc, char *argv[]) {
       ref_x_robot(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
 
       ref_x_vector_robot.push_back(ref_x_robot(i));
+      ref_x_vector_robot_global.push_back(ref_x_robot(i));
       ref_y_vector_robot.push_back(ref_y_robot(i));
+      ref_y_vector_robot_global.push_back(ref_y_robot(i));
     }
-
-    valread = read( new_socket , buffer, 1024);
-    printf("%s\n",buffer );
-    send(new_socket , hello , strlen(hello) , 0 );
-    printf("Hello message sent\n");
 
     // solve mpc for state and reference trajectory
     // returns [steering_angle, acceleration]
     result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta);
     u(0) = result_mpc.at(0);
     u(1) = result_mpc.at(1);
-    result_cost.push_back(result_mpc.at(2));
-
+    // result_cost.push_back(result_mpc.at(2));
+    // result_list.push_back(result_mpc.at(2));
+    result_cost_global = result_mpc.at(2);
     // getchar();
 
   }
-  return 0;
+}
+
+
+
+
+int main(int argc, char *argv[]) {
+	std::thread t1(main_MPC);
+	std::thread t2(main_draw);
+
+
+	t1.join();
+	t2.join();
+
+
+	return 0;
+
 }

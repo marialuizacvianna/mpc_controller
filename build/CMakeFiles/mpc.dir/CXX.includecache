@@ -877,13 +877,13 @@ unistd.h
 -
 stdio.h
 -
-sys/socket.h
+pthread.h
 -
 stdlib.h
 -
-netinet/in.h
+algorithm
 -
-string.h
+mutex
 -
 
 /usr/include/python3.6m/Python.h
