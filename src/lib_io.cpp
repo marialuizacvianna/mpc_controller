@@ -2,6 +2,11 @@
 #include "lib/io/lib_io.h"
 #include "lib/mpc/lib_mpc.h"
 #include <stdio.h>
+#include <fstream>
+
+// Create an output filestream object
+std::ofstream results_file("/home/maria/Documents/data_MPC/result01.csv");
+
 namespace plt = matplotlibcpp;
 
 double ti = 0.0, tf = T;
@@ -46,10 +51,19 @@ void glInitMPC(){
   last_x = X0;
   last_ray = 1000;
   angle2follow = 0.0;
+
+  // Send column names to the stream
+  results_file << "ref_theta";
+  results_file << ",";
+  results_file << "ref_offset";
+  results_file << ",";
+  results_file << "acc_out";
+  results_file << ",";
+  results_file << "steer_out";
+  results_file << "\n";
 }
 
 void calculate_MPC(){
-  std::cout << "x(3) = " << x(3) << std::endl;
   result_x.push_back(x(0));
   result_y.push_back(x(1));
   result_psi.push_back(x(2));
@@ -83,10 +97,10 @@ void calculate_MPC(){
 
   else if(PATH == "sinus"){
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      if(x(0) > last_x){
-        ref_x(i) = x(0) + i*DT;
+      if( x(0) + 0.5 > last_x){
+        ref_x(i) = x(0) + 0.5 + i*DT;
         ref_y(i) = LINE + sin(ref_x(i));
-        last_x = x(0);
+        last_x = x(0) + 0.5;
       }
       else{
         ref_x(i) = last_x + i*DT;
@@ -129,13 +143,28 @@ void calculate_MPC(){
     ref_x_vector_r.push_back(ref_x_robot(i));
     ref_y_vector_r.push_back(ref_y_robot(i));
   }
-  std::vector<double> result_mpc;
-  result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta);
 
-  u(0) = result_mpc.at(0);
-  u(1) = result_mpc.at(1);
+  Eigen::VectorXd poly_coeffs_robot = Polyfit(ref_x_robot, ref_y_robot,2);
+
+  double ref_theta_robot = -atan(poly_coeffs_robot(1));
+
+  std::vector<double> result_mpc;
+  result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta,ref_theta_robot);
+
+  u(0) = result_mpc.at(0);//steer
+  u(1) = result_mpc.at(1); //acc
 
   result_cost = result_mpc.at(2);
+
+
+  results_file << ref_theta_robot;
+  results_file << ",";
+  results_file << poly_coeffs_robot(0);
+  results_file << ",";
+  results_file << u(1);
+  results_file << ",";
+  results_file << u(0);
+  results_file << "\n";
 }
 
 
@@ -254,6 +283,7 @@ void display() {
 
     if(time >= tf){
         glutDestroyWindow(1);
+        results_file.close();
         return;
     }
 

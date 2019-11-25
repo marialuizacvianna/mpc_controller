@@ -18,7 +18,7 @@
 #define CONTROL_HORIZON    20
 #define T                  30
 #define LINE               0.0
-#define PATH               "line"
+#define PATH               "sinus"
 //intial conditions
 #define X0                 0.0 //x
 #define X1                 3.0 //y
@@ -32,7 +32,7 @@
 
 Eigen::VectorXd Propagate(Eigen::VectorXd,Eigen::VectorXd);
 Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n);
-std::vector<double> Solve_MPC(Eigen::VectorXd state,Eigen::VectorXd ref_x_world,Eigen::VectorXd ref_y_world,double ref_theta);
+std::vector<double> Solve_MPC(Eigen::VectorXd state,Eigen::VectorXd ref_x_world,Eigen::VectorXd ref_y_world,double ref_theta,double ref_theta_r);
 Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n);
 
 #endif

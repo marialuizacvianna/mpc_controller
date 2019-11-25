@@ -51,11 +51,12 @@ class FG_eval
   Eigen::VectorXd ref_x;
   Eigen::VectorXd ref_y;
   double ref_t;
-
-  FG_eval(Eigen::VectorXd ref_x, Eigen::VectorXd ref_y, double ref_theta) {
+  double ref_t_r;
+  FG_eval(Eigen::VectorXd ref_x, Eigen::VectorXd ref_y, double ref_theta, double ref_theta_r) {
     this->ref_x = ref_x;
     this->ref_y = ref_y;
     this->ref_t = ref_theta;
+    this->ref_t_r = ref_theta_r;
   }
 
   typedef CPPAD_TESTVECTOR(CppAD::AD<double>) ADvector;
@@ -83,8 +84,10 @@ class FG_eval
 
       fg[0] += 100*CppAD::pow(vars[y_start + t] - this->ref_y(t), 2);
       fg[0] += 100*CppAD::pow(vars[x_start + t] - this->ref_x(t), 2);
-      if(this->ref_t == 0.0)
-        fg[0] += 100*CppAD::pow(vars[v_start + t] - REF_V, 2);
+
+      if(this->ref_t_r == 0.0)
+        fg[0] += 100*CppAD::pow(vars[v_start + t] - REF_V , 2);
+
     }
 
     // Minimize the use of actuators
@@ -157,7 +160,7 @@ Eigen::VectorXd Propagate(Eigen::VectorXd x ,Eigen::VectorXd u) {
   return x_propagate;
 };
 
-std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eigen::VectorXd ref_y_world, double ref_theta){
+std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eigen::VectorXd ref_y_world, double ref_theta, double ref_theta_r){
   typedef CPPAD_TESTVECTOR(double) Dvector;
   bool ok = true;
   std::vector<double> x_pred_vals;
@@ -226,7 +229,7 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eige
   //Following the example from:
   //https://www.coin-or.org/CppAD/Doc/ipopt_solve_get_started.cpp.htm
   // object that computes objective and constraints
-  FG_eval fg_eval(ref_x_world, ref_y_world, ref_theta);
+  FG_eval fg_eval(ref_x_world, ref_y_world, ref_theta,ref_theta_r);
   //
   // NOTE: You don't have to worry about these options
   //
