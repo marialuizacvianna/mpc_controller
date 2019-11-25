@@ -49,37 +49,72 @@ void glInitMPC(){
 }
 
 void calculate_MPC(){
-  double cx = 20.0;
-  double cy = 0.0;
-  double circle_ray = 5.0;
 
   result_x.push_back(x(0));
   result_y.push_back(x(1));
   result_psi.push_back(x(2));
 
-  double ray = sqrt(pow(x(0) - cx,2) + pow(x(1)- cy,2)) ;
 
-  //line
-  for(int i = 0; i < CONTROL_HORIZON; i++){
+  if(PATH == "circle"){
+    //circle
+    double cx = 5.0;
+    double cy = 0.0;
+    double circle_ray = 5.0;
 
-    if(x(0) > (circle_ray*cos(angle2follow) + cx - 1.0) && x(0) < (circle_ray*cos(angle2follow) + cx + 1.0)
-      && x(1) > (circle_ray*sin(angle2follow) + cy - 1.0) && x(1) < (circle_ray*sin(angle2follow) + cy + 1.0)){
-      double angle2follow_it = angle2follow + i*DT;
-      ref_x(i) = circle_ray*cos(angle2follow_it) + cx;
-      ref_y(i) = circle_ray*sin(angle2follow_it) + cy;
-      angle2follow = angle2follow + DT;
+    for(int i = 0; i < CONTROL_HORIZON; i++){
+
+      if(x(0) > (circle_ray*cos(angle2follow) + cx - 1.0) && x(0) < (circle_ray*cos(angle2follow) + cx + 1.0)
+        && x(1) > (circle_ray*sin(angle2follow) + cy - 1.0) && x(1) < (circle_ray*sin(angle2follow) + cy + 1.0)){
+        double angle2follow_it = angle2follow + i*DT;
+        ref_x(i) = circle_ray*cos(angle2follow_it) + cx;
+        ref_y(i) = circle_ray*sin(angle2follow_it) + cy;
+        angle2follow = angle2follow + 0.1*DT;
+      }
+      else{
+        double angle2follow_it = angle2follow + i*DT;
+        ref_x(i) = circle_ray*cos(angle2follow_it) + cx;
+        ref_y(i) = circle_ray*sin(angle2follow_it) + cy;
+      }
+
+      ref_x_vector_w.push_back(ref_x(i));
+      ref_y_vector_w.push_back(ref_y(i));
     }
-    else{
-      double angle2follow_it = angle2follow + i*DT;
-      ref_x(i) = circle_ray*cos(angle2follow_it) + cx;
-      ref_y(i) = circle_ray*sin(angle2follow_it) + cy;
-    }
-    
-
-
-    ref_x_vector_w.push_back(ref_x(i));
-    ref_y_vector_w.push_back(ref_y(i));
   }
+
+  else if(PATH == "sinus"){
+    for(int i = 0; i < CONTROL_HORIZON; i++){
+      if(x(0) > last_x){
+        ref_x(i) = x(0) + i*DT;
+        ref_y(i) = LINE + sin(ref_x(i));
+        last_x = x(0);
+      }
+      else{
+        ref_x(i) = last_x + i*DT;
+        ref_y(i) = LINE + sin(ref_x(i));
+      }
+
+      ref_x_vector_w.push_back(ref_x(i));
+      ref_y_vector_w.push_back(ref_y(i));
+    }
+  }
+
+  else if(PATH == "line"){
+    for(int i = 0; i < CONTROL_HORIZON; i++){
+      if(x(0) > last_x){
+        ref_x(i) = x(0) + i*DT;
+        ref_y(i) = LINE;
+        last_x = x(0);
+      }
+      else{
+        ref_x(i) = last_x + i*DT;
+        ref_y(i) = LINE;
+      }
+
+      ref_x_vector_w.push_back(ref_x(i));
+      ref_y_vector_w.push_back(ref_y(i));
+    }
+  }
+
 
   Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y,2);
 

@@ -18,14 +18,14 @@
 #define CONTROL_HORIZON    20
 #define T                  30
 #define LINE               0.0
-
+#define PATH               "circle"
 //intial conditions
-#define X0                 -5.0 //x
-#define X1                 0.0 //y
+#define X0                 0.0 //x
+#define X1                 3.0 //y
 #define X2                 0.0//yaw
 #define X3                 3.0 // speed
 
-#define REF_V                            1.0
+#define REF_V                            10.0
 #define REF_OFFSET                       0.0
 #define REF_PSI_ERR                      0.0
 
