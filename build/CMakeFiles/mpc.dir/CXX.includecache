@@ -871,19 +871,9 @@ string.h
 -
 sstream
 -
-thread
--
-unistd.h
--
 stdio.h
 -
-pthread.h
--
 stdlib.h
--
-algorithm
--
-mutex
 -
 
 /usr/include/python3.6m/Python.h

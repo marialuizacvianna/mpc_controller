@@ -222,6 +222,11 @@ void drawReference() {
 
 
 void display() {
+    double time = time_step_counter*DT + ti;
+    if(time >= tf){
+        glutDestroyWindow(1);
+        return;
+    }
     calculate_MPC();
     double deltax;
     glutTimerFunc(ms_per_frame,timer,1);

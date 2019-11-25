@@ -16,7 +16,7 @@
 #define LF                 1.0
 #define DT                 0.01
 #define CONTROL_HORIZON    20
-#define T                  30
+#define T                  10
 #define LINE               0.0
 
 //intial conditions
