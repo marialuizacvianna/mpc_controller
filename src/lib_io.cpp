@@ -5,7 +5,7 @@
 #include <fstream>
 
 // Create an output filestream object
-std::ofstream results_file("/home/maria/Documents/data_MPC/result01.csv");
+std::ofstream results_file("/home/maria/Documents/data_MPC/result16.csv");
 
 namespace plt = matplotlibcpp;
 
@@ -71,9 +71,9 @@ void calculate_MPC(){
 
   if(PATH == "circle"){
     //circle
-    double cx = 5.0;
-    double cy = 0.0;
-    double circle_ray = 5.0;
+    double cx = 15.0;
+    double cy = 3.0;
+    double circle_ray = 4.0;
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
 
@@ -115,12 +115,12 @@ void calculate_MPC(){
   else if(PATH == "line"){
     for(int i = 0; i < CONTROL_HORIZON; i++){
       if(x(0) > last_x){
-        ref_x(i) = x(0) + i*DT;
+        ref_x(i) = x(0) + 0.5 + i*DT;
         ref_y(i) = LINE;
         last_x = x(0);
       }
       else{
-        ref_x(i) = last_x + i*DT;
+        ref_x(i) = last_x + 0.5 +  i*DT;
         ref_y(i) = LINE;
       }
 
