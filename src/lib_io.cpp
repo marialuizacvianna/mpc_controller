@@ -49,7 +49,7 @@ void glInitMPC(){
 }
 
 void calculate_MPC(){
-
+  std::cout << "x(3) = " << x(3) << std::endl;
   result_x.push_back(x(0));
   result_y.push_back(x(1));
   result_psi.push_back(x(2));

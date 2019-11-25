@@ -83,7 +83,8 @@ class FG_eval
 
       fg[0] += 100*CppAD::pow(vars[y_start + t] - this->ref_y(t), 2);
       fg[0] += 100*CppAD::pow(vars[x_start + t] - this->ref_x(t), 2);
-      fg[0] += CppAD::pow(vars[v_start + t] - REF_V, 2);
+      if(this->ref_t == 0.0)
+        fg[0] += 100*CppAD::pow(vars[v_start + t] - REF_V, 2);
     }
 
     // Minimize the use of actuators

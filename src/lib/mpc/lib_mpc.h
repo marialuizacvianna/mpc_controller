@@ -18,7 +18,7 @@
 #define CONTROL_HORIZON    20
 #define T                  30
 #define LINE               0.0
-#define PATH               "circle"
+#define PATH               "line"
 //intial conditions
 #define X0                 0.0 //x
 #define X1                 3.0 //y
