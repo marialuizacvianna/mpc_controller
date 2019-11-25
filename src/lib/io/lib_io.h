@@ -29,7 +29,8 @@ void drawRobotReference();
 void display();
 void reshape (int w, int h);
 void initgLOptions();
-
+void glInitMPC();
+void calculate_MPC();
 
 //Translate and Rotate tank points matrix
 Eigen::MatrixXd move_motif(Eigen::MatrixXd M, float x, float y,float psi);

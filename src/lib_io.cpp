@@ -9,7 +9,6 @@ int time_step_counter = 0, pause_flag = 0;
 int ms_per_frame = 5;
 double trans_lastx;
 double trans_corr = -1;
-double last_x = X0;
 
 std::vector<double> result_x;
 std::vector<double> result_y;
@@ -22,6 +21,79 @@ std::vector<double> ref_x_vector_w;
 std::vector<double> ref_y_vector_w;
 std::vector<double> ref_x_vector_r;
 std::vector<double> ref_y_vector_r;
+
+Eigen::VectorXd x(SIZE_STATE);//x y psi v err_offset err_psi
+Eigen::VectorXd u(SIZE_INPUT);//steering angle rate  acceleration
+
+Eigen::VectorXd ref_x(CONTROL_HORIZON); //vector with reference x positions
+Eigen::VectorXd ref_y(CONTROL_HORIZON); //vector with reference y positions
+
+Eigen::VectorXd ref_x_robot(CONTROL_HORIZON); //vector with reference x positions
+Eigen::VectorXd ref_y_robot(CONTROL_HORIZON); //vector with reference y positions
+
+double last_x;
+
+
+void glInitMPC(){
+  x(0) = X0; //x
+  x(1) = X1; //y
+  x(2) = X2; //theta
+  x(3) = X3; //speed
+
+
+  for(int i = 0; i < SIZE_INPUT; i++){
+    u(i) = 0.0;
+  }
+
+  last_x = X0;
+
+}
+
+void calculate_MPC(){
+  result_x.push_back(x(0));
+  result_y.push_back(x(1));
+  result_psi.push_back(x(2));
+
+  //line
+  for(int i = 0; i < CONTROL_HORIZON; i++){
+    if(x(0) >= last_x ){
+      ref_x(i) = x(0) + (DT*(i + 5));
+      ref_y(i) = cos(ref_x(i)) ;
+      last_x = x(0);
+    }
+
+    else{
+      ref_x(i) = last_x + (DT*(i + 1));
+      ref_y(i) = cos(ref_x(i)) ;
+    }
+
+    ref_x_vector_w.push_back(ref_x(i));
+    ref_y_vector_w.push_back(ref_y(i));
+  }
+
+  Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y,2);
+
+  double ref_theta = -atan(poly_coeffs(1));
+
+  x = Propagate(x,u);
+
+  for(int i = 0; i < CONTROL_HORIZON; i++){
+    ref_y_robot(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
+    ref_x_robot(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
+
+    ref_x_vector_r.push_back(ref_x_robot(i));
+    ref_y_vector_r.push_back(ref_y_robot(i));
+  }
+  std::vector<double> result_mpc;
+  result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta);
+
+  u(0) = result_mpc.at(0);
+  u(1) = result_mpc.at(1);
+
+  result_cost = result_mpc.at(2);
+}
+
+
 
 void glGetCoefficients(std::vector<double> ref_x_vector,std::vector<double>  ref_y_vector,
   std::vector<double> ref_x_vector_robot,std::vector<double>  ref_y_vector_robot){
@@ -90,7 +162,7 @@ void drawTank() {
 
     glColor3f(0.0, 0.0, 1.0);
     glBegin(GL_LINE_STRIP);
-    for(int i = 0; i <= time_step_counter ; i ++)
+    for(int i = 0; i <= size_vector - 1; i ++)
       glVertex3d(result_x.at(i),  result_y.at(i),  0.0);
     glEnd();
 
@@ -150,6 +222,7 @@ void drawReference() {
 
 
 void display() {
+    calculate_MPC();
     double deltax;
     glutTimerFunc(ms_per_frame,timer,1);
     glClearColor (0.0,0.0,0.0,1.0);
@@ -161,13 +234,12 @@ void display() {
       trans_corr = 0;
     }
     else{
-        deltax = result_x.at(time_step_counter) - trans_lastx;
+        deltax = result_x.at(size_vector - 1) - trans_lastx;
         if (deltax >= 35 ){
             trans_corr ++ ;
             trans_lastx = result_x.at(size_vector - 1);
         }
     }
-
     glTranslatef(-15 - (trans_corr*35),0,-20);
     glColor3f(1,1,1);
     drawTank();
