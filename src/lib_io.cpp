@@ -6,7 +6,7 @@
 #include <sstream>
 
 // Create an output filestream object
-std::ofstream results_file("/home/maria/Documents/nn_mpc/data_MPC/result_sinus.csv");
+std::ofstream results_file("/home/maria/Documents/nn_mpc/data_MPC/result_2020_0.csv");
 std::ifstream infile("/home/maria/Documents/nn_mpc/results_run");
 
 namespace plt = matplotlibcpp;
