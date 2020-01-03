@@ -189,7 +189,7 @@ void calculate_MPC(){
   std::cout << "ok\n";
   std::cout << "count_u = "<<count_u << "\n";
   std::cout << "steer_data.at(count_u) = "<<steer_data.at(count_u) << "\n";
-  u(0) = result_mpc.at(0);//steer_data.at(count_u);//result_mpc.at(0);//steer
+  u(0) = steer_out.at(count_u);//result_mpc.at(0);//steer
   u(1) = result_mpc.at(1); //acc
 
   result_cost = result_mpc.at(2);
