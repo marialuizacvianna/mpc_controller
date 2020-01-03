@@ -3,9 +3,11 @@
 #include "lib/mpc/lib_mpc.h"
 #include <stdio.h>
 #include <fstream>
+#include <sstream>
 
 // Create an output filestream object
-std::ofstream results_file("/home/maria/Documents/data_MPC/result16.csv");
+std::ofstream results_file("/home/maria/Documents/nn_mpc/data_MPC/result_sinus.csv");
+std::ifstream infile("/home/maria/Documents/nn_mpc/results_run");
 
 namespace plt = matplotlibcpp;
 
@@ -14,6 +16,9 @@ int time_step_counter = 0, pause_flag = 0;
 int ms_per_frame = 5;
 double trans_lastx;
 double trans_corr = -1;
+int count_u = 0;
+std::vector<double> steer_data;
+std::vector<double> steer_out;
 
 std::vector<double> result_x;
 std::vector<double> result_y;
@@ -53,14 +58,45 @@ void glInitMPC(){
   angle2follow = 0.0;
 
   // Send column names to the stream
-  results_file << "ref_theta";
+  results_file << "x_r";
   results_file << ",";
-  results_file << "ref_offset";
+  results_file << "y_r";
   results_file << ",";
-  results_file << "acc_out";
+  results_file << "t_r";
   results_file << ",";
-  results_file << "steer_out";
+  results_file << "x_d";
+  results_file << ",";
+  results_file << "y_d";
+  results_file << ",";
+  results_file << "t_d";
+  results_file << ",";
+  results_file << "steer";
+  results_file << ",";
+  results_file << "acc";
   results_file << "\n";
+
+  std::string line;
+  int y_parse = -1;
+  int count_lines = 0;
+  while (std::getline(infile, line))
+  {
+    if(y_parse == 0 && line != "y_data"){
+      steer_out.push_back(stod(line));
+    }
+
+    if(y_parse == 1){
+      steer_data.push_back(stod(line));
+    }
+
+    if(line == "y_out"){
+      y_parse = 0;
+    }
+
+    if(line == "y_data"){
+      y_parse = 1;
+    }
+
+  }
 }
 
 void calculate_MPC(){
@@ -68,12 +104,11 @@ void calculate_MPC(){
   result_y.push_back(x(1));
   result_psi.push_back(x(2));
 
-
   if(PATH == "circle"){
     //circle
-    double cx = 15.0;
-    double cy = 3.0;
-    double circle_ray = 4.0;
+    double cx = 0.0;
+    double cy = 0.0;
+    double circle_ray = 5.0;
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
 
@@ -99,12 +134,12 @@ void calculate_MPC(){
     for(int i = 0; i < CONTROL_HORIZON; i++){
       if( x(0) + 0.5 > last_x){
         ref_x(i) = x(0) + 0.5 + i*DT;
-        ref_y(i) = LINE + sin(ref_x(i));
+        ref_y(i) = LINE + cos(ref_x(i));
         last_x = x(0) + 0.5;
       }
       else{
         ref_x(i) = last_x + i*DT;
-        ref_y(i) = LINE + sin(ref_x(i));
+        ref_y(i) = LINE + cos(ref_x(i));
       }
 
       ref_x_vector_w.push_back(ref_x(i));
@@ -151,20 +186,33 @@ void calculate_MPC(){
   std::vector<double> result_mpc;
   result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta,ref_theta_robot);
 
-  u(0) = result_mpc.at(0);//steer
+  std::cout << "ok\n";
+  std::cout << "count_u = "<<count_u << "\n";
+  std::cout << "steer_data.at(count_u) = "<<steer_data.at(count_u) << "\n";
+  u(0) = result_mpc.at(0);//steer_data.at(count_u);//result_mpc.at(0);//steer
   u(1) = result_mpc.at(1); //acc
 
   result_cost = result_mpc.at(2);
 
 
-  results_file << ref_theta_robot;
+  results_file << x(0);
   results_file << ",";
-  results_file << poly_coeffs_robot(0);
+  results_file << x(1);
   results_file << ",";
-  results_file << u(1);
+  results_file << x(2);
+  results_file << ",";
+  results_file << ref_x(0);
+  results_file << ",";
+  results_file << ref_y(0);
+  results_file << ",";
+  results_file << ref_theta;
   results_file << ",";
   results_file << u(0);
+  results_file << ",";
+  results_file << u(1);
   results_file << "\n";
+
+  count_u ++;
 }
 
 

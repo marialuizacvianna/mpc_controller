@@ -16,13 +16,13 @@
 #define LF                 1.0
 #define DT                 0.01
 #define CONTROL_HORIZON    20
-#define T                  30
+#define T                  50
 #define LINE               0.0
-#define PATH               "circle"
+#define PATH               "sinus"
 //intial conditions
 #define X0                 0.0 //x
-#define X1                 3.0 //y
-#define X2                 0.8//yaw
+#define X1                 -10.0 //y
+#define X2                 0.5//yaw
 #define X3                 3.0 // speed
 
 #define REF_V                            10.0

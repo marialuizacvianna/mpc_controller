@@ -853,6 +853,8 @@ stdio.h
 -
 fstream
 -
+sstream
+-
 
 /home/maria/Documents/MPC/mpc_controller/src/lib_mpc.cpp
 lib/mpc/lib_mpc.h
