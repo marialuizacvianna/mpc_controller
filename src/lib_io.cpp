@@ -6,7 +6,7 @@
 #include <sstream>
 
 // Create an output filestream object
-std::ofstream results_file("/home/maria/Documents/nn_mpc/data_MPC/result_2020_0.csv");
+std::ofstream results_file("/home/maria/Documents/nn_mpc/data_MPC/result_2020_2.csv");
 std::ifstream infile("/home/maria/Documents/nn_mpc/results_run");
 
 namespace plt = matplotlibcpp;
@@ -133,7 +133,7 @@ void calculate_MPC(){
   else if(PATH == "sinus"){
     for(int i = 0; i < CONTROL_HORIZON; i++){
       if( x(0) + 0.5 > last_x){
-        ref_x(i) = x(0) + 0.5 + i*DT;
+        ref_x(i) = x(0)  + 0.5 + i*DT;
         ref_y(i) = LINE + cos(ref_x(i));
         last_x = x(0) + 0.5;
       }
@@ -150,12 +150,12 @@ void calculate_MPC(){
   else if(PATH == "line"){
     for(int i = 0; i < CONTROL_HORIZON; i++){
       if(x(0) > last_x){
-        ref_x(i) = x(0) + 0.5 + i*DT;
+        ref_x(i) = x(0)  + 5.0 + i*DT;
         ref_y(i) = LINE;
         last_x = x(0);
       }
       else{
-        ref_x(i) = last_x + 0.5 +  i*DT;
+        ref_x(i) = last_x + 5.0 +  i*DT;
         ref_y(i) = LINE;
       }
 
