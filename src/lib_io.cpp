@@ -6,7 +6,7 @@
 #include <sstream>
 
 // Create an output filestream object
-std::ofstream results_file("/home/maria/Documents/nn_mpc/data_MPC/result_2020_2.csv");
+std::ofstream results_file("/home/maria/Documents/nn_mpc/data_MPC/result_2020_sinus.csv");
 std::ifstream infile("/home/maria/Documents/nn_mpc/results_run");
 
 namespace plt = matplotlibcpp;
@@ -186,7 +186,7 @@ void calculate_MPC(){
   std::vector<double> result_mpc;
   result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta,ref_theta_robot);
 
-  u(0) = result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
+  u(0) = steer_out.at(count_u);//steer_out.at(count_u);//result_mpc.at(0);//steer
   u(1) = result_mpc.at(1); //acc
 
   result_cost = result_mpc.at(2);
