@@ -85,9 +85,9 @@ class FG_eval
       fg[0] += 100*CppAD::pow(vars[y_start + t] - this->ref_y(t), 2);
       fg[0] += 100*CppAD::pow(vars[x_start + t] - this->ref_x(t), 2);
 
-      if(abs(this->ref_t_r) < 0.001 ){
-            fg[0] += 10*CppAD::pow(vars[v_start + t] - REF_V , 2);
-      }
+      // if(abs(this->ref_t_r) < 0.001 ){
+      //       fg[0] += 10*CppAD::pow(vars[v_start + t] - REF_V , 2);
+      // }
 
 
     }

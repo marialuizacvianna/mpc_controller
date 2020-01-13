@@ -7,6 +7,7 @@
 
 // Create an output filestream object
 std::ofstream results_file;
+std::ifstream ref_file;
 std::ifstream infile("/home/maria/Documents/nn_mpc/results_run");
 
 namespace plt = matplotlibcpp;
@@ -25,6 +26,8 @@ std::vector<double> result_y;
 std::vector<double> result_psi;
 
 double result_cost;
+double count_ref_file;
+std::vector<double> ref_file_vec;
 
 std::vector<double> ref_x_vector_w;
 std::vector<double> ref_y_vector_w;
@@ -56,6 +59,20 @@ void glInitMPC(){
   last_x = X0;
   last_ray = 1000;
   angle2follow = 0.0;
+  count_ref_file = 0;
+
+  if(REF_FILE){
+    std::string ref_file_line;
+    ref_file.open("/home/maria/Documents/MPC/mpc_controller/data/ref_files/quad_ref.txt");
+    if (ref_file.is_open()){
+      while(std::getline(ref_file,ref_file_line)){
+        ref_file_vec.push_back(std::stod(ref_file_line));
+      }
+      ref_file.close();
+    }
+    std::cout << " REF_FILE == 1\n";
+    std::cout << "size of ref_file_vec: " << ref_file_vec.size() << std::endl;
+  }
 
   // Send column names to the stream
   if(RESULTS_FILE == 1){
@@ -107,65 +124,108 @@ void calculate_MPC(){
   result_y.push_back(x(1));
   result_psi.push_back(x(2));
 
-  if(PATH == "circle"){
-    //circle
-    double cx = 0.0;
-    double cy = 0.0;
-    double circle_ray = 5.0;
+  if(REF_FILE){
+    if(count_ref_file < ref_file_vec.size() + CONTROL_HORIZON){
+      for(int i = 0; i < CONTROL_HORIZON; i++){
+        if(x(0) > last_x){
+          ref_x(i) = x(0) + 0.5 + i*DT;
+          ref_y(i) = ref_file_vec.at(count_ref_file + i);
+          last_x = x(0);
+        }
+        else{
+          ref_x(i) = x(0) + 0.5 + i*DT;
+          ref_y(i) = ref_file_vec.at(count_ref_file + i);
+        }
 
-    for(int i = 0; i < CONTROL_HORIZON; i++){
-
-      if(x(0) > (circle_ray*cos(angle2follow) + cx - 1.0) && x(0) < (circle_ray*cos(angle2follow) + cx + 1.0)
-        && x(1) > (circle_ray*sin(angle2follow) + cy - 1.0) && x(1) < (circle_ray*sin(angle2follow) + cy + 1.0)){
-        double angle2follow_it = angle2follow + i*DT;
-        ref_x(i) = circle_ray*cos(angle2follow_it) + cx;
-        ref_y(i) = circle_ray*sin(angle2follow_it) + cy;
-        angle2follow = angle2follow + 0.1*DT;
+        ref_x_vector_w.push_back(ref_x(i));
+        ref_y_vector_w.push_back(ref_y(i));
       }
-      else{
-        double angle2follow_it = angle2follow + i*DT;
-        ref_x(i) = circle_ray*cos(angle2follow_it) + cx;
-        ref_y(i) = circle_ray*sin(angle2follow_it) + cy;
-      }
+      count_ref_file = count_ref_file + CONTROL_HORIZON ;
+    }
+    else
+      count_ref_file = 0;
+  }
+  else{
+    if(PATH == "quad"){
+      double aux_quad;
+      for(int i = 0; i < CONTROL_HORIZON; i++){
+        if( x(0) > last_x){
+          ref_x(i) = x(0) + 0.5 + i*DT;
+          aux_quad =  ref_x(i) - 10.0;
+          ref_y(i) = -0.2*(aux_quad*aux_quad)  + 1;
+          last_x = x(0) + 0.5;
+        }
+        else{
+          ref_x(i) = last_x + 0.5+  i*DT;
+          aux_quad =  ref_x(i) - 10.0;
+          ref_y(i) = -0.2*(aux_quad*aux_quad)  + 1;
+        }
 
-      ref_x_vector_w.push_back(ref_x(i));
-      ref_y_vector_w.push_back(ref_y(i));
+        ref_x_vector_w.push_back(ref_x(i));
+        ref_y_vector_w.push_back(ref_y(i));
+      }
+    }
+    if(PATH == "circle"){
+      //circle
+      double cx = 0.0;
+      double cy = 0.0;
+      double circle_ray = 5.0;
+
+      for(int i = 0; i < CONTROL_HORIZON; i++){
+
+        if(x(0) > (circle_ray*cos(angle2follow) + cx - 1.0) && x(0) < (circle_ray*cos(angle2follow) + cx + 1.0)
+          && x(1) > (circle_ray*sin(angle2follow) + cy - 1.0) && x(1) < (circle_ray*sin(angle2follow) + cy + 1.0)){
+          double angle2follow_it = angle2follow + i*DT;
+          ref_x(i) = circle_ray*cos(angle2follow_it) + cx;
+          ref_y(i) = circle_ray*sin(angle2follow_it) + cy;
+          angle2follow = angle2follow + 0.1*DT;
+        }
+        else{
+          double angle2follow_it = angle2follow + i*DT;
+          ref_x(i) = circle_ray*cos(angle2follow_it) + cx;
+          ref_y(i) = circle_ray*sin(angle2follow_it) + cy;
+        }
+
+        ref_x_vector_w.push_back(ref_x(i));
+        ref_y_vector_w.push_back(ref_y(i));
+      }
+    }
+
+    else if(PATH == "sinus"){
+      for(int i = 0; i < CONTROL_HORIZON; i++){
+        if( x(0) + 0.5 > last_x){
+          ref_x(i) = x(0)  + 0.5 + i*DT;
+          ref_y(i) = LINE + cos(ref_x(i));
+          last_x = x(0) + 0.5;
+        }
+        else{
+          ref_x(i) = last_x + i*DT;
+          ref_y(i) = LINE + cos(ref_x(i));
+        }
+
+        ref_x_vector_w.push_back(ref_x(i));
+        ref_y_vector_w.push_back(ref_y(i));
+      }
+    }
+
+    else if(PATH == "line"){
+      for(int i = 0; i < CONTROL_HORIZON; i++){
+        if(x(0) > last_x){
+          ref_x(i) = x(0)  + 5.0 + i*DT;
+          ref_y(i) = LINE;
+          last_x = x(0);
+        }
+        else{
+          ref_x(i) = last_x + 5.0 +  i*DT;
+          ref_y(i) = LINE;
+        }
+
+        ref_x_vector_w.push_back(ref_x(i));
+        ref_y_vector_w.push_back(ref_y(i));
+      }
     }
   }
 
-  else if(PATH == "sinus"){
-    for(int i = 0; i < CONTROL_HORIZON; i++){
-      if( x(0) + 0.5 > last_x){
-        ref_x(i) = x(0)  + 0.5 + i*DT;
-        ref_y(i) = LINE + cos(ref_x(i));
-        last_x = x(0) + 0.5;
-      }
-      else{
-        ref_x(i) = last_x + i*DT;
-        ref_y(i) = LINE + cos(ref_x(i));
-      }
-
-      ref_x_vector_w.push_back(ref_x(i));
-      ref_y_vector_w.push_back(ref_y(i));
-    }
-  }
-
-  else if(PATH == "line"){
-    for(int i = 0; i < CONTROL_HORIZON; i++){
-      if(x(0) > last_x){
-        ref_x(i) = x(0)  + 5.0 + i*DT;
-        ref_y(i) = LINE;
-        last_x = x(0);
-      }
-      else{
-        ref_x(i) = last_x + 5.0 +  i*DT;
-        ref_y(i) = LINE;
-      }
-
-      ref_x_vector_w.push_back(ref_x(i));
-      ref_y_vector_w.push_back(ref_y(i));
-    }
-  }
 
 
   Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y,2);
