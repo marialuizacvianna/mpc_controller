@@ -148,21 +148,34 @@ void calculate_MPC(){
   else{
     if(PATH == "quad"){
       double aux_quad;
+      double quad_coeff = 0.2;
+      double aux_ref_x;
+      double aux_center ;
+      if(x(0) < 5.0){
+        aux_ref_x = 5.0;
+        aux_center = 10;
+      }
+      else{
+        aux_center = (int)round(x(0)/10.0) * 10;
+        aux_ref_x = x(0);
+      }
+
       for(int i = 0; i < CONTROL_HORIZON; i++){
-        if( x(0) > last_x){
-          ref_x(i) = x(0) + 0.5 + i*DT;
-          aux_quad =  ref_x(i) - 10.0;
-          ref_y(i) = -0.2*(aux_quad*aux_quad)  + 1;
-          last_x = x(0) + 0.5;
+        if( x(0) >= last_x){
+          ref_x(i) = aux_ref_x  + i*DT;
+          aux_quad =  ref_x(i) - aux_center;
+          ref_y(i) = -0.2*(aux_quad*aux_quad)  + 5;
+          last_x = aux_ref_x;// + 0.5;
         }
         else{
-          ref_x(i) = last_x + 0.5+  i*DT;
-          aux_quad =  ref_x(i) - 10.0;
-          ref_y(i) = -0.2*(aux_quad*aux_quad)  + 1;
+          ref_x(i) = last_x +  i*DT;
+          aux_quad =  ref_x(i) - aux_center;
+          ref_y(i) = -0.2*(aux_quad*aux_quad)  + 5;
         }
 
         ref_x_vector_w.push_back(ref_x(i));
         ref_y_vector_w.push_back(ref_y(i));
+
       }
     }
     if(PATH == "circle"){
@@ -456,33 +469,4 @@ Eigen::MatrixXd move_motif(Eigen::MatrixXd M, float x, float y,float psi){
   R.row(0) << cos(psi), -sin(psi), x;
   R.row(1) << sin(psi), cos(psi),  y ;
   return (R*M2);
-}
-
-void create_txt_file(std::ofstream * file){
-  std::vector<std::string> month_vec = {"Jan", "Feb", "Mar", "Apr", "May", "Jui", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-  std::chrono::time_point<std::chrono::system_clock> start;
-  start = std::chrono::system_clock::now();
-  std::time_t start_t = std::chrono::system_clock::to_time_t(start);
-  std::string start_s = std::ctime(&start_t);
-
-  std::string month = start_s.substr(4,3);
-  std::string day = start_s.substr(8,2);
-  std::string year = start_s.substr(20,4);
-  std::string hour = start_s.substr(11,2);
-  std::string mins = start_s.substr(14,2);
-  std::string secs = start_s.substr(17,2);
-
-
-  std::vector<std::string>::iterator it = std::find (month_vec.begin(), month_vec.end(), month);
-  int month_nb = it - month_vec.begin() + 1;
-
-  std::stringstream txt_title_aux;
-  txt_title_aux<< io_path << month_nb << day << year<< hour << mins << secs << ".txt";
-  std::string txt_title = txt_title_aux.str();
-  file->open(txt_title);
-}
-
-
-void write_results(std::ofstream * file, Eigen::VectorXd x, Eigen::VectorXd u){
-  *file << x(0) << "," << x(1) << "," << x(2) << "," << x(3) << "," << x(4) << "," << x(5) << "," << u(0) << "," << u(1) << "\n";
 }
