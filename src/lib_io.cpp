@@ -6,7 +6,7 @@
 #include <sstream>
 
 // Create an output filestream object
-std::ofstream results_file("/home/maria/Documents/nn_mpc/data_MPC/result_2020_sinus.csv");
+std::ofstream results_file;
 std::ifstream infile("/home/maria/Documents/nn_mpc/results_run");
 
 namespace plt = matplotlibcpp;
@@ -58,22 +58,25 @@ void glInitMPC(){
   angle2follow = 0.0;
 
   // Send column names to the stream
-  results_file << "x_r";
-  results_file << ",";
-  results_file << "y_r";
-  results_file << ",";
-  results_file << "t_r";
-  results_file << ",";
-  results_file << "x_d";
-  results_file << ",";
-  results_file << "y_d";
-  results_file << ",";
-  results_file << "t_d";
-  results_file << ",";
-  results_file << "steer";
-  results_file << ",";
-  results_file << "acc";
-  results_file << "\n";
+  if(RESULTS_FILE == 1){
+    results_file.open("/home/maria/Documents/nn_mpc/data_MPC/result_2020_sinus.csv");
+    results_file << "x_r";
+    results_file << ",";
+    results_file << "y_r";
+    results_file << ",";
+    results_file << "t_r";
+    results_file << ",";
+    results_file << "x_d";
+    results_file << ",";
+    results_file << "y_d";
+    results_file << ",";
+    results_file << "t_d";
+    results_file << ",";
+    results_file << "steer";
+    results_file << ",";
+    results_file << "acc";
+    results_file << "\n";
+  }
 
   std::string line;
   int y_parse = -1;
@@ -186,28 +189,29 @@ void calculate_MPC(){
   std::vector<double> result_mpc;
   result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta,ref_theta_robot);
 
-  u(0) = steer_out.at(count_u);//steer_out.at(count_u);//result_mpc.at(0);//steer
+  u(0) = result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
   u(1) = result_mpc.at(1); //acc
 
   result_cost = result_mpc.at(2);
 
-
-  results_file << x(0);
-  results_file << ",";
-  results_file << x(1);
-  results_file << ",";
-  results_file << x(2);
-  results_file << ",";
-  results_file << ref_x(0);
-  results_file << ",";
-  results_file << ref_y(0);
-  results_file << ",";
-  results_file << ref_theta;
-  results_file << ",";
-  results_file << u(0);
-  results_file << ",";
-  results_file << u(1);
-  results_file << "\n";
+  if(RESULTS_FILE == 1){
+    results_file << x(0);
+    results_file << ",";
+    results_file << x(1);
+    results_file << ",";
+    results_file << x(2);
+    results_file << ",";
+    results_file << ref_x(0);
+    results_file << ",";
+    results_file << ref_y(0);
+    results_file << ",";
+    results_file << ref_theta;
+    results_file << ",";
+    results_file << u(0);
+    results_file << ",";
+    results_file << u(1);
+    results_file << "\n";
+  }
 
   count_u ++;
 }
@@ -328,7 +332,8 @@ void display() {
 
     if(time >= tf){
         glutDestroyWindow(1);
-        results_file.close();
+        if(RESULTS_FILE == 1)
+          results_file.close();
         return;
     }
 

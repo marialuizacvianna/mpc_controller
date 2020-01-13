@@ -19,6 +19,7 @@
 #define T                  50
 #define LINE               0.0
 #define PATH               "sinus"
+#define RESULTS_FILE        0 
 //intial conditions
 #define X0                 0.0 //x
 #define X1                 -10.0 //y
