@@ -9,6 +9,7 @@
 std::ofstream results_file;
 std::ifstream ref_file;
 std::ifstream infile("/home/maria/Documents/nn_mpc/results_run");
+std::ofstream dataset_file;
 
 namespace plt = matplotlibcpp;
 
@@ -76,23 +77,23 @@ void glInitMPC(){
 
   // Send column names to the stream
   if(RESULTS_FILE == 1){
-    results_file.open("/home/maria/Documents/nn_mpc/data_MPC/result_2020_sinus.csv");
-    results_file << "x_r";
-    results_file << ",";
-    results_file << "y_r";
-    results_file << ",";
-    results_file << "t_r";
-    results_file << ",";
-    results_file << "x_d";
-    results_file << ",";
-    results_file << "y_d";
-    results_file << ",";
-    results_file << "t_d";
-    results_file << ",";
-    results_file << "steer";
-    results_file << ",";
-    results_file << "acc";
-    results_file << "\n";
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset_MPC.txt", std::ios_base::app);
+    // dataset_file << "x_r";
+    // dataset_file << ",";
+    // dataset_file << "y_r";
+    // dataset_file << ",";
+    // dataset_file << "t_r";
+    // dataset_file << ",";
+    // dataset_file << "x_d";
+    // dataset_file << ",";
+    // dataset_file << "y_d";
+    // dataset_file << ",";
+    // dataset_file << "t_d";
+    // dataset_file << ",";
+    // dataset_file << "steer";
+    // dataset_file << ",";
+    // dataset_file << "acc";
+    // dataset_file << "\n";
   }
 
   std::string line;
@@ -241,7 +242,7 @@ void calculate_MPC(){
 
 
 
-  Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y,2);
+  Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y,3);
 
   double ref_theta = -atan(poly_coeffs(1));
 
@@ -268,22 +269,38 @@ void calculate_MPC(){
   result_cost = result_mpc.at(2);
 
   if(RESULTS_FILE == 1){
-    results_file << x(0);
-    results_file << ",";
-    results_file << x(1);
-    results_file << ",";
-    results_file << x(2);
-    results_file << ",";
-    results_file << ref_x(0);
-    results_file << ",";
-    results_file << ref_y(0);
-    results_file << ",";
-    results_file << ref_theta;
-    results_file << ",";
-    results_file << u(0);
-    results_file << ",";
-    results_file << u(1);
-    results_file << "\n";
+    // results_file << x(0);
+    // results_file << ",";
+    // results_file << x(1);
+    // results_file << ",";
+    // results_file << x(2);
+    // results_file << ",";
+    // results_file << ref_x(0);
+    // results_file << ",";
+    // results_file << ref_y(0);
+    // results_file << ",";
+    // results_file << ref_theta;
+    // results_file << ",";
+    // results_file << u(0);
+    // results_file << ",";
+    // results_file << u(1);
+    // results_file << "\n";
+    dataset_file << std::to_string(x(0));
+    dataset_file << ", ";
+    dataset_file << std::to_string(x(1));
+    dataset_file << ", ";
+    dataset_file << std::to_string(x(2));
+    dataset_file << ", ";
+    dataset_file << std::to_string(ref_x(0));
+    dataset_file << ", ";
+    dataset_file << std::to_string(ref_y(0));
+    dataset_file << ", ";
+    dataset_file << std::to_string(ref_theta);
+    dataset_file << ", ";
+    dataset_file << std::to_string(u(0));
+    dataset_file << ", ";
+    dataset_file << std::to_string(u(1));
+    dataset_file << "\n";
   }
 
   count_u ++;

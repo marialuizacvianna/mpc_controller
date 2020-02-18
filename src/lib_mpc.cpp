@@ -76,35 +76,21 @@ class FG_eval
     // 3. diff bw v and ref_v
     for (int t = 0; t < CONTROL_HORIZON; t++)
     {
-      // fg[0] += 100*CppAD::pow(vars[x_start + t] - this->ref_x.at(t), 2); //CppAD::exp(-t*0.1)*
-      if(abs(abs(vars[psi_start + t]) - this->ref_t) >= 1.7)
-        fg[0] += 100*CppAD::pow(vars[psi_start + t] - this->ref_t , 2);
-      else
-        fg[0] += 1*CppAD::pow(vars[psi_start + t] - this->ref_t , 2);
 
       fg[0] += 100*CppAD::pow(vars[y_start + t] - this->ref_y(t), 2);
       fg[0] += 100*CppAD::pow(vars[x_start + t] - this->ref_x(t), 2);
-
-      // if(abs(this->ref_t_r) < 0.001 ){
-      //       fg[0] += 10*CppAD::pow(vars[v_start + t] - REF_V , 2);
-      // }
+      fg[0] += 1*CppAD::pow(vars[psi_start + t] - this->ref_t , 2);
 
 
     }
 
-    // Minimize the use of actuators
-    // for (int t = 0; t < CONTROL_HORIZON - 1; t++)
-    // {
-    //   fg[0] += 1*CppAD::pow(vars[delta_start + t], 2);
-    //   fg[0] += 1*CppAD::pow(vars[a_start + t], 2);
-    // }
-    //
-    //Minimize the value gap between sequential actuations.
-      for (int t = 0; t < CONTROL_HORIZON - 2; t++)
-      {
-        if(abs(this->ref_t_r) < 0.001)
-          fg[0] += 10*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
-      }
+    //Minimize the use of actuators
+    for (int t = 0; t < CONTROL_HORIZON - 1; t++)
+    {
+      fg[0] += 1*CppAD::pow(vars[delta_start + t], 2);
+    }
+
+
 
 
     // -----------------------  model constraints
