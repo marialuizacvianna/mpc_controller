@@ -47,10 +47,9 @@ Eigen::VectorXd ref_y_robot(CONTROL_HORIZON); //vector with reference y position
 double last_x, last_ray,angle2follow;
 
 void glInitMPC(double x0,double x1, double x2){
-  std::cout<< "inside init\n";
-  x(0) = X0; //x
-  x(1) = X1; //y
-  x(2) = X2; //theta
+  x(0) = x0; //x
+  x(1) = x1; //y
+  x(2) = x2; //theta
   x(3) = X3; //speed
 
   int time_step_counter = 0, pause_flag = 0;
@@ -375,7 +374,6 @@ void display() {
     double size_vector;
 
     if(time >= tf){
-        std::cout << "nb_cases = " << nb_cases << std::endl;
         if(nb_cases > TOTAL_CASES){
           glutDestroyWindow(1);
           if(RESULTS_FILE == 1)
@@ -385,10 +383,17 @@ void display() {
         else{
           time = 0.0;
           time_step_counter = 0.0;
-          std::cout << "time = " << time << std::endl;
+          double x0 = 0.0;
+          int sign = rand()%2;
+          if(sign !=0 && sign != 1)
+            return;
+          double x1 = fmod((double)rand(),20.0);
+          if(sign == 0)
+            x1 = -x1;
+          double x2 = fmod((double)rand(),3.14159265359);
           glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-          glInitMPC(X0,X1, X2);
+          glInitMPC(x0,x1, x2);
           nb_cases = nb_cases + 1;
         }
         return;
