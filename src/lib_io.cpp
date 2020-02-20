@@ -77,7 +77,7 @@ void glInitMPC(){
 
   // Send column names to the stream
   if(RESULTS_FILE == 1){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset_MPC.txt", std::ios_base::app);
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset_MPC_01.txt", std::ios_base::app);
     // dataset_file << "x_r";
     // dataset_file << ",";
     // dataset_file << "y_r";
@@ -89,6 +89,10 @@ void glInitMPC(){
     // dataset_file << "y_d";
     // dataset_file << ",";
     // dataset_file << "t_d";
+    // dataset_file << ",";
+    // dataset_file << "err_theta";
+    // dataset_file << ",";
+    // dataset_file << "err_offset";
     // dataset_file << ",";
     // dataset_file << "steer";
     // dataset_file << ",";
@@ -256,7 +260,7 @@ void calculate_MPC(){
     ref_y_vector_r.push_back(ref_y_robot(i));
   }
 
-  Eigen::VectorXd poly_coeffs_robot = Polyfit(ref_x_robot, ref_y_robot,2);
+  Eigen::VectorXd poly_coeffs_robot = Polyfit(ref_x_robot, ref_y_robot,3);
 
   double ref_theta_robot = -atan(poly_coeffs_robot(1));
 
@@ -269,22 +273,6 @@ void calculate_MPC(){
   result_cost = result_mpc.at(2);
 
   if(RESULTS_FILE == 1){
-    // results_file << x(0);
-    // results_file << ",";
-    // results_file << x(1);
-    // results_file << ",";
-    // results_file << x(2);
-    // results_file << ",";
-    // results_file << ref_x(0);
-    // results_file << ",";
-    // results_file << ref_y(0);
-    // results_file << ",";
-    // results_file << ref_theta;
-    // results_file << ",";
-    // results_file << u(0);
-    // results_file << ",";
-    // results_file << u(1);
-    // results_file << "\n";
     dataset_file << std::to_string(x(0));
     dataset_file << ", ";
     dataset_file << std::to_string(x(1));
@@ -296,6 +284,10 @@ void calculate_MPC(){
     dataset_file << std::to_string(ref_y(0));
     dataset_file << ", ";
     dataset_file << std::to_string(ref_theta);
+    dataset_file << ", ";
+    dataset_file << std::to_string(ref_theta_robot);
+    dataset_file << ", ";
+    dataset_file << std::to_string(poly_coeffs_robot(0));
     dataset_file << ", ";
     dataset_file << std::to_string(u(0));
     dataset_file << ", ";

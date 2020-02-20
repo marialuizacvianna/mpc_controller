@@ -19,7 +19,7 @@
 #define T                  20
 #define LINE               0.0
 #define PATH               "circle"
-#define RESULTS_FILE        1
+#define RESULTS_FILE        0
 #define REF_FILE            0
 //intial conditions
 #define X0                 0.0 //x
