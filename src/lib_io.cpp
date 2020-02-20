@@ -77,27 +77,7 @@ void glInitMPC(){
 
   // Send column names to the stream
   if(RESULTS_FILE == 1){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset_MPC_01.txt", std::ios_base::app);
-    // dataset_file << "x_r";
-    // dataset_file << ",";
-    // dataset_file << "y_r";
-    // dataset_file << ",";
-    // dataset_file << "t_r";
-    // dataset_file << ",";
-    // dataset_file << "x_d";
-    // dataset_file << ",";
-    // dataset_file << "y_d";
-    // dataset_file << ",";
-    // dataset_file << "t_d";
-    // dataset_file << ",";
-    // dataset_file << "err_theta";
-    // dataset_file << ",";
-    // dataset_file << "err_offset";
-    // dataset_file << ",";
-    // dataset_file << "steer";
-    // dataset_file << ",";
-    // dataset_file << "acc";
-    // dataset_file << "\n";
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_MPC_02.txt", std::ios_base::app);
   }
 
   std::string line;
@@ -265,12 +245,12 @@ void calculate_MPC(){
   double ref_theta_robot = -atan(poly_coeffs_robot(1));
 
   std::vector<double> result_mpc;
+
   result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta,ref_theta_robot);
 
   u(0) = result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
-  u(1) = result_mpc.at(1); //acc
 
-  result_cost = result_mpc.at(2);
+  result_cost = result_mpc.at(1);
 
   if(RESULTS_FILE == 1){
     dataset_file << std::to_string(x(0));
@@ -290,8 +270,6 @@ void calculate_MPC(){
     dataset_file << std::to_string(poly_coeffs_robot(0));
     dataset_file << ", ";
     dataset_file << std::to_string(u(0));
-    dataset_file << ", ";
-    dataset_file << std::to_string(u(1));
     dataset_file << "\n";
   }
 

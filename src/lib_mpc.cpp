@@ -8,7 +8,7 @@ size_t y_start = x_start + CONTROL_HORIZON;
 size_t psi_start = y_start + CONTROL_HORIZON;
 size_t v_start = psi_start + CONTROL_HORIZON;
 size_t delta_start = v_start + CONTROL_HORIZON;
-size_t a_start = delta_start + CONTROL_HORIZON - 1;
+// size_t a_start = delta_start + CONTROL_HORIZON - 1;
 
 
 // Set the number of model variables (includes both states and inputs).
@@ -81,7 +81,6 @@ class FG_eval
       fg[0] += 100*CppAD::pow(vars[x_start + t] - this->ref_x(t), 2);
       fg[0] += 1*CppAD::pow(vars[psi_start + t] - this->ref_t , 2);
 
-
     }
 
     //Minimize the use of actuators
@@ -89,8 +88,6 @@ class FG_eval
     {
       fg[0] += 1*CppAD::pow(vars[delta_start + t], 2);
     }
-
-
 
 
     // -----------------------  model constraints
@@ -119,7 +116,7 @@ class FG_eval
 
       // Only consider the actuation at time t.
       CppAD::AD<double> delta0 = vars[delta_start + t - 1];
-      CppAD::AD<double> a0 = vars[a_start + t - 1];
+      // CppAD::AD<double> a0 = vars[a_start + t - 1];
 
 
       // equations for the model:
@@ -133,7 +130,7 @@ class FG_eval
       fg[1 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * DT);
       fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * DT);
       fg[1 + psi_start + t] = psi1 - (psi0 - v0 * delta0 / LF * DT);
-      fg[1 + v_start + t] = v1 - (v0 + a0 * DT);
+      fg[1 + v_start + t] = v1 - (v0 + 0.0 * DT);
 
     }
   }
@@ -145,7 +142,7 @@ Eigen::VectorXd Propagate(Eigen::VectorXd x ,Eigen::VectorXd u) {
   x_propagate(0) = x(0) + x(3)*cos(x(2))*DT;
   x_propagate(1) = x(1) + x(3)*sin(x(2))*DT;
   x_propagate(2) = x(2) - x(3)/LF*u(0)*DT;
-  x_propagate(3) = x(3) + u(1)*DT;
+  x_propagate(3) = x(3);
   return x_propagate;
 };
 
@@ -180,18 +177,18 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eige
 
   // The upper and lower limits of delta are set to -25 and 25
   // degrees (values in radians).
-  for (int i = delta_start; i < a_start; i++)
+  for (int i = delta_start; i < n_vars; i++)
   {
     vars_lowerbound[i] = -0.836332;
     vars_upperbound[i] = 0.836332;
   }
 
   // Acceleration/decceleration upper and lower limits.
-  for (int i = a_start; i < n_vars; i++)
-  {
-    vars_lowerbound[i] = -0.1;
-    vars_upperbound[i] = 0.1;
-  }
+  // for (int i = a_start; i < n_vars; i++)
+  // {
+  //   vars_lowerbound[i] = -0.1;
+  //   vars_upperbound[i] = 0.1;
+  // }
 
   // Lower and upper limits for the constraints
   // Should be 0 besides initial state.
@@ -251,5 +248,5 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eige
   // Cost
   auto cost = solution.obj_value;
 
-  return {solution.x[delta_start], solution.x[a_start], cost};
+  return {solution.x[delta_start], cost};
 }
