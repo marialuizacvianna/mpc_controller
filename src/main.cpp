@@ -14,10 +14,11 @@
 #include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <time.h>       /* time */
 
 int main(int argc, char *argv[]) {
-  glInitMPC();
+  srand (time(NULL));
+  glInitMPC(X0,X1,X2);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);
@@ -28,6 +29,6 @@ int main(int argc, char *argv[]) {
   glutReshapeFunc (reshape);
   initgLOptions();
   glutMainLoop();
-	return 0;
+  return 0;
 
 }

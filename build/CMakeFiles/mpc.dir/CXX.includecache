@@ -879,6 +879,8 @@ stdio.h
 -
 stdlib.h
 -
+time.h
+-
 
 /usr/include/python3.6m/Python.h
 patchlevel.h

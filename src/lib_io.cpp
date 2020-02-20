@@ -8,11 +8,11 @@
 // Create an output filestream object
 std::ofstream results_file;
 std::ifstream ref_file;
-std::ifstream infile("/home/maria/Documents/nn_mpc/results_run");
 std::ofstream dataset_file;
 
 namespace plt = matplotlibcpp;
 
+int nb_cases = 0;
 double ti = 0.0, tf = T;
 int time_step_counter = 0, pause_flag = 0;
 int ms_per_frame = 5;
@@ -46,11 +46,18 @@ Eigen::VectorXd ref_y_robot(CONTROL_HORIZON); //vector with reference y position
 
 double last_x, last_ray,angle2follow;
 
-void glInitMPC(){
+void glInitMPC(double x0,double x1, double x2){
+  std::cout<< "inside init\n";
   x(0) = X0; //x
   x(1) = X1; //y
   x(2) = X2; //theta
   x(3) = X3; //speed
+
+  int time_step_counter = 0, pause_flag = 0;
+  int ms_per_frame = 5;
+  double trans_lastx;
+  double trans_corr = -1;
+  int count_u = 0;
 
 
   for(int i = 0; i < SIZE_INPUT; i++){
@@ -62,46 +69,13 @@ void glInitMPC(){
   angle2follow = 0.0;
   count_ref_file = 0;
 
-  if(REF_FILE){
-    std::string ref_file_line;
-    ref_file.open("/home/maria/Documents/MPC/mpc_controller/data/ref_files/quad_ref.txt");
-    if (ref_file.is_open()){
-      while(std::getline(ref_file,ref_file_line)){
-        ref_file_vec.push_back(std::stod(ref_file_line));
-      }
-      ref_file.close();
-    }
-    std::cout << " REF_FILE == 1\n";
-    std::cout << "size of ref_file_vec: " << ref_file_vec.size() << std::endl;
-  }
 
   // Send column names to the stream
-  if(RESULTS_FILE == 1){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_MPC_02.txt", std::ios_base::app);
+  if(RESULTS_FILE == 1 && !dataset_file.is_open()){
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_MPC_03.txt", std::ios_base::app);
   }
 
-  std::string line;
-  int y_parse = -1;
-  int count_lines = 0;
-  while (std::getline(infile, line))
-  {
-    if(y_parse == 0 && line != "y_data"){
-      steer_out.push_back(stod(line));
-    }
 
-    if(y_parse == 1){
-      steer_data.push_back(stod(line));
-    }
-
-    if(line == "y_out"){
-      y_parse = 0;
-    }
-
-    if(line == "y_data"){
-      y_parse = 1;
-    }
-
-  }
 }
 
 void calculate_MPC(){
@@ -392,14 +366,31 @@ void drawReference() {
 
 
 void display() {
+    srand (time(NULL));
+    double x0 = 0.0;
+    double x1 = (double)rand() / 20.0;
+    double x2 = (double)rand() / 3.14159265359;
     double deltax;
     double time = time_step_counter*DT + ti;
     double size_vector;
 
     if(time >= tf){
-        glutDestroyWindow(1);
-        if(RESULTS_FILE == 1)
-          results_file.close();
+        std::cout << "nb_cases = " << nb_cases << std::endl;
+        if(nb_cases > TOTAL_CASES){
+          glutDestroyWindow(1);
+          if(RESULTS_FILE == 1)
+            results_file.close();
+        }
+
+        else{
+          time = 0.0;
+          time_step_counter = 0.0;
+          std::cout << "time = " << time << std::endl;
+          glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
+          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+          glInitMPC(X0,X1, X2);
+          nb_cases = nb_cases + 1;
+        }
         return;
     }
 

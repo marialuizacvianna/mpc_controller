@@ -29,7 +29,7 @@ void drawRobotReference();
 void display();
 void reshape (int w, int h);
 void initgLOptions();
-void glInitMPC();
+void glInitMPC(double x0,double x1,double x2);
 void calculate_MPC();
 
 //Translate and Rotate tank points matrix
