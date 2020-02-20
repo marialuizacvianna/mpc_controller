@@ -1,1 +1,1 @@
-   x_r  ,    y_r  ,    t_r  ,    x_d  ,   y_d   ,    t_d   , err_theta, err_offset,steer  ,acc
+x_r  ,    y_r  ,    t_r  ,    x_d  ,   y_d   ,    t_d   , err_theta, err_offset,steer

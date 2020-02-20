@@ -249,7 +249,13 @@ void calculate_MPC(){
   result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta,ref_theta_robot);
 
   u(0) = result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
-
+  char out[64];
+  double xrounded;
+  sprintf(out, "%.g", 1, u(0));
+  u(0) = strtod(out, 0);
+  if(abs(u(0)) < 0.1)
+    u(0) = 0.0;
+  std::cout << "u(0) = " << u(0) << std::endl;
   result_cost = result_mpc.at(1);
 
   if(RESULTS_FILE == 1){
