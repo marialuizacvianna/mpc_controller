@@ -17,7 +17,7 @@
 const std::string io_path = "../results/";
 
 void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi);
-void glGetCosts(std::vector<double> costs);
+void glGetCosts(double cost);
 void glGetCoefficients(std::vector<double> ref_x_vector,std::vector<double>  ref_y_vector,
   std::vector<double> ref_x_vector_robot,std::vector<double>  ref_y_vector_robot);
 //OpenGL functions
@@ -29,7 +29,8 @@ void drawRobotReference();
 void display();
 void reshape (int w, int h);
 void initgLOptions();
-
+void glInitMPC(double x0,double x1,double x2);
+void calculate_MPC();
 
 //Translate and Rotate tank points matrix
 Eigen::MatrixXd move_motif(Eigen::MatrixXd M, float x, float y,float psi);

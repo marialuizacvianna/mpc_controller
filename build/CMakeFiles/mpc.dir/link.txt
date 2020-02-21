@@ -1,1 +1,1 @@
-/usr/bin/g++-6  -Wall   CMakeFiles/mpc.dir/src/lib_mpc.cpp.o CMakeFiles/mpc.dir/src/main.cpp.o CMakeFiles/mpc.dir/src/lib_io.cpp.o  -o mpc  -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lipopt -lz -lssl -luv -luWS -lglut -lGLU -lGL /usr/lib/x86_64-linux-gnu/libpython3.6m.so 
+/usr/bin/g++-6  -Wall -pthread   CMakeFiles/mpc.dir/src/lib_mpc.cpp.o CMakeFiles/mpc.dir/src/main.cpp.o CMakeFiles/mpc.dir/src/lib_io.cpp.o  -o mpc  -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lipopt -lz -lssl -luv -luWS -lglut -lGLU -lGL /usr/lib/x86_64-linux-gnu/libpython3.6m.so 

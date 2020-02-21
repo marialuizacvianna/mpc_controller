@@ -851,6 +851,10 @@ lib/mpc/lib_mpc.h
 /home/maria/Documents/MPC/mpc_controller/src/lib/mpc/lib_mpc.h
 stdio.h
 -
+fstream
+-
+sstream
+-
 
 /home/maria/Documents/MPC/mpc_controller/src/lib_mpc.cpp
 lib/mpc/lib_mpc.h
@@ -870,6 +874,12 @@ lib/io/lib_io.h
 string.h
 -
 sstream
+-
+stdio.h
+-
+stdlib.h
+-
+time.h
 -
 
 /usr/include/python3.6m/Python.h
