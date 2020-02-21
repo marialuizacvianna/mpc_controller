@@ -226,8 +226,6 @@ void calculate_MPC(){
   double xrounded;
   sprintf(out, "%.g", 1, u(0));
   u(0) = strtod(out, 0);
-  if(abs(u(0)) < 0.1)
-    u(0) = 0.0;
   std::cout << "u(0) = " << u(0) << std::endl;
   result_cost = result_mpc.at(1);
 
