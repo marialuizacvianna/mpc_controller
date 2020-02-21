@@ -7,8 +7,8 @@
 
 // Create an output filestream object
 std::ofstream results_file;
-std::ifstream ref_file;
 std::ofstream dataset_file;
+std::ifstream nn_control_file;
 
 namespace plt = matplotlibcpp;
 
@@ -27,8 +27,7 @@ std::vector<double> result_y;
 std::vector<double> result_psi;
 
 double result_cost;
-double count_ref_file;
-std::vector<double> ref_file_vec;
+
 
 std::vector<double> ref_x_vector_w;
 std::vector<double> ref_y_vector_w;
@@ -66,7 +65,6 @@ void glInitMPC(double x0,double x1, double x2){
   last_x = X0;
   last_ray = 1000;
   angle2follow = 0.0;
-  count_ref_file = 0;
 
 
   // Send column names to the stream
@@ -82,28 +80,6 @@ void calculate_MPC(){
   result_y.push_back(x(1));
   result_psi.push_back(x(2));
 
-  if(REF_FILE){
-    if(count_ref_file < ref_file_vec.size() + CONTROL_HORIZON){
-      for(int i = 0; i < CONTROL_HORIZON; i++){
-        if(x(0) > last_x){
-          ref_x(i) = x(0) + 0.5 + i*DT;
-          ref_y(i) = ref_file_vec.at(count_ref_file + i);
-          last_x = x(0);
-        }
-        else{
-          ref_x(i) = x(0) + 0.5 + i*DT;
-          ref_y(i) = ref_file_vec.at(count_ref_file + i);
-        }
-
-        ref_x_vector_w.push_back(ref_x(i));
-        ref_y_vector_w.push_back(ref_y(i));
-      }
-      count_ref_file = count_ref_file + CONTROL_HORIZON ;
-    }
-    else
-      count_ref_file = 0;
-  }
-  else{
     if(PATH == "quad"){
       double aux_quad;
       double quad_coeff = 0.2;
@@ -195,7 +171,6 @@ void calculate_MPC(){
         ref_y_vector_w.push_back(ref_y(i));
       }
     }
-  }
 
 
 
