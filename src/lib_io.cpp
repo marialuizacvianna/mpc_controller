@@ -20,7 +20,7 @@ double trans_lastx;
 double trans_corr = -1;
 int count_u = 0;
 std::vector<double> steer_data;
-std::vector<double> steer_out;
+std::vector<double> nn_control;
 
 std::vector<double> result_x;
 std::vector<double> result_y;
@@ -66,12 +66,18 @@ void glInitMPC(double x0,double x1, double x2){
   last_ray = 1000;
   angle2follow = 0.0;
 
-
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_MPC_03.txt", std::ios_base::app);
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_MPC_05.txt", std::ios_base::app);
   }
 
+  if(NN_FILE == 1){
+    nn_control_file.open("/home/maria/Documents/nn_mpc/dataset_MPC_05_output_nn.txt");
+    std::string line_nn;
+    while (std::getline(nn_control_file, line_nn)){
+      nn_control.push_back(strtod(line_nn.c_str(), 0));
+    }
+  }
 
 }
 
@@ -196,12 +202,11 @@ void calculate_MPC(){
 
   result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta,ref_theta_robot);
 
-  u(0) = result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
-  char out[64];
-  double xrounded;
-  sprintf(out, "%.g", 1, u(0));
-  u(0) = strtod(out, 0);
-  std::cout << "u(0) = " << u(0) << std::endl;
+  u(0) = nn_control.at(count_u); //result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
+  // char out[64];
+  // double xrounded;
+  // sprintf(out, "%.g", 1, u(0));
+  // u(0) = strtod(out, 0);
   result_cost = result_mpc.at(1);
 
   if(RESULTS_FILE == 1){
@@ -347,7 +352,7 @@ void display() {
     double size_vector;
 
     if(time >= tf){
-        if(nb_cases > TOTAL_CASES){
+        if(nb_cases >= TOTAL_CASES){
           glutDestroyWindow(1);
           if(RESULTS_FILE == 1)
             results_file.close();
