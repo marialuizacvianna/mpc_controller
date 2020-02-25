@@ -20,7 +20,7 @@
 #define LINE               0.0
 #define PATH               "line"
 #define RESULTS_FILE        0
-#define NN_FILE             1
+#define NN_FILE             0
 #define REF_FILE            0
 #define TOTAL_CASES         0
 //intial conditions

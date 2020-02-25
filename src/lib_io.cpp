@@ -202,11 +202,16 @@ void calculate_MPC(){
 
   result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta,ref_theta_robot);
 
-  u(0) = nn_control.at(count_u); //result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
-  // char out[64];
-  // double xrounded;
-  // sprintf(out, "%.g", 1, u(0));
-  // u(0) = strtod(out, 0);
+  if(NN_FILE)
+    u(0) = nn_control.at(count_u); //result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
+  else{
+    u(0) =result_mpc.at(0);
+    char out[64];
+    double xrounded;
+    sprintf(out, "%.g", 1, u(0));
+    u(0) = strtod(out, 0);
+  }
+  
   result_cost = result_mpc.at(1);
 
   if(RESULTS_FILE == 1){
