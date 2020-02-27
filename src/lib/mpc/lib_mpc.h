@@ -16,16 +16,16 @@
 #define LF                 1.0
 #define DT                 0.01
 #define CONTROL_HORIZON    20
-#define T                  10
+#define T                  20
 #define LINE               0.0
-#define PATH               "line"
+#define PATH               "sinus"
 #define RESULTS_FILE        0
 #define NN_FILE             0
 #define REF_FILE            0
 #define TOTAL_CASES         0
 //intial conditions
 #define X0                 0.0 //x
-#define X1                 3.0 //y
+#define X1                 2.0 //y
 #define X2                 0.0//yaw
 #define X3                 3.0 // speed
 
