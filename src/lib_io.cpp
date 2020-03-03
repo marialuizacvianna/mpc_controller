@@ -103,7 +103,7 @@ void glInitMPC(double x0,double x1, double x2){
   }
 
   if (begin == -1){
-    dataset_file_in.open("/home/maria/Documents/MPC/mpc_controller/dataset/line010-2.txt");
+    dataset_file_in.open("/home/maria/Documents/MPC/mpc_controller/dataset/line010-3.txt");
     begin = 0;
     std::string line_nn;
     std::vector<std::string> splited_line;
@@ -122,7 +122,7 @@ void glInitMPC(double x0,double x1, double x2){
   }
 
   if(NN_FILE == 1){
-    nn_control_file.open("/home/maria/Documents/nn_mpc/line020_nn");
+    nn_control_file.open("/home/maria/Documents/nn_mpc/line050_nn");
     std::string line_nn;
     while (std::getline(nn_control_file, line_nn)){
       nn_control.push_back(strtod(line_nn.c_str(), 0));

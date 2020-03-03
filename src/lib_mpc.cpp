@@ -94,7 +94,7 @@ class FG_eval
       fg[0] += 1*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t ], 2);
     }
 
-    fg[0] += 1*CppAD::pow(vars[delta_start ] - this->ref_t, 2);
+    fg[0] += 10*CppAD::pow(vars[delta_start ] - this->ref_t, 2);
     // -----------------------  model constraints
 
     // initial constraints

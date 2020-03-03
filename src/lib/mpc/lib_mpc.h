@@ -19,13 +19,13 @@
 #define T                  15
 #define LINE               0.0
 #define PATH               "line"
-#define RESULTS_FILE        1
+#define RESULTS_FILE        0
 #define NN_FILE             1
 #define REF_FILE            0
 #define TOTAL_CASES         0
 //intial conditions
 #define X0                 0.0 //x
-#define X1                 1.0 //y
+#define X1                 2.0 //y
 #define X2                 0.0//yaw
 #define X3                 3.0 // speed
 
