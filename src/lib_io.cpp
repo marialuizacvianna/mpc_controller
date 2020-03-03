@@ -7,9 +7,9 @@
 
 // Create an output filestream object
 std::ofstream results_file;
-std::ifstream ref_file;
 std::ofstream dataset_file;
-
+std::ifstream nn_control_file;
+std::ifstream dataset_file_in;
 namespace plt = matplotlibcpp;
 
 int nb_cases = 0;
@@ -20,15 +20,18 @@ double trans_lastx;
 double trans_corr = -1;
 int count_u = 0;
 std::vector<double> steer_data;
-std::vector<double> steer_out;
+std::vector<double> nn_control;
 
 std::vector<double> result_x;
 std::vector<double> result_y;
-std::vector<double> result_psi;
 
+std::vector<double> result_x_nn;
+std::vector<double> result_y_nn;
+
+std::vector<double> result_psi;
+std::vector<double> result_psi_nn;
 double result_cost;
-double count_ref_file;
-std::vector<double> ref_file_vec;
+
 
 std::vector<double> ref_x_vector_w;
 std::vector<double> ref_y_vector_w;
@@ -36,8 +39,9 @@ std::vector<double> ref_x_vector_r;
 std::vector<double> ref_y_vector_r;
 
 Eigen::VectorXd x(SIZE_STATE);//x y psi v err_offset err_psi
+Eigen::VectorXd x_nn(SIZE_STATE);//x y psi v err_offset err_psi
 Eigen::VectorXd u(SIZE_INPUT);//steering angle rate  acceleration
-
+Eigen::VectorXd u_nn(SIZE_INPUT);//steering angle rate  acceleration
 Eigen::VectorXd ref_x(CONTROL_HORIZON); //vector with reference x positions
 Eigen::VectorXd ref_y(CONTROL_HORIZON); //vector with reference y positions
 
@@ -46,12 +50,37 @@ Eigen::VectorXd ref_y_robot(CONTROL_HORIZON); //vector with reference y position
 
 double last_x, last_ray,angle2follow;
 
+std::vector<int> count_outputs(17, 0);
+std::vector<int> desired_count_outputs(17, 0);
+
+int begin = 0;
+
+
+std::vector<std::string> split(const std::string &s, char delim) {
+  std::stringstream ss(s);
+  std::string item;
+  std::vector<std::string> elems;
+  while (std::getline(ss, item, delim)) {
+    elems.push_back(item);
+    // elems.push_back(std::move(item)); // if C++11 (based on comment from @mchiasson)
+  }
+  return elems;
+}
+
+
 void glInitMPC(double x0,double x1, double x2){
   x(0) = x0; //x
   x(1) = x1; //y
   x(2) = x2; //theta
   x(3) = X3; //speed
 
+  x_nn(0) = x0; //x
+  x_nn(1) = x1; //y
+  x_nn(2) = x2; //theta
+  x_nn(3) = X3; //speed
+
+  for (int i =0; i < 17; i++)
+    desired_count_outputs[i] = 1000;
   int time_step_counter = 0, pause_flag = 0;
   int ms_per_frame = 5;
   double trans_lastx;
@@ -61,49 +90,54 @@ void glInitMPC(double x0,double x1, double x2){
 
   for(int i = 0; i < SIZE_INPUT; i++){
     u(i) = 0.0;
+    u_nn(i) = 0.0;
   }
 
   last_x = X0;
   last_ray = 1000;
   angle2follow = 0.0;
-  count_ref_file = 0;
-
 
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_MPC_03.txt", std::ios_base::app);
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/sinus000.txt", std::ios_base::app);
   }
 
+  if (begin == -1){
+    dataset_file_in.open("/home/maria/Documents/MPC/mpc_controller/dataset/line010-3.txt");
+    begin = 0;
+    std::string line_nn;
+    std::vector<std::string> splited_line;
+    while (std::getline(dataset_file_in, line_nn)){
+      splited_line = split(line_nn, ',');
+      double u = stod(splited_line.at(8));
+      int sgn = 0;
+      if(u > 0)
+          sgn = 1;
+      else
+          sgn = 0;
+      int idx =  (8-(int)(abs(u*10))) + (sgn*9);
+      count_outputs[idx] += 1;
+    }
+    dataset_file_in.close();
+  }
+
+  if(NN_FILE == 1){
+    nn_control_file.open("/home/maria/Documents/nn_mpc/line020_nn_lastu");
+    std::string line_nn;
+    while (std::getline(nn_control_file, line_nn)){
+      nn_control.push_back(strtod(line_nn.c_str(), 0));
+    }
+  }
 
 }
 
 void calculate_MPC(){
   result_x.push_back(x(0));
   result_y.push_back(x(1));
+  result_x_nn.push_back(x_nn(0));
+  result_y_nn.push_back(x_nn(1));
   result_psi.push_back(x(2));
-
-  if(REF_FILE){
-    if(count_ref_file < ref_file_vec.size() + CONTROL_HORIZON){
-      for(int i = 0; i < CONTROL_HORIZON; i++){
-        if(x(0) > last_x){
-          ref_x(i) = x(0) + 0.5 + i*DT;
-          ref_y(i) = ref_file_vec.at(count_ref_file + i);
-          last_x = x(0);
-        }
-        else{
-          ref_x(i) = x(0) + 0.5 + i*DT;
-          ref_y(i) = ref_file_vec.at(count_ref_file + i);
-        }
-
-        ref_x_vector_w.push_back(ref_x(i));
-        ref_y_vector_w.push_back(ref_y(i));
-      }
-      count_ref_file = count_ref_file + CONTROL_HORIZON ;
-    }
-    else
-      count_ref_file = 0;
-  }
-  else{
+  result_psi_nn.push_back(x_nn(2));
     if(PATH == "quad"){
       double aux_quad;
       double quad_coeff = 0.2;
@@ -195,7 +229,6 @@ void calculate_MPC(){
         ref_y_vector_w.push_back(ref_y(i));
       }
     }
-  }
 
 
 
@@ -204,6 +237,7 @@ void calculate_MPC(){
   double ref_theta = -atan(poly_coeffs(1));
 
   x = Propagate(x,u);
+  x_nn = Propagate(x_nn,u_nn);
 
   for(int i = 0; i < CONTROL_HORIZON; i++){
     ref_y_robot(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
@@ -219,35 +253,64 @@ void calculate_MPC(){
 
   std::vector<double> result_mpc;
 
-  result_mpc = Solve_MPC(x,ref_x,ref_y,ref_theta,ref_theta_robot);
+  result_mpc = Solve_MPC(x,ref_x,ref_y,u(0),ref_theta_robot);
 
-  u(0) = result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
+
+  u(0) = result_mpc.at(0);
+  std::cout << " u = " <<   u(0) << std::endl;
   char out[64];
   double xrounded;
   sprintf(out, "%.g", 1, u(0));
   u(0) = strtod(out, 0);
-  std::cout << "u(0) = " << u(0) << std::endl;
+  if(abs(u(0)) < 0.1)
+    u(0) = 0.0;
+  // std::cout << "result_mpc.at(0) = " << u(0) << std::endl;
+
+  if(NN_FILE){
+    u_nn(0) = nn_control.at(count_u); //result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
+    std::cout << "nn_control.at(count_u) = " << nn_control.at(count_u) << std::endl;
+  }
+
+
+
   result_cost = result_mpc.at(1);
 
   if(RESULTS_FILE == 1){
-    dataset_file << std::to_string(x(0));
-    dataset_file << ", ";
-    dataset_file << std::to_string(x(1));
-    dataset_file << ", ";
-    dataset_file << std::to_string(x(2));
-    dataset_file << ", ";
-    dataset_file << std::to_string(ref_x(0));
-    dataset_file << ", ";
-    dataset_file << std::to_string(ref_y(0));
-    dataset_file << ", ";
-    dataset_file << std::to_string(ref_theta);
-    dataset_file << ", ";
-    dataset_file << std::to_string(ref_theta_robot);
-    dataset_file << ", ";
-    dataset_file << std::to_string(poly_coeffs_robot(0));
-    dataset_file << ", ";
-    dataset_file << std::to_string(u(0));
-    dataset_file << "\n";
+    // int sgn = 0;
+    // if(u(0) > 0)
+    //     sgn = 1;
+    // else
+    //     sgn = 0;
+    // int idx =  (8-(int)(abs(u(0)*10))) + (sgn*9);
+    // if(count_outputs[idx] < 1000){
+    //   count_outputs[idx] += 1;
+      // std::cout << count_outputs[idx] << " examples of " << u(0) << std::endl;
+      dataset_file << std::to_string(x(0));
+      dataset_file << ", ";
+      dataset_file << std::to_string(x(1));
+      dataset_file << ", ";
+      dataset_file << std::to_string(x(2));
+      dataset_file << ", ";
+      dataset_file << std::to_string(ref_x(0));
+      dataset_file << ", ";
+      dataset_file << std::to_string(ref_y(0));
+      dataset_file << ", ";
+      dataset_file << std::to_string(ref_theta);
+      dataset_file << ", ";
+      dataset_file << std::to_string(ref_theta_robot);
+      dataset_file << ", ";
+      dataset_file << std::to_string(poly_coeffs_robot(0));
+      dataset_file << ", ";
+      dataset_file << std::to_string(u(0));
+      dataset_file << "\n";
+    // }
+    // else{
+    //   std::cout << u(0) << " complete! " << std::endl;
+    // }
+
+    // if(count_outputs == desired_count_outputs)
+    //   std::cout << " ALL COMPLETE! " << std::endl;
+
   }
 
   count_u ++;
@@ -288,11 +351,18 @@ void timer(int id) {
 void drawTank() {
     double time = time_step_counter*DT + ti;
     double size_vector = result_x.size();
+    double size_vector_nn = result_x_nn.size();
     // Tank
     Eigen::MatrixXd M(2, 15);
     M.row(0) << 1/5.0,-1/5.0,0,0,-1/5.0,-1/5.0,0,0,-1/5.0,1/5.0,0,0,3/5.0,3/5.0,0;
     M.row(1) << -2/5.0,-2/5.0,-2/5.0,-1/5.0,-1/5.0,1/5.0,1/5.0,2/5.0,2/5.0,2/5.0,2/5.0,1/5.0,0.5/5.0,-0.5/5.0,-1/5.0;
     M = move_motif(M,result_x.at(size_vector - 1),result_y.at(size_vector - 1),result_psi.at(size_vector - 1));
+
+
+    Eigen::MatrixXd M_nn(2, 15);
+    M_nn.row(0) << 1/5.0,-1/5.0,0,0,-1/5.0,-1/5.0,0,0,-1/5.0,1/5.0,0,0,3/5.0,3/5.0,0;
+    M_nn.row(1) << -2/5.0,-2/5.0,-2/5.0,-1/5.0,-1/5.0,1/5.0,1/5.0,2/5.0,2/5.0,2/5.0,2/5.0,1/5.0,0.5/5.0,-0.5/5.0,-1/5.0;
+    M_nn = move_motif(M_nn,result_x_nn.at(size_vector_nn - 1),result_y_nn.at(size_vector_nn - 1),result_psi_nn.at(size_vector_nn - 1));
 
     glColor3f(1.0, 0.0, 1.0);
     glBegin(GL_LINE_STRIP);
@@ -305,6 +375,20 @@ void drawTank() {
     glBegin(GL_LINE_STRIP);
     for(int i = 0; i <= size_vector - 1; i ++)
       glVertex3d(result_x.at(i),  result_y.at(i),  0.0);
+    glEnd();
+
+
+    glColor3f(1.0, 0.0, 1.0);
+    glBegin(GL_LINE_STRIP);
+    for(int i = 0; i < 15; i ++){
+      glVertex3d(M_nn(0,i),  M_nn(1,i),  0.0);
+    }
+    glEnd();
+
+    glColor3f(0.0, 1.0, 1.0);
+    glBegin(GL_LINE_STRIP);
+    for(int i = 0; i <= size_vector - 1; i ++)
+      glVertex3d(result_x_nn.at(i),  result_y_nn.at(i),  0.0);
     glEnd();
 
     // Time string
@@ -372,7 +456,7 @@ void display() {
     double size_vector;
 
     if(time >= tf){
-        if(nb_cases > TOTAL_CASES){
+        if(nb_cases >= TOTAL_CASES){
           glutDestroyWindow(1);
           if(RESULTS_FILE == 1)
             results_file.close();

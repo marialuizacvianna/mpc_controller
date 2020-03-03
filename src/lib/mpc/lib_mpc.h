@@ -16,15 +16,16 @@
 #define LF                 1.0
 #define DT                 0.01
 #define CONTROL_HORIZON    20
-#define T                  3
+#define T                  15
 #define LINE               0.0
 #define PATH               "line"
-#define RESULTS_FILE        1
+#define RESULTS_FILE        0
+#define NN_FILE             1
 #define REF_FILE            0
-#define TOTAL_CASES         100
+#define TOTAL_CASES         0
 //intial conditions
 #define X0                 0.0 //x
-#define X1                 0.0 //y
+#define X1                 2.0 //y
 #define X2                 0.0//yaw
 #define X3                 3.0 // speed
 
@@ -37,5 +38,6 @@ Eigen::VectorXd Propagate(Eigen::VectorXd,Eigen::VectorXd);
 Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n);
 std::vector<double> Solve_MPC(Eigen::VectorXd state,Eigen::VectorXd ref_x_world,Eigen::VectorXd ref_y_world,double ref_theta,double ref_theta_r);
 Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n);
+std::vector<std::string> split(const std::string &s, char delim);
 
 #endif
