@@ -18,7 +18,7 @@
 #define CONTROL_HORIZON    20
 #define T                  15
 #define LINE               0.0
-#define PATH               "line"
+#define PATH               "sinus"
 #define RESULTS_FILE        0
 #define NN_FILE             1
 #define REF_FILE            0
