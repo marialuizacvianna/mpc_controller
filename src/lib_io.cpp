@@ -99,7 +99,7 @@ void glInitMPC(double x0,double x1, double x2){
 
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/line020.txt", std::ios_base::app);
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/sinus000.txt", std::ios_base::app);
   }
 
   if (begin == -1){
@@ -122,7 +122,7 @@ void glInitMPC(double x0,double x1, double x2){
   }
 
   if(NN_FILE == 1){
-    nn_control_file.open("/home/maria/Documents/nn_mpc/line050_nn");
+    nn_control_file.open("/home/maria/Documents/nn_mpc/line020_nn_lastu");
     std::string line_nn;
     while (std::getline(nn_control_file, line_nn)){
       nn_control.push_back(strtod(line_nn.c_str(), 0));
@@ -257,6 +257,7 @@ void calculate_MPC(){
 
 
   u(0) = result_mpc.at(0);
+  std::cout << " u = " <<   u(0) << std::endl;
   char out[64];
   double xrounded;
   sprintf(out, "%.g", 1, u(0));
