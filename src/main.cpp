@@ -18,7 +18,7 @@
 
 int main(int argc, char *argv[]) {
   srand (time(NULL));
-  glInitMPC(X0,X1,X2);
+  glInitMPC(X0,X1,X2,PATH);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);

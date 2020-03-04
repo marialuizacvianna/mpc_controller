@@ -55,6 +55,7 @@ std::vector<int> desired_count_outputs(17, 0);
 
 int begin = 0;
 
+std::string path;
 
 std::vector<std::string> split(const std::string &s, char delim) {
   std::stringstream ss(s);
@@ -68,11 +69,12 @@ std::vector<std::string> split(const std::string &s, char delim) {
 }
 
 
-void glInitMPC(double x0,double x1, double x2){
+void glInitMPC(double x0,double x1, double x2, std::string path_option){
   x(0) = x0; //x
   x(1) = x1; //y
   x(2) = x2; //theta
   x(3) = X3; //speed
+  path = path_option;
 
   x_nn(0) = x0; //x
   x_nn(1) = x1; //y
@@ -99,7 +101,7 @@ void glInitMPC(double x0,double x1, double x2){
 
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/sinus000.txt", std::ios_base::app);
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_nondisc.txt", std::ios_base::app);
   }
 
   if (begin == -1){
@@ -138,7 +140,7 @@ void calculate_MPC(){
   result_y_nn.push_back(x_nn(1));
   result_psi.push_back(x(2));
   result_psi_nn.push_back(x_nn(2));
-    if(PATH == "quad"){
+    if(path == "quad"){
       double aux_quad;
       double quad_coeff = 0.2;
       double aux_ref_x;
@@ -170,7 +172,7 @@ void calculate_MPC(){
 
       }
     }
-    if(PATH == "circle"){
+    if(path == "circle"){
       //circle
       double cx = 0.0;
       double cy = 0.0;
@@ -196,7 +198,7 @@ void calculate_MPC(){
       }
     }
 
-    else if(PATH == "sinus"){
+    else if(path == "sinus"){
       for(int i = 0; i < CONTROL_HORIZON; i++){
         if( x(0) + 0.5 > last_x){
           ref_x(i) = x(0)  + 0.5 + i*DT;
@@ -213,7 +215,7 @@ void calculate_MPC(){
       }
     }
 
-    else if(PATH == "line"){
+    else if(path == "line"){
       for(int i = 0; i < CONTROL_HORIZON; i++){
         if(x(0) > last_x){
           ref_x(i) = x(0)  + 5.0 + i*DT;
@@ -257,13 +259,13 @@ void calculate_MPC(){
 
 
   u(0) = result_mpc.at(0);
-  std::cout << " u = " <<   u(0) << std::endl;
-  char out[64];
-  double xrounded;
-  sprintf(out, "%.g", 1, u(0));
-  u(0) = strtod(out, 0);
-  if(abs(u(0)) < 0.1)
-    u(0) = 0.0;
+  // std::cout << " u = " <<   u(0) << std::endl;
+  // char out[64];
+  // double xrounded;
+  // sprintf(out, "%.g", 1, u(0));
+  // u(0) = strtod(out, 0);
+  // if(abs(u(0)) < 0.1)
+  //   u(0) = 0.0;
   // std::cout << "result_mpc.at(0) = " << u(0) << std::endl;
 
   if(NN_FILE){
@@ -276,15 +278,6 @@ void calculate_MPC(){
   result_cost = result_mpc.at(1);
 
   if(RESULTS_FILE == 1){
-    // int sgn = 0;
-    // if(u(0) > 0)
-    //     sgn = 1;
-    // else
-    //     sgn = 0;
-    // int idx =  (8-(int)(abs(u(0)*10))) + (sgn*9);
-    // if(count_outputs[idx] < 1000){
-    //   count_outputs[idx] += 1;
-      // std::cout << count_outputs[idx] << " examples of " << u(0) << std::endl;
       dataset_file << std::to_string(x(0));
       dataset_file << ", ";
       dataset_file << std::to_string(x(1));
@@ -472,10 +465,18 @@ void display() {
           double x1 = fmod((double)rand(),20.0);
           if(sign == 0)
             x1 = -x1;
+          int rand_path = rand()%2;
+          if(rand_path == 0)
+            path = "line";
+          if(rand_path == 1)
+            path = "sinus";
+
+          std::cout << "rand_path = " << rand_path << std::endl;
+          std::cout << "path = " << path << std::endl;
           double x2 = fmod((double)rand(),3.14159265359);
           glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-          glInitMPC(x0,x1, x2);
+          glInitMPC(x0,x1, x2,path);
           nb_cases = nb_cases + 1;
         }
         return;
