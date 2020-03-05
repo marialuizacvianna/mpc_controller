@@ -276,7 +276,10 @@ void calculate_MPC(){
   Eigen::VectorXd inputs_nn (3);
   inputs_nn(0) = x(1) - ref_y(0);
   inputs_nn(1) = x(2) - ref_theta;
-  inputs_nn(2) = u(0);
+  if(count_u == 1 || count_u%5 == 0)
+    inputs_nn(2) = u(0);
+  else
+    inputs_nn(2) = u_nn(0);
   // std:: cout <<" u(0) = " << u(0) << "u_nn(0) = " << inputs_nn(2) << std::endl;
   u_nn(0) = neural_controller.Solve_NN(inputs_nn);
   u(0) = result_mpc.at(0);
@@ -527,7 +530,7 @@ void display() {
     drawRobotReference();
     drawReference();
     glutSwapBuffers();
-    getchar();
+    // getchar();
 }
 
 void reshape (int w, int h) {
