@@ -57,9 +57,33 @@ include CMakeFiles/mpc.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/mpc.dir/flags.make
 
+CMakeFiles/mpc.dir/src/lib_nn.cpp.o: CMakeFiles/mpc.dir/flags.make
+CMakeFiles/mpc.dir/src/lib_nn.cpp.o: ../src/lib_nn.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/mpc.dir/src/lib_nn.cpp.o"
+	/usr/bin/g++-6  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mpc.dir/src/lib_nn.cpp.o -c /home/maria/Documents/MPC/mpc_controller/src/lib_nn.cpp
+
+CMakeFiles/mpc.dir/src/lib_nn.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mpc.dir/src/lib_nn.cpp.i"
+	/usr/bin/g++-6 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/maria/Documents/MPC/mpc_controller/src/lib_nn.cpp > CMakeFiles/mpc.dir/src/lib_nn.cpp.i
+
+CMakeFiles/mpc.dir/src/lib_nn.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mpc.dir/src/lib_nn.cpp.s"
+	/usr/bin/g++-6 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/maria/Documents/MPC/mpc_controller/src/lib_nn.cpp -o CMakeFiles/mpc.dir/src/lib_nn.cpp.s
+
+CMakeFiles/mpc.dir/src/lib_nn.cpp.o.requires:
+
+.PHONY : CMakeFiles/mpc.dir/src/lib_nn.cpp.o.requires
+
+CMakeFiles/mpc.dir/src/lib_nn.cpp.o.provides: CMakeFiles/mpc.dir/src/lib_nn.cpp.o.requires
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/lib_nn.cpp.o.provides.build
+.PHONY : CMakeFiles/mpc.dir/src/lib_nn.cpp.o.provides
+
+CMakeFiles/mpc.dir/src/lib_nn.cpp.o.provides.build: CMakeFiles/mpc.dir/src/lib_nn.cpp.o
+
+
 CMakeFiles/mpc.dir/src/lib_mpc.cpp.o: CMakeFiles/mpc.dir/flags.make
 CMakeFiles/mpc.dir/src/lib_mpc.cpp.o: ../src/lib_mpc.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/mpc.dir/src/lib_mpc.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mpc.dir/src/lib_mpc.cpp.o"
 	/usr/bin/g++-6  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mpc.dir/src/lib_mpc.cpp.o -c /home/maria/Documents/MPC/mpc_controller/src/lib_mpc.cpp
 
 CMakeFiles/mpc.dir/src/lib_mpc.cpp.i: cmake_force
@@ -83,7 +107,7 @@ CMakeFiles/mpc.dir/src/lib_mpc.cpp.o.provides.build: CMakeFiles/mpc.dir/src/lib_
 
 CMakeFiles/mpc.dir/src/main.cpp.o: CMakeFiles/mpc.dir/flags.make
 CMakeFiles/mpc.dir/src/main.cpp.o: ../src/main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mpc.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/mpc.dir/src/main.cpp.o"
 	/usr/bin/g++-6  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mpc.dir/src/main.cpp.o -c /home/maria/Documents/MPC/mpc_controller/src/main.cpp
 
 CMakeFiles/mpc.dir/src/main.cpp.i: cmake_force
@@ -107,7 +131,7 @@ CMakeFiles/mpc.dir/src/main.cpp.o.provides.build: CMakeFiles/mpc.dir/src/main.cp
 
 CMakeFiles/mpc.dir/src/lib_io.cpp.o: CMakeFiles/mpc.dir/flags.make
 CMakeFiles/mpc.dir/src/lib_io.cpp.o: ../src/lib_io.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/mpc.dir/src/lib_io.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/mpc.dir/src/lib_io.cpp.o"
 	/usr/bin/g++-6  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mpc.dir/src/lib_io.cpp.o -c /home/maria/Documents/MPC/mpc_controller/src/lib_io.cpp
 
 CMakeFiles/mpc.dir/src/lib_io.cpp.i: cmake_force
@@ -131,6 +155,7 @@ CMakeFiles/mpc.dir/src/lib_io.cpp.o.provides.build: CMakeFiles/mpc.dir/src/lib_i
 
 # Object files for target mpc
 mpc_OBJECTS = \
+"CMakeFiles/mpc.dir/src/lib_nn.cpp.o" \
 "CMakeFiles/mpc.dir/src/lib_mpc.cpp.o" \
 "CMakeFiles/mpc.dir/src/main.cpp.o" \
 "CMakeFiles/mpc.dir/src/lib_io.cpp.o"
@@ -138,13 +163,14 @@ mpc_OBJECTS = \
 # External object files for target mpc
 mpc_EXTERNAL_OBJECTS =
 
+mpc: CMakeFiles/mpc.dir/src/lib_nn.cpp.o
 mpc: CMakeFiles/mpc.dir/src/lib_mpc.cpp.o
 mpc: CMakeFiles/mpc.dir/src/main.cpp.o
 mpc: CMakeFiles/mpc.dir/src/lib_io.cpp.o
 mpc: CMakeFiles/mpc.dir/build.make
 mpc: /usr/lib/x86_64-linux-gnu/libpython3.6m.so
 mpc: CMakeFiles/mpc.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable mpc"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable mpc"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mpc.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -152,6 +178,7 @@ CMakeFiles/mpc.dir/build: mpc
 
 .PHONY : CMakeFiles/mpc.dir/build
 
+CMakeFiles/mpc.dir/requires: CMakeFiles/mpc.dir/src/lib_nn.cpp.o.requires
 CMakeFiles/mpc.dir/requires: CMakeFiles/mpc.dir/src/lib_mpc.cpp.o.requires
 CMakeFiles/mpc.dir/requires: CMakeFiles/mpc.dir/src/main.cpp.o.requires
 CMakeFiles/mpc.dir/requires: CMakeFiles/mpc.dir/src/lib_io.cpp.o.requires

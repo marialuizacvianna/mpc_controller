@@ -11,7 +11,7 @@ find_package(PythonLibs REQUIRED)
 set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS "${CXX_FLAGS} -pthread" )
 
-set(sources src/lib_mpc.cpp src/main.cpp src/lib_io.cpp)
+set(sources src/lib_nn.cpp src/lib_mpc.cpp src/main.cpp src/lib_io.cpp)
 
 include_directories(/usr/local/include)
 include_directories(${PYTHON_INCLUDE_DIRS})

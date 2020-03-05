@@ -177,6 +177,33 @@ src/lib_mpc.cpp.s:
 	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/lib_mpc.cpp.s
 .PHONY : src/lib_mpc.cpp.s
 
+src/lib_nn.o: src/lib_nn.cpp.o
+
+.PHONY : src/lib_nn.o
+
+# target to build an object file
+src/lib_nn.cpp.o:
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/lib_nn.cpp.o
+.PHONY : src/lib_nn.cpp.o
+
+src/lib_nn.i: src/lib_nn.cpp.i
+
+.PHONY : src/lib_nn.i
+
+# target to preprocess a source file
+src/lib_nn.cpp.i:
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/lib_nn.cpp.i
+.PHONY : src/lib_nn.cpp.i
+
+src/lib_nn.s: src/lib_nn.cpp.s
+
+.PHONY : src/lib_nn.s
+
+# target to generate assembly for a file
+src/lib_nn.cpp.s:
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/lib_nn.cpp.s
+.PHONY : src/lib_nn.cpp.s
+
 src/main.o: src/main.cpp.o
 
 .PHONY : src/main.o
@@ -219,6 +246,9 @@ help:
 	@echo "... src/lib_mpc.o"
 	@echo "... src/lib_mpc.i"
 	@echo "... src/lib_mpc.s"
+	@echo "... src/lib_nn.o"
+	@echo "... src/lib_nn.i"
+	@echo "... src/lib_nn.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

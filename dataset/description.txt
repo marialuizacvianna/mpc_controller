@@ -39,3 +39,32 @@ As saidas estao discretizadas ao primeiro digito apos a virgula.
 Dataset de teste de 15 segundos com uma linha com offset 0 como referencia.
 A posicao inicial do robo é 0 5 0.
 As saidas estao discretizadas ao primeiro digito apos a virgula.
+
+"""line000_nondisc.txt"""
+
+Dataset de teste de 15 segundos com uma linha com offset 0 como referencia.
+A posicao inicial do robo é 0 0 0.
+Dataset nao discretizado.
+
+
+"""line020_nondisc.txt"""
+
+Dataset de teste de 15 segundos com uma linha com offset 0 como referencia.
+A posicao inicial do robo é 0 2 0.
+Dataset nao discretizado.
+
+
+
+"""line0-50_nondisc.txt"""
+
+Dataset de teste de 15 segundos com uma linha com offset 0 como referencia.
+A posicao inicial do robo é 0 -5 0.
+Dataset nao discretizado.
+
+"""sinus020_nondisc.txt"""
+
+Dataset de teste de 15 segundos com um seno com offset 0 como referencia.
+A posicao inicial do robo é 0 2 0.
+Dataset nao discretizado.
+
+

@@ -11,7 +11,7 @@
 #include <fstream>
 
 #define NB_POINTS_POLYFIT   100
-#define SIZE_STATE          4
+#define SIZE_STATE          5
 #define SIZE_INPUT          1
 #define LF                 1.0
 #define DT                 0.01
@@ -20,7 +20,7 @@
 #define LINE               0.0
 #define PATH               "sinus"
 #define RESULTS_FILE        0
-#define NN_FILE             1
+#define NN_FILE             0
 #define REF_FILE            0
 #define TOTAL_CASES         0
 //intial conditions

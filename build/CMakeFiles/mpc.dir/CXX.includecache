@@ -842,6 +842,20 @@ cppad/ipopt/solve.hpp
 fstream
 -
 
+/home/maria/Documents/MPC/mpc_controller/src/lib/nn/lib_nn.h
+fstream
+-
+string
+-
+iostream
+-
+../Eigen-3.3/Eigen/Core
+/home/maria/Documents/MPC/mpc_controller/src/lib/Eigen-3.3/Eigen/Core
+../Eigen-3.3/Eigen/QR
+/home/maria/Documents/MPC/mpc_controller/src/lib/Eigen-3.3/Eigen/QR
+stdlib.h
+-
+
 /home/maria/Documents/MPC/mpc_controller/src/lib_io.cpp
 lib/Matplotlib/matplotlibcpp.h
 /home/maria/Documents/MPC/mpc_controller/src/lib/Matplotlib/matplotlibcpp.h
@@ -855,10 +869,16 @@ fstream
 -
 sstream
 -
+lib/nn/lib_nn.h
+/home/maria/Documents/MPC/mpc_controller/src/lib/nn/lib_nn.h
 
 /home/maria/Documents/MPC/mpc_controller/src/lib_mpc.cpp
 lib/mpc/lib_mpc.h
 /home/maria/Documents/MPC/mpc_controller/src/lib/mpc/lib_mpc.h
+
+/home/maria/Documents/MPC/mpc_controller/src/lib_nn.cpp
+lib/nn/lib_nn.h
+/home/maria/Documents/MPC/mpc_controller/src/lib/nn/lib_nn.h
 
 /home/maria/Documents/MPC/mpc_controller/src/main.cpp
 iostream
