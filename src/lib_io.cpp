@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <sstream>
+#include "lib/nn/lib_nn.h"
 
 // Create an output filestream object
 std::ofstream results_file;
@@ -55,6 +56,8 @@ std::vector<int> desired_count_outputs(17, 0);
 
 int begin = 0;
 
+NN_CONTROLLER neural_controller("/home/maria/Documents/nn_mpc/trained_networks/trained_nn_nondisc10_neurons");
+
 std::string path;
 
 std::vector<std::string> split(const std::string &s, char delim) {
@@ -70,6 +73,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 
 
 void glInitMPC(double x0,double x1, double x2, std::string path_option){
+
   x(0) = x0; //x
   x(1) = x1; //y
   x(2) = x2; //theta
@@ -101,7 +105,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option){
 
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_nondisc.txt", std::ios_base::app);
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/sinus020_nondisc.txt", std::ios_base::app);
   }
 
   if (begin == -1){
@@ -124,7 +128,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option){
   }
 
   if(NN_FILE == 1){
-    nn_control_file.open("/home/maria/Documents/nn_mpc/networks_controlcommands/sinus020_nn_lastu_100batch");
+    nn_control_file.open("/home/maria/Documents/nn_mpc/networks_controlcommands/sinus020_nondisc_10neurons");
     std::string line_nn;
     while (std::getline(nn_control_file, line_nn)){
       nn_control.push_back(strtod(line_nn.c_str(), 0));
@@ -258,7 +262,7 @@ void calculate_MPC(){
   result_mpc = Solve_MPC(x,ref_x,ref_y,u(0),ref_theta_robot);
 
 
-  u(0) = result_mpc.at(0);
+
   // std::cout << " u = " <<   u(0) << std::endl;
   // char out[64];
   // double xrounded;
@@ -268,10 +272,20 @@ void calculate_MPC(){
   //   u(0) = 0.0;
   // std::cout << "result_mpc.at(0) = " << u(0) << std::endl;
 
-  if(NN_FILE){
-    u_nn(0) = nn_control.at(count_u); //result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
-    std::cout << "nn_control.at(count_u) = " << nn_control.at(count_u) << std::endl;
-  }
+  std:: cout <<" count_u = " << count_u  << std::endl;
+  Eigen::VectorXd inputs_nn (3);
+  inputs_nn(0) = x(1) - ref_y(0);
+  inputs_nn(1) = x(2) - ref_theta;
+  inputs_nn(2) = u(0);
+  // std:: cout <<" u(0) = " << u(0) << "u_nn(0) = " << inputs_nn(2) << std::endl;
+  u_nn(0) = neural_controller.Solve_NN(inputs_nn);
+  u(0) = result_mpc.at(0);
+
+  std:: cout <<" AFTER :: u(0) = " << u(0) << "u_nn(0) = " << u_nn(0) << std::endl;
+  // if(NN_FILE){
+  //   u_nn(0) = nn_control.at(count_u); //result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
+  //   std::cout << "nn_control.at(count_u) = " << nn_control.at(count_u) << std::endl;
+  // }
 
 
 
@@ -513,7 +527,7 @@ void display() {
     drawRobotReference();
     drawReference();
     glutSwapBuffers();
-    // getchar();
+    getchar();
 }
 
 void reshape (int w, int h) {

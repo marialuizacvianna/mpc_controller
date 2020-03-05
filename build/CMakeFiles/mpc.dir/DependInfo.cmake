@@ -6,6 +6,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/maria/Documents/MPC/mpc_controller/src/lib_io.cpp" "/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles/mpc.dir/src/lib_io.cpp.o"
   "/home/maria/Documents/MPC/mpc_controller/src/lib_mpc.cpp" "/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles/mpc.dir/src/lib_mpc.cpp.o"
+  "/home/maria/Documents/MPC/mpc_controller/src/lib_nn.cpp" "/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles/mpc.dir/src/lib_nn.cpp.o"
   "/home/maria/Documents/MPC/mpc_controller/src/main.cpp" "/home/maria/Documents/MPC/mpc_controller/build/CMakeFiles/mpc.dir/src/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
