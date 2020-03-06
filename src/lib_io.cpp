@@ -9,6 +9,7 @@
 // Create an output filestream object
 std::ofstream results_file;
 std::ofstream dataset_file;
+std::ofstream dataset_file_nn;
 std::ifstream nn_control_file;
 std::ifstream dataset_file_in;
 namespace plt = matplotlibcpp;
@@ -46,18 +47,22 @@ Eigen::VectorXd u_nn(SIZE_INPUT);//steering angle rate  acceleration
 Eigen::VectorXd ref_x(CONTROL_HORIZON); //vector with reference x positions
 Eigen::VectorXd ref_y(CONTROL_HORIZON); //vector with reference y positions
 
+Eigen::VectorXd ref_x_nn(CONTROL_HORIZON); //vector with reference x positions
+Eigen::VectorXd ref_y_nn(CONTROL_HORIZON); //vector with reference y positions
+
+
 Eigen::VectorXd ref_x_robot(CONTROL_HORIZON); //vector with reference x positions
 Eigen::VectorXd ref_y_robot(CONTROL_HORIZON); //vector with reference y positions
 
-double last_x, last_ray,angle2follow;
+double last_x,last_x_nn, last_ray,angle2follow;
 
 std::vector<int> count_outputs(17, 0);
 std::vector<int> desired_count_outputs(17, 0);
 
 int begin = 0;
 
-NN_CONTROLLER neural_controller("/home/maria/Documents/nn_mpc/trained_networks/trained_nn_nondisc10_neurons");
-
+NN_CONTROLLER neural_controller("/home/maria/Documents/nn_mpc/trained_networks/trained_nn_nondisc10_neurons_2inp_take2");
+// NN_CONTROLLER neural_controller("/home/maria/Documents/nn_mpc/trained_networks/trained_nn_nondisc10_neurons_2inp_take3_code2");
 std::string path;
 
 std::vector<std::string> split(const std::string &s, char delim) {
@@ -74,7 +79,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 
 void glInitMPC(double x0,double x1, double x2, std::string path_option){
 
-  x(0) = x0; //x
+  x(0) = x0; //fx
   x(1) = x1; //y
   x(2) = x2; //theta
   x(3) = X3; //speed
@@ -100,12 +105,17 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option){
   }
 
   last_x = X0;
+  last_x_nn = X0;
   last_ray = 1000;
   angle2follow = 0.0;
 
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/sinus020_nondisc.txt", std::ios_base::app);
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/sinus050_nondisc.txt", std::ios_base::app);
+  }
+
+  if(RESULTS_NN_FILE == 1){
+    dataset_file_nn.open("/home/maria/Documents/MPC/mpc_controller/dataset/sinus020_nn_2inp_take2_code2.txt", std::ios_base::app);
   }
 
   if (begin == -1){
@@ -144,6 +154,9 @@ void calculate_MPC(){
   result_y_nn.push_back(x_nn(1));
   result_psi.push_back(x(2));
   result_psi_nn.push_back(x_nn(2));
+  // if (count_u > 500 )
+  //   path = "sinus";
+
     if(path == "quad"){
       double aux_quad;
       double quad_coeff = 0.2;
@@ -174,6 +187,35 @@ void calculate_MPC(){
         ref_x_vector_w.push_back(ref_x(i));
         ref_y_vector_w.push_back(ref_y(i));
 
+      }
+
+
+
+
+
+
+
+      if(x_nn(0) < 5.0){
+        aux_ref_x = 5.0;
+        aux_center = 10;
+      }
+      else{
+        aux_center = (int)round(x_nn(0)/10.0) * 10;
+        aux_ref_x = x_nn(0);
+      }
+
+      for(int i = 0; i < CONTROL_HORIZON; i++){
+        if( x_nn(0) >= last_x_nn){
+          ref_x_nn(i) = aux_ref_x  + i*DT;
+          aux_quad =  ref_x_nn(i) - aux_center;
+          ref_y_nn(i) = -0.2*(aux_quad*aux_quad)  + 5;
+          last_x_nn = aux_ref_x;// + 0.5;
+        }
+        else{
+          ref_x_nn(i) = last_x_nn +  i*DT;
+          aux_quad =  ref_x_nn(i) - aux_center;
+          ref_y_nn(i) = -0.2*(aux_quad*aux_quad)  + 5;
+        }
       }
     }
     if(path == "circle"){
@@ -217,6 +259,18 @@ void calculate_MPC(){
         ref_x_vector_w.push_back(ref_x(i));
         ref_y_vector_w.push_back(ref_y(i));
       }
+
+      for(int i = 0; i < CONTROL_HORIZON; i++){
+        if( x_nn(0) + 0.5 > last_x_nn){
+          ref_x_nn(i) = x_nn(0)  + 0.5 + i*DT;
+          ref_y_nn(i) = LINE + cos(ref_x_nn(i));
+          last_x = x_nn(0) + 0.5;
+        }
+        else{
+          ref_x_nn(i) = last_x_nn + i*DT;
+          ref_y_nn(i) = LINE + cos(ref_x_nn(i));
+        }
+      }
     }
 
     else if(path == "line"){
@@ -234,13 +288,29 @@ void calculate_MPC(){
         ref_x_vector_w.push_back(ref_x(i));
         ref_y_vector_w.push_back(ref_y(i));
       }
-    }
 
+      for(int i = 0; i < CONTROL_HORIZON; i++){
+        if(x_nn(0) > last_x_nn){
+          ref_x_nn(i) = x_nn(0)  + 5.0 + i*DT;
+          ref_y_nn(i) = LINE;
+          last_x_nn = x_nn(0);
+        }
+        else{
+          ref_x_nn(i) = last_x_nn + 5.0 +  i*DT;
+          ref_y_nn(i) = LINE;
+        }
+
+      }
+    }
 
 
   Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y,3);
 
   double ref_theta = -atan(poly_coeffs(1));
+
+  Eigen::VectorXd poly_coeffs_nn = Polyfit(ref_x_nn, ref_y_nn,3);
+
+  double ref_theta_nn = -atan(poly_coeffs_nn(1));
 
   x = Propagate(x,u);
   x_nn = Propagate(x_nn,u_nn);
@@ -261,30 +331,21 @@ void calculate_MPC(){
 
   result_mpc = Solve_MPC(x,ref_x,ref_y,u(0),ref_theta_robot);
 
-
-
-  // std::cout << " u = " <<   u(0) << std::endl;
-  // char out[64];
-  // double xrounded;
-  // sprintf(out, "%.g", 1, u(0));
-  // u(0) = strtod(out, 0);
-  // if(abs(u(0)) < 0.1)
-  //   u(0) = 0.0;
-  // std::cout << "result_mpc.at(0) = " << u(0) << std::endl;
-
-  std:: cout <<" count_u = " << count_u  << std::endl;
   Eigen::VectorXd inputs_nn (3);
-  inputs_nn(0) = x(1) - ref_y(0);
-  inputs_nn(1) = x(2) - ref_theta;
-  if(count_u == 1 || count_u%5 == 0)
-    inputs_nn(2) = u(0);
-  else
-    inputs_nn(2) = u_nn(0);
-  // std:: cout <<" u(0) = " << u(0) << "u_nn(0) = " << inputs_nn(2) << std::endl;
+  inputs_nn(0) = x_nn(0) - ref_x_nn(0);
+  inputs_nn(1) = x_nn(1) - ref_y_nn(0);
+  inputs_nn(2) = x_nn(2) - ref_theta_nn;
+
   u_nn(0) = neural_controller.Solve_NN(inputs_nn);
+
+
+  // u_nn(0) = neural_controller.Solve_NN(inputs_nn);
+  // if(abs(u_nn(0)) < 0.01)
+  //   u_nn(0) = 0.0;
   u(0) = result_mpc.at(0);
 
-  std:: cout <<" AFTER :: u(0) = " << u(0) << "u_nn(0) = " << u_nn(0) << std::endl;
+  std:: cout <<" u(0) = " << u(0) << "u_nn(0) = " << u_nn(0) << std::endl;
+
   // if(NN_FILE){
   //   u_nn(0) = nn_control.at(count_u); //result_mpc.at(0);//steer_out.at(count_u);//result_mpc.at(0);//steer
   //   std::cout << "nn_control.at(count_u) = " << nn_control.at(count_u) << std::endl;
@@ -321,6 +382,11 @@ void calculate_MPC(){
     // if(count_outputs == desired_count_outputs)
     //   std::cout << " ALL COMPLETE! " << std::endl;
 
+  }
+
+  if(RESULTS_NN_FILE == 1){
+      dataset_file_nn << u_nn(0);
+      dataset_file_nn << "\n";
   }
 
   count_u ++;
