@@ -61,8 +61,9 @@ std::vector<int> desired_count_outputs(17, 0);
 
 int begin = 0;
 
-NN_CONTROLLER neural_controller("/home/maria/Documents/nn_mpc/trained_networks/trained_nn_nondisc10_neurons_2inp_take2");
-// NN_CONTROLLER neural_controller("/home/maria/Documents/nn_mpc/trained_networks/trained_nn_nondisc10_neurons_2inp_take3_code2");
+// NN_CONTROLLER neural_controller("/home/maria/Documents/nn_mpc/trained_networks/trained_nn_nondisc10_neurons_2inp_take2");
+NN_CONTROLLER neural_controller("/home/maria/Documents/nn_mpc/trained_networks/trained_nn_neurons_10_2");
+
 std::string path;
 
 std::vector<std::string> split(const std::string &s, char delim) {
