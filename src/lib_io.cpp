@@ -37,6 +37,8 @@ double result_cost;
 
 std::vector<double> ref_x_vector_w;
 std::vector<double> ref_y_vector_w;
+std::vector<double> ref_x_vector_nn;
+std::vector<double> ref_y_vector_nn;
 std::vector<double> ref_x_vector_r;
 std::vector<double> ref_y_vector_r;
 
@@ -61,7 +63,7 @@ std::vector<int> desired_count_outputs(17, 0);
 
 int begin = 0;
 
-// NN_CONTROLLER neural_controller("/home/maria/Documents/nn_mpc/trained_networks/trained_nn_nondisc10_neurons_2inp_take2");
+// NN_CONTROLLER neural_controller("/home/maria/Documents/nn_mpc/trained_networks/trained_nn_neurons_5");
 NN_CONTROLLER neural_controller("/home/maria/Documents/nn_mpc/trained_networks/trained_nn_neurons_10_2");
 
 std::string path;
@@ -116,7 +118,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option){
   }
 
   if(RESULTS_NN_FILE == 1){
-    dataset_file_nn.open("/home/maria/Documents/MPC/mpc_controller/dataset/sinus020_nn_2inp_take2_code2.txt", std::ios_base::app);
+    dataset_file_nn.open("/home/maria/Documents/MPC/mpc_controller/dataset/results_neurons_10_2.txt", std::ios_base::app);
   }
 
   if (begin == -1){
@@ -149,6 +151,8 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option){
 }
 
 void calculate_MPC(){
+  int time_mpc;
+  int time_nn;
   result_x.push_back(x(0));
   result_y.push_back(x(1));
   result_x_nn.push_back(x_nn(0));
@@ -217,6 +221,9 @@ void calculate_MPC(){
           aux_quad =  ref_x_nn(i) - aux_center;
           ref_y_nn(i) = -0.2*(aux_quad*aux_quad)  + 5;
         }
+
+        ref_x_vector_nn.push_back(ref_x_nn(i));
+        ref_y_vector_nn.push_back(ref_y_nn(i));
       }
     }
     if(path == "circle"){
@@ -262,15 +269,18 @@ void calculate_MPC(){
       }
 
       for(int i = 0; i < CONTROL_HORIZON; i++){
-        if( x_nn(0) + 0.5 > last_x_nn){
-          ref_x_nn(i) = x_nn(0)  + 0.5 + i*DT;
+        if( x_nn(0) + 0.7 > last_x_nn){
+          ref_x_nn(i) = x_nn(0)  + 0.7 + i*DT;
           ref_y_nn(i) = LINE + cos(ref_x_nn(i));
-          last_x = x_nn(0) + 0.5;
+          last_x_nn = x_nn(0) + 0.7;
         }
         else{
           ref_x_nn(i) = last_x_nn + i*DT;
           ref_y_nn(i) = LINE + cos(ref_x_nn(i));
         }
+
+        ref_x_vector_nn.push_back(ref_x_nn(i));
+        ref_y_vector_nn.push_back(ref_y_nn(i));
       }
     }
 
@@ -301,6 +311,9 @@ void calculate_MPC(){
           ref_y_nn(i) = LINE;
         }
 
+        ref_x_vector_nn.push_back(ref_x_nn(i));
+        ref_y_vector_nn.push_back(ref_y_nn(i));
+
       }
     }
 
@@ -329,15 +342,20 @@ void calculate_MPC(){
   double ref_theta_robot = -atan(poly_coeffs_robot(1));
 
   std::vector<double> result_mpc;
-
+  auto start = std::chrono::steady_clock::now();
   result_mpc = Solve_MPC(x,ref_x,ref_y,u(0),ref_theta_robot);
+  auto end = std::chrono::steady_clock::now();
+  time_mpc = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
   Eigen::VectorXd inputs_nn (3);
   inputs_nn(0) = x_nn(0) - ref_x_nn(0);
   inputs_nn(1) = x_nn(1) - ref_y_nn(0);
   inputs_nn(2) = x_nn(2) - ref_theta_nn;
-
+  start = std::chrono::steady_clock::now();
   u_nn(0) = neural_controller.Solve_NN(inputs_nn);
+  end = std::chrono::steady_clock::now();
+
+  time_nn =  std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
 
   // u_nn(0) = neural_controller.Solve_NN(inputs_nn);
@@ -386,7 +404,30 @@ void calculate_MPC(){
   }
 
   if(RESULTS_NN_FILE == 1){
-      dataset_file_nn << u_nn(0);
+      dataset_file_nn << std::to_string(ref_x_nn(0));
+      dataset_file_nn << ",";
+      dataset_file_nn << std::to_string(ref_y_nn(0));
+      dataset_file_nn << ",";
+      dataset_file_nn << std::to_string(x_nn(0));
+      dataset_file_nn << ",";
+      dataset_file_nn << std::to_string(x_nn(1));
+      dataset_file_nn << ",";
+      dataset_file_nn << std::to_string(ref_x(0));
+      dataset_file_nn << ",";
+      dataset_file_nn << std::to_string(ref_y(0));
+      dataset_file_nn << ",";
+      dataset_file_nn << std::to_string(x(0));
+      dataset_file_nn << ",";
+      dataset_file_nn << std::to_string(x(1));
+      dataset_file_nn << ",";
+      dataset_file_nn << std::to_string(u_nn(0));
+      dataset_file_nn << ",";
+      dataset_file_nn << std::to_string(u(0));
+      dataset_file_nn << ",";
+      dataset_file_nn << std::to_string(time_mpc);
+      dataset_file_nn << ",";
+      dataset_file_nn << std::to_string(time_nn);
+      dataset_file_nn << ",";
       dataset_file_nn << "\n";
   }
 
@@ -506,6 +547,16 @@ void drawRobotReference() {
 
     for (int i=0; i < CONTROL_HORIZON; i ++){
         glVertex2f(ref_x_vector_w.at((size_vector_ref - CONTROL_HORIZON) + i), ref_y_vector_w.at((size_vector_ref - CONTROL_HORIZON) + i));
+    }
+    glEnd();
+
+    glLineWidth(10.0);
+    glColor3f(0,0,255);
+    glBegin(GL_LINE_STRIP);
+
+
+    for (int i=0; i < CONTROL_HORIZON; i ++){
+        glVertex2f(ref_x_vector_nn.at((size_vector_ref - CONTROL_HORIZON) + i), ref_y_vector_nn.at((size_vector_ref - CONTROL_HORIZON) + i));
     }
     glEnd();
 }

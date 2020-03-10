@@ -13,7 +13,8 @@
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-
+#include <chrono>
+#include <ctime>
 
 const std::string io_path = "../results/";
 
