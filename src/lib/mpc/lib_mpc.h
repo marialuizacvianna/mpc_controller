@@ -18,7 +18,7 @@
 #define CONTROL_HORIZON    20
 #define T                  50
 #define LINE               0.0
-#define PATH               "line"
+#define PATH               "sinus"
 #define RESULTS_FILE        0
 #define RESULTS_NN_FILE     0
 #define NN_FILE             0
@@ -26,7 +26,7 @@
 #define TOTAL_CASES         0
 //intial conditions
 #define X0                 0.0 //x
-#define X1                 -5.0 //y
+#define X1                 2.0 //y
 #define X2                 0.0//yaw
 #define X3                 3.0 // speed
 
