@@ -17,8 +17,21 @@
 #include <time.h>       /* time */
 
 int main(int argc, char *argv[]) {
+  std::string path_to_follow;
+  std::cout << "argv[0] == " << argv[0] << std::endl;
+  std::cout << "argv[1] == " << argv[1] << std::endl;
+  std::cout << "argv[2] == " << argv[2] << std::endl;
+  if(atoi(argv[1]) == 0){
+    path_to_follow = "line";
+    std::cout << "in\n";
+  }
+  else if(atoi(argv[1]) == 1)
+    path_to_follow = "sinus";
+
+  int neurons =  atoi(argv[2]);
+
   srand (time(NULL));
-  glInitMPC(X0,X1,X2,PATH);
+  glInitMPC(X0,X1,X2,path_to_follow,neurons);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);
