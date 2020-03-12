@@ -13,7 +13,8 @@
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-
+#include <chrono>
+#include <ctime>
 
 const std::string io_path = "../results/";
 
@@ -30,7 +31,7 @@ void drawRobotReference();
 void display();
 void reshape (int w, int h);
 void initgLOptions();
-void glInitMPC(double x0,double x1,double x2,std::string path_option);
+void glInitMPC(double x0,double x1,double x2,std::string path_option,int neurons);
 void calculate_MPC();
 
 //Translate and Rotate tank points matrix
