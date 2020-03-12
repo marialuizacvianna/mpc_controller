@@ -482,12 +482,12 @@ void drawTank() {
     M_nn.row(1) << -2/5.0,-2/5.0,-2/5.0,-1/5.0,-1/5.0,1/5.0,1/5.0,2/5.0,2/5.0,2/5.0,2/5.0,1/5.0,0.5/5.0,-0.5/5.0,-1/5.0;
     M_nn = move_motif(M_nn,result_x_nn.at(size_vector_nn - 1),result_y_nn.at(size_vector_nn - 1),result_psi_nn.at(size_vector_nn - 1));
 
-    glColor3f(1.0, 0.0, 1.0);
-    glBegin(GL_LINE_STRIP);
-    for(int i = 0; i < 15; i ++){
-      glVertex3d(M(0,i),  M(1,i),  0.0);
-    }
-    glEnd();
+    // glColor3f(1.0, 0.0, 1.0);
+    // glBegin(GL_LINE_STRIP);
+    // for(int i = 0; i < 15; i ++){
+    //   glVertex3d(M(0,i),  M(1,i),  0.0);
+    // }
+    // glEnd();
 
     glColor3f(0.0, 0.0, 1.0);
     glBegin(GL_LINE_STRIP);
@@ -496,14 +496,14 @@ void drawTank() {
     glEnd();
 
 
-    glColor3f(1.0, 0.0, 1.0);
-    glBegin(GL_LINE_STRIP);
-    for(int i = 0; i < 15; i ++){
-      glVertex3d(M_nn(0,i),  M_nn(1,i),  0.0);
-    }
-    glEnd();
+    // glColor3f(1.0, 0.0, 1.0);
+    // glBegin(GL_LINE_STRIP);
+    // for(int i = 0; i < 15; i ++){
+    //   glVertex3d(M_nn(0,i),  M_nn(1,i),  0.0);
+    // }
+    // glEnd();
 
-    glColor3f(0.0, 1.0, 1.0);
+    glColor3f(1.0, 1.0, 0.0);
     glBegin(GL_LINE_STRIP);
     for(int i = 0; i <= size_vector - 1; i ++)
       glVertex3d(result_x_nn.at(i),  result_y_nn.at(i),  0.0);
@@ -511,8 +511,8 @@ void drawTank() {
 
     // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
-    sprintf(mystr,"Time %4.2f : %4.2f : %4.2f  --  Cost = %4.2f\n",
-     ti,time,tf,result_cost);
+    sprintf(mystr,"Time %4.2f : %4.2f : %4.2f \n",
+     ti,time,tf);
 
 
     if(trans_corr > -1){
@@ -534,7 +534,7 @@ void drawRobotReference() {
     glBegin(GL_LINE_STRIP);
 
     double size_vector_ref = ref_x_vector_w.size();
-
+    double size_vector_result = result_x_nn.size();
     for (int i=0; i < CONTROL_HORIZON; i ++){
       glVertex2f(ref_x_vector_r.at((size_vector_ref - CONTROL_HORIZON) + i),ref_y_vector_r.at((size_vector_ref - CONTROL_HORIZON) + i));
     }
@@ -559,6 +559,43 @@ void drawRobotReference() {
         glVertex2f(ref_x_vector_nn.at((size_vector_ref - CONTROL_HORIZON) + i), ref_y_vector_nn.at((size_vector_ref - CONTROL_HORIZON) + i));
     }
     glEnd();
+
+    glLineWidth(2.5);
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(result_x_nn.at(size_vector_result - 1), result_y_nn.at(size_vector_result - 1));
+    glVertex2f(result_x_nn.at(size_vector_result - 1) + 1.0*cos(result_psi_nn.at(size_vector_result - 1)), result_y_nn.at(size_vector_result - 1) + 1.0*sin(result_psi_nn.at(size_vector_result - 1)));
+
+    glEnd();
+
+
+    glLineWidth(2.5);
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(result_x_nn.at(size_vector_result - 1), result_y_nn.at(size_vector_result - 1));
+    glVertex2f(result_x_nn.at(size_vector_result - 1) + 1.0*cos(result_psi_nn.at(size_vector_result - 1) + 1.5708), result_y_nn.at(size_vector_result - 1) + 1.0*sin(result_psi_nn.at(size_vector_result - 1)+ 1.5708));
+
+    glEnd();
+
+
+    glLineWidth(2.5);
+    glColor3f(0.0, 0.0, 1.0);
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(result_x.at(size_vector_result - 1), result_y.at(size_vector_result - 1));
+    glVertex2f(result_x.at(size_vector_result - 1) + 1.0*cos(result_psi.at(size_vector_result - 1)), result_y.at(size_vector_result - 1) + 1.0*sin(result_psi.at(size_vector_result - 1)));
+
+    glEnd();
+
+
+    glLineWidth(2.5);
+    glColor3f(0.0, 0.0, 1.0);
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(result_x.at(size_vector_result - 1), result_y.at(size_vector_result - 1));
+    glVertex2f(result_x.at(size_vector_result - 1) + 1.0*cos(result_psi.at(size_vector_result - 1) + 1.5708), result_y.at(size_vector_result - 1) + 1.0*sin(result_psi.at(size_vector_result - 1)+ 1.5708));
+
+    glEnd();
+
+
 }
 
 void drawReference() {
