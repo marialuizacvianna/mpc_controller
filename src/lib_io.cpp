@@ -105,7 +105,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   std::cout << "no_of_neurons = " << no_of_neurons << std::endl;
   std::cout << "path_option = " << path_option << std::endl;
   if (no_of_neurons == 3){
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_networks/trained_nn_neurons_3";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_3";
     if (path_option == "line"){
       x_nn(1) = 2.0;
       x(1) = 2.0;
@@ -118,11 +118,11 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     }
   }
 
-  else if (no_of_neurons == 10){
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_networks/trained_nn_neurons_10_2";
+  else if (no_of_neurons == 5){
+    trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_5";
     if (path_option == "line"){
-      x_nn(1) = -5.0;
-      x(1) = -5.0;
+      x_nn(1) = 0.0;
+      x(1) = 0.0;
     }
 
     if (path_option == "sinus"){
@@ -131,15 +131,55 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     }
   }
 
-  else if (no_of_neurons == 100){
+  else if (no_of_neurons == 6){
+    trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_6";
     if (path_option == "line"){
-      trained_nn_file = "/home/maria/Documents/nn_mpc/trained_networks/trained_nn_neurons_100_round5_1_sc";
+      x_nn(1) = 0.0;
+      x(1) = 0.0;
+    }
+
+    if (path_option == "sinus"){
+      x_nn(1) = 2.0;
+      x(1) = 2.0;
+    }
+  }
+
+  else if (no_of_neurons == 7){
+    trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_7";
+    if (path_option == "line"){
+      x_nn(1) = 0.0;
+      x(1) = 0.0;
+    }
+
+    if (path_option == "sinus"){
+      x_nn(1) = 2.0;
+      x(1) = 2.0;
+    }
+  }
+
+  else if (no_of_neurons == 10){
+    trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_10_2";
+    if (path_option == "line"){
       x_nn(1) = -5.0;
       x(1) = -5.0;
     }
 
     if (path_option == "sinus"){
-      trained_nn_file = "/home/maria/Documents/nn_mpc/trained_networks/trained_nn_neurons_20_round5_1";
+      x_nn(1) = 2.0;
+      x(1) = 2.0;
+      x_nn(3) = x_nn(3) + 0.1;
+    }
+  }
+
+  else if (no_of_neurons == 100){
+    if (path_option == "line"){
+      trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_100_round5_1_sc";
+      x_nn(1) = -5.0;
+      x(1) = -5.0;
+    }
+
+    if (path_option == "sinus"){
+      trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_20_round5_1";
       x_nn(1) = 0.0;
       x(1) = 0.0;
       x_nn(3) = x_nn(3);
@@ -339,6 +379,31 @@ void calculate_MPC(){
             ref_x_nn(i) = x_nn(0)  + 0.7 + i*DT;
             ref_y_nn(i) = LINE + cos(ref_x_nn(i));
             last_x_nn = x_nn(0) + 0.7;
+          }
+          else{
+            ref_x_nn(i) = last_x_nn + i*DT;
+            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
+          }
+        }
+
+
+        if(no_of_neurons == 5){
+          if( x_nn(0) + 0.6 > last_x_nn){
+            ref_x_nn(i) = x_nn(0)  + 0.6 + i*DT;
+            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
+            last_x_nn = x_nn(0) + 0.6;
+          }
+          else{
+            ref_x_nn(i) = last_x_nn + i*DT;
+            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
+          }
+        }
+
+        if(no_of_neurons == 6){
+          if( x_nn(0) + 0.5 > last_x_nn){
+            ref_x_nn(i) = x_nn(0)  + 0.5 + i*DT;
+            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
+            last_x_nn = x_nn(0) + 0.5;
           }
           else{
             ref_x_nn(i) = last_x_nn + i*DT;
