@@ -105,7 +105,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   std::cout << "no_of_neurons = " << no_of_neurons << std::endl;
   std::cout << "path_option = " << path_option << std::endl;
   if (no_of_neurons == 3){
-    trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_3";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained/trained_networks/trained_nn_neurons_3";
     if (path_option == "line"){
       x_nn(1) = 2.0;
       x(1) = 2.0;
