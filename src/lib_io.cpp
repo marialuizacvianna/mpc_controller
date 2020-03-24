@@ -80,13 +80,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 
 void glInitMPC(double x0,double x1, double x2, std::string path_option,int neurons){
 
-  if(neurons == 100 && path_option == "sinus"){
-    horizon_nn = 130;
-    horizon_nn = 130;
-  }
-  else{
-    horizon_nn = CONTROL_HORIZON;
-  }
+  horizon_nn = CONTROL_HORIZON;
 
   ref_x_nn = Eigen::VectorXd::Zero(horizon_nn); //vector with reference x positions
   ref_y_nn = Eigen::VectorXd::Zero(horizon_nn); //vector with reference y positions
@@ -105,60 +99,36 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   std::cout << "no_of_neurons = " << no_of_neurons << std::endl;
   std::cout << "path_option = " << path_option << std::endl;
   if (no_of_neurons == 3){
-    trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_3";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/old_files/trained_networks/trained_nn_neurons_3";
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/3 neurons/training_minimum_cost/1903_1019/trained_nn_3";
     if (path_option == "line"){
       x_nn(1) = 2.0;
       x(1) = 2.0;
     }
 
     if (path_option == "sinus"){
-      x_nn(1) = 0.0;
-      x(1) = 0.0;
-      x_nn(3) = x_nn(3) - 0.1;
+      x_nn(1) = 2.0;
+      x(1) = 2.0;
     }
   }
 
   else if (no_of_neurons == 5){
-    trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_5";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/old_files/trained_networks/trained_nn_neurons_5";
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/1903_1019/trained_nn_5";
     if (path_option == "line"){
-      x_nn(1) = 0.0;
-      x(1) = 0.0;
-    }
-
-    if (path_option == "sinus"){
       x_nn(1) = 2.0;
       x(1) = 2.0;
     }
-  }
 
-  else if (no_of_neurons == 6){
-    trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_6";
-    if (path_option == "line"){
+    if (path_option == "sinus"){
       x_nn(1) = 0.0;
       x(1) = 0.0;
     }
-
-    if (path_option == "sinus"){
-      x_nn(1) = 2.0;
-      x(1) = 2.0;
-    }
   }
 
-  else if (no_of_neurons == 7){
-    trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_7";
-    if (path_option == "line"){
-      x_nn(1) = 0.0;
-      x(1) = 0.0;
-    }
-
-    if (path_option == "sinus"){
-      x_nn(1) = 2.0;
-      x(1) = 2.0;
-    }
-  }
 
   else if (no_of_neurons == 10){
-    trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_10_2";
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/old_files/trained_networks/trained_nn_neurons_10_2";
     if (path_option == "line"){
       x_nn(1) = -5.0;
       x(1) = -5.0;
@@ -167,22 +137,22 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     if (path_option == "sinus"){
       x_nn(1) = 2.0;
       x(1) = 2.0;
-      x_nn(3) = x_nn(3) + 0.1;
     }
   }
 
   else if (no_of_neurons == 100){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/old_files/trained_networks/trained_nn_neurons_100_round5_1_sc";
     if (path_option == "line"){
-      trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_100_round5_1_sc";
       x_nn(1) = -5.0;
       x(1) = -5.0;
+
+      x_nn(2) = 1.7;
+      x(2) = 1.7;
     }
 
     if (path_option == "sinus"){
-      trained_nn_file = "/home/maria/Documents/nn_mpc/old_files/trained_networks/trained_nn_neurons_20_round5_1";
       x_nn(1) = 0.0;
       x(1) = 0.0;
-      x_nn(3) = x_nn(3);
     }
   }
 
@@ -288,12 +258,6 @@ void calculate_MPC(){
 
       }
 
-
-
-
-
-
-
       if(x_nn(0) < 5.0){
         aux_ref_x = 5.0;
         aux_center = 10;
@@ -363,64 +327,14 @@ void calculate_MPC(){
       }
 
       for(int i = 0; i < horizon_nn; i++){
-        if(no_of_neurons == 3){
-          if( x_nn(0) + 0.5 > last_x_nn){
-            ref_x_nn(i) = x_nn(0)  + 0.5 + i*DT;
-            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
-            last_x_nn = x_nn(0) + 0.5;
-          }
-          else{
-            ref_x_nn(i) = last_x_nn + i*DT;
-            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
-          }
+        if( x_nn(0) + 0.5 > last_x_nn){
+          ref_x_nn(i) = x_nn(0)  + 0.5 + i*DT;
+          ref_y_nn(i) = LINE + cos(ref_x_nn(i));
+          last_x_nn = x_nn(0) + 0.5;
         }
-        if(no_of_neurons == 10){
-          if( x_nn(0) + 0.7 > last_x_nn){
-            ref_x_nn(i) = x_nn(0)  + 0.7 + i*DT;
-            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
-            last_x_nn = x_nn(0) + 0.7;
-          }
-          else{
-            ref_x_nn(i) = last_x_nn + i*DT;
-            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
-          }
-        }
-
-
-        if(no_of_neurons == 5){
-          if( x_nn(0) + 0.6 > last_x_nn){
-            ref_x_nn(i) = x_nn(0)  + 0.6 + i*DT;
-            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
-            last_x_nn = x_nn(0) + 0.6;
-          }
-          else{
-            ref_x_nn(i) = last_x_nn + i*DT;
-            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
-          }
-        }
-
-        if(no_of_neurons == 6){
-          if( x_nn(0) + 0.5 > last_x_nn){
-            ref_x_nn(i) = x_nn(0)  + 0.5 + i*DT;
-            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
-            last_x_nn = x_nn(0) + 0.5;
-          }
-          else{
-            ref_x_nn(i) = last_x_nn + i*DT;
-            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
-          }
-        }
-
-        if(no_of_neurons == 100){
-          if( x_nn(0) + 0.5 > last_x_nn){
-            ref_x_nn(i) = x_nn(0)  + 0.5 + i*DT;
-            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
-            last_x_nn = x_nn(0) + 0.5;
-          }
-          else{
-            ref_x_nn(i) = last_x_nn + i*DT;
-            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
-          }
+        else{
+          ref_x_nn(i) = last_x_nn + i*DT;
+          ref_y_nn(i) = LINE + cos(ref_x_nn(i));
         }
 
         ref_x_vector_nn.push_back(ref_x_nn(i));
@@ -473,25 +387,10 @@ void calculate_MPC(){
   x = Propagate(x,u);
   x_nn = Propagate(x_nn,u_nn);
 
-  for(int i = 0; i < CONTROL_HORIZON; i++){
-    ref_y_robot(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
-    ref_x_robot(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
-
-    ref_x_vector_r.push_back(ref_x_robot(i));
-    ref_y_vector_r.push_back(ref_y_robot(i));
-  }
-
-  Eigen::VectorXd poly_coeffs_robot = Polyfit(ref_x_robot, ref_y_robot,3);
-
-  double ref_theta_robot = -atan(poly_coeffs_robot(1));
-
   std::vector<double> result_mpc;
   auto start = std::chrono::steady_clock::now();
-  if(no_of_neurons == 3 || no_of_neurons == 10){
-    ref_x = ref_x_nn;
-    ref_y =ref_y_nn;
-  }
-  result_mpc = Solve_MPC(x,ref_x,ref_y,u(0),ref_theta_robot);
+
+  result_mpc = Solve_MPC(x,ref_x,ref_y,u(0),0.0);
   auto end = std::chrono::steady_clock::now();
   time_mpc = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
@@ -499,6 +398,7 @@ void calculate_MPC(){
   inputs_nn(0) = x_nn(0) - ref_x_nn(0);
   inputs_nn(1) = x_nn(1) - ref_y_nn(0);
   inputs_nn(2) = x_nn(2) - ref_theta_nn;
+
   start = std::chrono::steady_clock::now();
   u_nn(0) = neural_controller.Solve_NN(inputs_nn);
   end = std::chrono::steady_clock::now();
@@ -534,10 +434,6 @@ void calculate_MPC(){
       dataset_file << std::to_string(ref_y(0));
       dataset_file << ", ";
       dataset_file << std::to_string(ref_theta);
-      dataset_file << ", ";
-      dataset_file << std::to_string(ref_theta_robot);
-      dataset_file << ", ";
-      dataset_file << std::to_string(poly_coeffs_robot(0));
       dataset_file << ", ";
       dataset_file << std::to_string(u(0));
       dataset_file << "\n";
@@ -677,17 +573,11 @@ void drawTank() {
 void drawRobotReference() {
     // Reference line
 
-    glLineWidth(2.5);
-    glColor3f(1.0, 1.0, 0.0);
-    glBegin(GL_LINE_STRIP);
-
     double size_vector_ref = ref_x_vector_w.size();
     double size_vector_ref_nn = ref_x_vector_nn.size();
     double size_vector_result = result_x_nn.size();
-    for (int i=0; i < CONTROL_HORIZON; i ++){
-      glVertex2f(ref_x_vector_r.at((size_vector_ref - CONTROL_HORIZON) + i),ref_y_vector_r.at((size_vector_ref - CONTROL_HORIZON) + i));
-    }
-    glEnd();
+
+
 
     glLineWidth(10.0);
     glColor3f(255,20,147);
@@ -835,6 +725,8 @@ void display() {
     drawReference();
     glutSwapBuffers();
     // getchar();
+
+
 }
 
 void reshape (int w, int h) {
