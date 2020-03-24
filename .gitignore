@@ -1,2 +1,4 @@
 **/results
-/build
+**/build/CMakeFiles
+build/mpc
+build/CMakeCache.txt
