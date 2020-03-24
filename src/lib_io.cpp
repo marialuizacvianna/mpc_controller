@@ -137,6 +137,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     if (path_option == "sinus"){
       x_nn(1) = 2.0;
       x(1) = 2.0;
+      x_nn(3) = x_nn(3)+0.2;
     }
   }
 
@@ -181,7 +182,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   if(RESULTS_NN_FILE == 1){
-    dataset_file_nn.open("/home/maria/Documents/MPC/mpc_controller/dataset/results_neurons_10_2.txt", std::ios_base::app);
+    dataset_file_nn.open("/home/maria/Documents/MPC/mpc_controller/dataset/result_sinus_neurons_10.txt", std::ios_base::app);
   }
 
   if (begin == -1){
@@ -326,20 +327,37 @@ void calculate_MPC(){
         ref_y_vector_w.push_back(ref_y(i));
       }
 
-      for(int i = 0; i < horizon_nn; i++){
-        if( x_nn(0) + 0.5 > last_x_nn){
-          ref_x_nn(i) = x_nn(0)  + 0.5 + i*DT;
-          ref_y_nn(i) = LINE + cos(ref_x_nn(i));
-          last_x_nn = x_nn(0) + 0.5;
+      if(no_of_neurons == 10)
+        for(int i = 0; i < horizon_nn; i++){
+          if( x_nn(0) + 0.7 > last_x_nn){
+            ref_x_nn(i) = x_nn(0)  + 0.7 + i*DT;
+            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
+            last_x_nn = x_nn(0) + 0.7;
+          }
+          else{
+            ref_x_nn(i) = last_x_nn + i*DT;
+            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
+          }
+
+          ref_x_vector_nn.push_back(ref_x_nn(i));
+          ref_y_vector_nn.push_back(ref_y_nn(i));
         }
-        else{
-          ref_x_nn(i) = last_x_nn + i*DT;
-          ref_y_nn(i) = LINE + cos(ref_x_nn(i));
+      else
+        for(int i = 0; i < horizon_nn; i++){
+          if( x_nn(0) + 0.5 > last_x_nn){
+            ref_x_nn(i) = x_nn(0)  + 0.5 + i*DT;
+            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
+            last_x_nn = x_nn(0) + 0.5;
+          }
+          else{
+            ref_x_nn(i) = last_x_nn + i*DT;
+            ref_y_nn(i) = LINE + cos(ref_x_nn(i));
+          }
+
+          ref_x_vector_nn.push_back(ref_x_nn(i));
+          ref_y_vector_nn.push_back(ref_y_nn(i));
         }
 
-        ref_x_vector_nn.push_back(ref_x_nn(i));
-        ref_y_vector_nn.push_back(ref_y_nn(i));
-      }
     }
 
     else if(path == "line"){
@@ -389,7 +407,10 @@ void calculate_MPC(){
 
   std::vector<double> result_mpc;
   auto start = std::chrono::steady_clock::now();
-
+  if(no_of_neurons == 10){
+    ref_x = ref_x_nn;
+    ref_y = ref_y_nn;
+  }
   result_mpc = Solve_MPC(x,ref_x,ref_y,u(0),0.0);
   auto end = std::chrono::steady_clock::now();
   time_mpc = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
