@@ -137,7 +137,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     if (path_option == "sinus"){
       x_nn(1) = 2.0;
       x(1) = 2.0;
-      x_nn(3) = x_nn(3)+0.2;
+      // x_nn(3) = x_nn(3)+0.2;
     }
   }
 
@@ -407,10 +407,10 @@ void calculate_MPC(){
 
   std::vector<double> result_mpc;
   auto start = std::chrono::steady_clock::now();
-  if(no_of_neurons == 10){
-    ref_x = ref_x_nn;
-    ref_y = ref_y_nn;
-  }
+  // if(no_of_neurons == 10){
+  //   ref_x = ref_x_nn;
+  //   ref_y = ref_y_nn;
+  // }
   result_mpc = Solve_MPC(x,ref_x,ref_y,u(0),0.0);
   auto end = std::chrono::steady_clock::now();
   time_mpc = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
