@@ -16,15 +16,13 @@
 #define LF                 1.0
 #define DT                 0.01
 #define CONTROL_HORIZON    20
-#define CONTROL_HORIZON_NN    20
-#define T                  5
+#define T                  20
 #define LINE               0.0
 #define PATH               "line"
 #define RESULTS_FILE        1
 #define RESULTS_NN_FILE     0
-#define NN_FILE             0
 #define REF_FILE            0
-#define TOTAL_CASES         0
+
 //intial conditions
 #define X0                 0.0 //x
 #define X1                 0.0 //y

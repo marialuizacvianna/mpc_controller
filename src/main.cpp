@@ -39,8 +39,7 @@ int main(int argc, char *argv[]) {
   double x2 =  atof(argv[4]);
 
 
-  std::cout << "x1 == " << x1 << std::endl;
-  std::cout << "x2 == " << x2 << std::endl;
+  std::cout << "restart x0 =  " << 0.0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< 0.5 << std::endl;
 
   srand (time(NULL));
   glInitMPC(X0,x1,x2,path_to_follow,neurons);
