@@ -101,17 +101,8 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   x_nn(3) = X3; //speed
 
   if (no_of_neurons == 3 || no_of_neurons == 0 ){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/old_files/trained_networks/trained_nn_neurons_3";
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/3 neurons/training_minimum_cost/1903_1019/trained_nn_3";
-    if (path_option == "line"){
-      x_nn(1) = 2.0;
-      x(1) = 2.0;
-    }
 
-    if (path_option == "sinus"){
-      x_nn(1) = 2.0;
-      x(1) = 2.0;
-    }
   }
 
   else if (no_of_neurons == 5){
@@ -393,7 +384,20 @@ void CalculateMPC(){
 
   CalculateTrajectory();
 
+  for(int i = 0; i < CONTROL_HORIZON; i++){
+    ref_y_robot(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
+    ref_x_robot(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
+  }
+
+  Eigen::VectorXd poly_coeffs_robot = Polyfit(ref_x_robot, ref_y_robot,3);
+
+  double ref_offset_robot = poly_coeffs_robot(0);
+
+  double ref_theta_robot = -atan(poly_coeffs_robot(1));
+
   Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y,3);
+
+  double ref_offset = poly_coeffs(0);
 
   double ref_theta = -atan(poly_coeffs(1));
 
@@ -406,20 +410,14 @@ void CalculateMPC(){
     x_nn = Propagate(x_nn,u_nn);
   }
 
-
   std::vector<double> result_mpc;
-  auto start = std::chrono::steady_clock::now();
 
   result_mpc = Solve_MPC(x,ref_x,ref_y,u(0),u(0));
-  auto end = std::chrono::steady_clock::now();
-  time_mpc = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
   Eigen::VectorXd inputs_nn (3);
   inputs_nn(0) = x_nn(0) - ref_x_nn(0);
   inputs_nn(1) = x_nn(1) - ref_y_nn(0);
   inputs_nn(2) = x_nn(2) - ref_theta_nn;
-
-  start = std::chrono::steady_clock::now();
 
   if (no_of_neurons == 0){
     u_nn(0) = 0.0;
@@ -427,31 +425,27 @@ void CalculateMPC(){
   else{
     u_nn(0) = neural_controller.Solve_NN(inputs_nn);
   }
-  end = std::chrono::steady_clock::now();
 
-  time_nn =  std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 
   u(0) = result_mpc.at(0);
 
   result_cost = result_mpc.at(1);
 
   if(RESULTS_FILE == 1){
-
-      dataset_file << std::to_string(x(0));
-      dataset_file << ", ";
-      dataset_file << std::to_string(x(1));
-      dataset_file << ", ";
-      dataset_file << std::to_string(x(2));
-      dataset_file << ", ";
-      dataset_file << std::to_string(ref_x(0));
-      dataset_file << ", ";
-      dataset_file << std::to_string(ref_y(0));
+      for(int i = 0; i<CONTROL_HORIZON; i ++){
+        dataset_file << std::to_string(ref_y_robot(i));
+        dataset_file << ", ";
+      }
+      dataset_file << std::to_string(ref_theta_robot);
       dataset_file << ", ";
       dataset_file << std::to_string(ref_theta);
       dataset_file << ", ";
+      dataset_file << std::to_string(ref_offset_robot);
+      dataset_file << ", ";
+      dataset_file << std::to_string(ref_offset);
+      dataset_file << ", ";
       dataset_file << std::to_string(u(0));
       dataset_file << "\n";
-
   }
 
   if(RESULTS_NN_FILE == 1){
@@ -584,7 +578,15 @@ void drawRobotReference() {
     double size_vector_ref_nn = ref_x_vector_nn.size();
     double size_vector_result = result_x_nn.size();
 
+    glLineWidth(10.0);
+    glColor3f(255,255,255);
+    glBegin(GL_LINE_STRIP);
 
+
+    for (int i=0; i < CONTROL_HORIZON; i ++){
+        glVertex2f(ref_x_robot(i), ref_y_robot(i));
+    }
+    glEnd();
 
     glLineWidth(10.0);
     glColor3f(255,20,147);
