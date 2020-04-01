@@ -17,7 +17,7 @@
 #define DT                 0.01
 #define CONTROL_HORIZON    20
 #define CONTROL_HORIZON_NN    20
-#define T                  50
+#define T                  20
 #define LINE               0.0
 #define PATH               "line"
 #define RESULTS_FILE        0

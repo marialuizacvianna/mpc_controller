@@ -18,15 +18,19 @@
 
 int main(int argc, char *argv[]) {
   std::string path_to_follow;
-  std::cout << "argv[0] == " << argv[0] << std::endl;
   std::cout << "argv[1] == " << argv[1] << std::endl;
   std::cout << "argv[2] == " << argv[2] << std::endl;
-  if(atoi(argv[1]) == 0){
+  if(atoi(argv[1]) == 0)
     path_to_follow = "line";
-    std::cout << "in\n";
-  }
+
   else if(atoi(argv[1]) == 1)
     path_to_follow = "sinus";
+
+  else if(atoi(argv[1]) == 2)
+    path_to_follow = "circle";
+
+  else if(atoi(argv[1]) == 3)
+    path_to_follow = "quad";
 
   int neurons =  atoi(argv[2]);
 

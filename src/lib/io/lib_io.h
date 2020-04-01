@@ -32,8 +32,8 @@ void display();
 void reshape (int w, int h);
 void initgLOptions();
 void glInitMPC(double x0,double x1,double x2,std::string path_option,int neurons);
-void calculate_MPC();
-
+void CalculateMPC();
+void CalculateTrajectory();
 //Translate and Rotate tank points matrix
 Eigen::MatrixXd move_motif(Eigen::MatrixXd M, float x, float y,float psi);
 
