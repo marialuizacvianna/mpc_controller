@@ -34,8 +34,16 @@ int main(int argc, char *argv[]) {
 
   int neurons =  atoi(argv[2]);
 
+  double x1 =  atof(argv[3]);
+
+  double x2 =  atof(argv[4]);
+
+
+  std::cout << "x1 == " << x1 << std::endl;
+  std::cout << "x2 == " << x2 << std::endl;
+
   srand (time(NULL));
-  glInitMPC(X0,X1,X2,path_to_follow,neurons);
+  glInitMPC(X0,x1,x2,path_to_follow,neurons);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);
