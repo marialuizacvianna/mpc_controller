@@ -81,8 +81,22 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/3 neurons/training_minimum_cost/1903_1019/trained_nn_3";
   }
 
+  else if (no_of_neurons == 3 ){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/3 neurons/training_minimum_cost/0104_1700/trained_nn_3";
+  }
+
+  else if (no_of_neurons == 5 ){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0204_2000/trained_nn_5";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0104_1700/trained_nn_5";
+  }
+
   else if (no_of_neurons == 10){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0104_1500/trained_nn_10";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0104_1500/trained_nn_10";
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0104_1700/trained_nn_10";
+  }
+
+  else if (no_of_neurons == 15){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0104_1700/trained_nn_15";
   }
 
   time_step_counter = 0;
@@ -105,7 +119,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   if(RESULTS_NN_FILE == 1){
-    dataset_file_nn.open("/home/maria/Documents/MPC/mpc_controller/dataset/result_sinus_neurons_10.txt", std::ios_base::app);
+    dataset_file_nn.open("/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0204_2000/result_circle.txt", std::ios_base::app);
   }
 
 }
@@ -245,7 +259,9 @@ void CalculateTrajectory(){
       ref_x_vector_nn.push_back(ref_x_nn(i));
       ref_y_vector_nn.push_back(ref_y_nn(i));
     }
-
+    // 
+    // ref_x = ref_x_nn;
+    // ref_y = ref_y_nn;
   }
 
   else if(path == "line"){
@@ -579,7 +595,10 @@ void display() {
             freq = 0.5;
           }
           else{
-            freq += 0.5;
+            if(freq == 0.5)
+              freq += 0.5;
+            else
+              freq = 0.5;
             theta_idx = theta_idx + 1;
           }
 
