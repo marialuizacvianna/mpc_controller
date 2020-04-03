@@ -38,11 +38,13 @@ int main(int argc, char *argv[]) {
 
   double x2 =  atof(argv[4]);
 
+  double freq = atof(argv[5]);
+
 
   std::cout << "restart x0 =  " << 0.0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< 0.5 << std::endl;
 
   srand (time(NULL));
-  glInitMPC(X0,x1,x2,path_to_follow,neurons);
+  glInitMPC(X0,x1,x2,path_to_follow,neurons,freq);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);

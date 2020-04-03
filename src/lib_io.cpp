@@ -64,8 +64,9 @@ double theta_idx = 0.0;
 double freq = 1.0;
 
 
-void glInitMPC(double x0,double x1, double x2, std::string path_option,int neurons){
+void glInitMPC(double x0,double x1, double x2, std::string path_option,int neurons,double freq_choice){
   no_of_neurons = neurons;
+  freq = freq_choice;
   x(0) = x0; //fx
   x(1) = x1; //y
   x(2) = x2; //theta
@@ -259,7 +260,7 @@ void CalculateTrajectory(){
       ref_x_vector_nn.push_back(ref_x_nn(i));
       ref_y_vector_nn.push_back(ref_y_nn(i));
     }
-    // 
+    //
     // ref_x = ref_x_nn;
     // ref_y = ref_y_nn;
   }
@@ -610,7 +611,7 @@ void display() {
 
           glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-          glInitMPC(x0,x1, x2,path,no_of_neurons);
+          glInitMPC(x0,x1, x2,path,no_of_neurons,freq);
         }
         return;
     }
