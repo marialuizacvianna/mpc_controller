@@ -63,7 +63,7 @@ int no_of_neurons;
 
 std::string path;
 
-double y_idx = 40.0;
+double y_idx = -20.0;
 double theta_idx = 0.0;
 double freq = 1.0;
 
@@ -120,7 +120,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   angle2follow_nn = 0.0;
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_01_sinus.txt", std::ios_base::app);
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_02_line.txt", std::ios_base::app);
   }
 
   if(RESULTS_NN_FILE == 1){
@@ -363,14 +363,14 @@ void CalculateMPC(){
   }
 
   u(0) = result_mpc.at(0);
-  std::cout << "u(0) = " << u(0) <<std::endl;
+
   result_cost = result_mpc.at(1);
 
   if(RESULTS_FILE == 1){
       for(int i = 0; i<CONTROL_HORIZON; i ++){
-        dataset_file << std::to_string(ref_x(i));
+        dataset_file << std::to_string(ref_x_robot(i));
         dataset_file << ", ";
-        dataset_file << std::to_string(ref_y(i));
+        dataset_file << std::to_string(ref_y_robot(i));
         dataset_file << ", ";
       }
       for(int i = 0; i<CONTROL_HORIZON; i ++){
