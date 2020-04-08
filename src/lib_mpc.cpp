@@ -182,8 +182,8 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eige
   // degrees (values in radians).
   for (int i = delta_start; i < n_vars; i++)
   {
-    vars_lowerbound[i] = -0.836332;
-    vars_upperbound[i] = 0.836332;
+    vars_lowerbound[i] = -5.0;
+    vars_upperbound[i] = 5.0;
   }
 
   // Acceleration/decceleration upper and lower limits.

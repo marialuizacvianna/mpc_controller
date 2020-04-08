@@ -11,6 +11,8 @@ std::ofstream results_file;
 std::ofstream dataset_file;
 std::ofstream dataset_file_nn;
 
+const double pi = std::acos(-1);
+
 namespace plt = matplotlibcpp;
 
 double ti = 0.0, tf = T;
@@ -48,10 +50,12 @@ Eigen::VectorXd ref_y_nn(CONTROL_HORIZON); //vector with reference y positions
 
 Eigen::VectorXd ref_x_robot(CONTROL_HORIZON); //vector with reference x positions
 Eigen::VectorXd ref_y_robot(CONTROL_HORIZON); //vector with reference y positions
+Eigen::VectorXd ref_theta_robot(CONTROL_HORIZON); //vector with reference theta positions
 Eigen::VectorXd ref_x_robot_nn(CONTROL_HORIZON); //vector with reference x positions
 Eigen::VectorXd ref_y_robot_nn(CONTROL_HORIZON); //vector with reference y positions
+Eigen::VectorXd ref_theta_robot_nn(CONTROL_HORIZON); //vector with reference theta positions
 
-double last_x,last_x_nn,angle2follow,angle2follow_nn;
+double last_x,last_y,last_x_nn,angle2follow,angle2follow_nn;
 
 std::string trained_nn_file;
 
@@ -212,7 +216,7 @@ void CalculateTrajectory(){
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
       if(x_nn(0) > (circle_ray_nn*cos(angle2follow_nn) + cx - 1.0) && x_nn(0) < (circle_ray_nn*cos(angle2follow_nn) + cx + 1.0)
-        && x(1) > (circle_ray_nn*sin(angle2follow_nn) + cy - 1.0) && x(1) < (circle_ray_nn*sin(angle2follow_nn) + cy + 1.0)){
+        && x_nn(1) > (circle_ray_nn*sin(angle2follow_nn) + cy - 1.0) && x_nn(1) < (circle_ray_nn*sin(angle2follow_nn) + cy + 1.0)){
         double angle2follow_it = angle2follow_nn + i*DT;
         circle_ray_nn = angle2follow_it/3.14;
         ref_x_nn(i) = circle_ray_nn*cos(angle2follow_it) + cx;
@@ -231,20 +235,20 @@ void CalculateTrajectory(){
   }
 
   else if(path == "sinus"){
-    for(int i = 0; i < CONTROL_HORIZON; i++){
-      if( x(0) + 0.5 > last_x){
-        ref_x(i) = x(0) + 0.5 + i*DT;
-        ref_y(i) = LINE + cos(freq*ref_x(i));
-        last_x = x(0) + 0.5 ;
-      }
-      else{
-        ref_x(i) = last_x + i*DT;
-        ref_y(i) = LINE + cos(freq*ref_x(i));
-      }
+      for(int i = 0; i < CONTROL_HORIZON; i++){
+        if( x(0) + x(3)*cos(x(2))*DT> last_x){
+          ref_x(i) = x(0) + x(3)*cos(x(2))*DT + i*DT;
+          ref_y(i) = LINE + std::cos(freq*ref_x(i));
+          last_x = x(0) + x(3)*cos(x(2))*DT ;
+        }
+        else{
+          ref_x(i) = last_x + i*DT;
+          ref_y(i) = LINE + cos(freq*ref_x(i));
+        }
 
-      ref_x_vector_w.push_back(ref_x(i));
-      ref_y_vector_w.push_back(ref_y(i));
-    }
+        ref_x_vector_w.push_back(ref_x(i));
+        ref_y_vector_w.push_back(ref_y(i));
+      }
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
       if( x_nn(0) + 0.5 > last_x_nn){
@@ -267,10 +271,10 @@ void CalculateTrajectory(){
 
   else if(path == "line"){
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      if(x(0) + 0.5 > last_x){
-        ref_x(i) = x(0) + 0.5 + i*DT;
+      if(x(0) + x(3)*DT> last_x){
+        ref_x(i) = x(0) + x(3)*DT + i*DT;
         ref_y(i) = LINE;
-        last_x = x(0)+0.5;
+        last_x = x(0)+ x(3)*DT;
       }
       else{
         ref_x(i) = last_x   + i*DT;
@@ -282,13 +286,13 @@ void CalculateTrajectory(){
     }
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      if(x_nn(0) + 0.5 > last_x_nn){
-        ref_x_nn(i) = x_nn(0) + 0.5  + i*DT;
+      if(x_nn(0) + x_nn(3)*DT > last_x_nn){
+        ref_x_nn(i) = x_nn(0) + x_nn(3)*DT + i*x_nn(3)*DT;
         ref_y_nn(i) = LINE;
-        last_x_nn = x_nn(0) + 0.5;
+        last_x_nn = x_nn(0) + x_nn(3)*DT;
       }
       else{
-        ref_x_nn(i) = last_x_nn +  i*DT;
+        ref_x_nn(i) = last_x_nn + i*x_nn(3)*DT;
         ref_y_nn(i) = LINE;
       }
 
@@ -320,8 +324,8 @@ void CalculateMPC(){
   }
 
   Eigen::VectorXd poly_coeffs_robot = Polyfit(ref_x_robot, ref_y_robot,3);
-  double ref_offset_robot = poly_coeffs_robot(0);
-  double ref_theta_robot = -atan(poly_coeffs_robot(1));
+  double ref_offset_robot_poly = poly_coeffs_robot(0);
+  double ref_theta_robot_poly = -atan(poly_coeffs_robot(1));
 
 
   Eigen::VectorXd poly_coeffs_robot_nn = Polyfit(ref_x_robot_nn, ref_y_robot_nn,3);
@@ -329,8 +333,8 @@ void CalculateMPC(){
   double ref_theta_robot_nn = -atan(poly_coeffs_robot_nn(1));
 
   Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y,3);
-  double ref_offset = poly_coeffs(0);
-  double ref_theta = -atan(poly_coeffs(1));
+  double ref_offset_poly = poly_coeffs(0);
+  double ref_theta_world_poly = -atan(poly_coeffs(1));
 
   Eigen::VectorXd poly_coeffs_nn = Polyfit(ref_x_nn, ref_y_nn,3);
   double ref_offset_nn = poly_coeffs_nn(0);
@@ -348,6 +352,7 @@ void CalculateMPC(){
   for(int i = 0; i < 20;  i++){
     inputs_nn(i) = ref_y_robot_nn(i);
   }
+
   inputs_nn(20) = ref_theta_robot_nn;
 
   if (no_of_neurons == 0){
@@ -358,21 +363,27 @@ void CalculateMPC(){
   }
 
   u(0) = result_mpc.at(0);
-
+  std::cout << "u(0) = " << u(0) <<std::endl;
   result_cost = result_mpc.at(1);
 
   if(RESULTS_FILE == 1){
       for(int i = 0; i<CONTROL_HORIZON; i ++){
+        dataset_file << std::to_string(ref_x(i));
+        dataset_file << ", ";
+        dataset_file << std::to_string(ref_y(i));
+        dataset_file << ", ";
+      }
+      for(int i = 0; i<CONTROL_HORIZON; i ++){
         dataset_file << std::to_string(ref_y_robot(i));
         dataset_file << ", ";
       }
-      dataset_file << std::to_string(ref_theta_robot);
+      dataset_file << std::to_string(ref_theta_robot_poly);
       dataset_file << ", ";
-      dataset_file << std::to_string(ref_theta);
+      dataset_file << std::to_string(ref_theta_world_poly);
       dataset_file << ", ";
-      dataset_file << std::to_string(ref_offset_robot);
+      dataset_file << std::to_string(ref_offset_robot_poly);
       dataset_file << ", ";
-      dataset_file << std::to_string(ref_offset);
+      dataset_file << std::to_string(ref_offset_poly);
       dataset_file << ", ";
       dataset_file << std::to_string(u(0));
       dataset_file << "\n";
@@ -505,7 +516,7 @@ void drawRobotReference() {
 
 
     for (int i=0; i < CONTROL_HORIZON; i ++){
-        glVertex2f(ref_x_vector_w.at((size_vector_ref - CONTROL_HORIZON) + i), ref_y_vector_w.at((size_vector_ref - CONTROL_HORIZON) + i));
+        glVertex2f(ref_x(i), ref_y(i));
     }
     glEnd();
 
