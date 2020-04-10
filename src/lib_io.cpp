@@ -63,7 +63,7 @@ int no_of_neurons;
 
 std::string path;
 
-double y_idx = -20.0;
+double y_idx = 40.0;
 double theta_idx = 0.0;
 double freq = 1.0;
 
@@ -91,17 +91,20 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   else if (no_of_neurons == 5 ){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0204_2000/trained_nn_5";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0204_2000/trained_nn_5";
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0104_1700/trained_nn_5";
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0904_1200/trained_nn_5";
   }
 
   else if (no_of_neurons == 10){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0104_1500/trained_nn_10";
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0104_1700/trained_nn_10";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0104_1700/trained_nn_10";
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0904_1200/trained_nn_10";
   }
 
   else if (no_of_neurons == 15){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0104_1700/trained_nn_15";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0104_1700/trained_nn_15";
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1200/trained_nn_15";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1000/trained_nn_15"; //100 000
   }
 
   time_step_counter = 0;
@@ -120,11 +123,11 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   angle2follow_nn = 0.0;
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_02_line.txt", std::ios_base::app);
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_03_lines.txt", std::ios_base::app);
   }
 
   if(RESULTS_NN_FILE == 1){
-    dataset_file_nn.open("/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0204_2000/result_circle.txt", std::ios_base::app);
+    dataset_file_nn.open("/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1000/result_sinus_circle.txt", std::ios_base::app);
   }
 
 }
@@ -232,14 +235,29 @@ void CalculateTrajectory(){
       ref_x_vector_nn.push_back(ref_x_nn(i));
       ref_y_vector_nn.push_back(ref_y_nn(i));
     }
+
+    // ref_x = ref_x_nn;
+    // ref_y = ref_y_nn;
   }
 
   else if(path == "sinus"){
+      double const_aux;
+      double const_nn;
+
+      if(freq == 2.0){
+        const_aux = x(3)*cos(x(2))*DT;
+        const_nn = x_nn(3)*cos(x_nn(2))*DT;
+      }
+      else{
+        const_aux = 0.5;
+        const_nn = 0.5;
+      }
+
       for(int i = 0; i < CONTROL_HORIZON; i++){
-        if( x(0) + x(3)*cos(x(2))*DT> last_x){
-          ref_x(i) = x(0) + x(3)*cos(x(2))*DT + i*DT;
+        if( x(0) + const_aux > last_x){
+          ref_x(i) = x(0) +const_aux ;
           ref_y(i) = LINE + std::cos(freq*ref_x(i));
-          last_x = x(0) + x(3)*cos(x(2))*DT ;
+          last_x = x(0) + const_aux  ;
         }
         else{
           ref_x(i) = last_x + i*DT;
@@ -251,10 +269,10 @@ void CalculateTrajectory(){
       }
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      if( x_nn(0) + 0.5 > last_x_nn){
-        ref_x_nn(i) = x_nn(0)  + 0.5 + i*DT;
+      if( x_nn(0) + const_nn > last_x_nn){
+        ref_x_nn(i) = x_nn(0)  + const_nn  + i*DT;
         ref_y_nn(i) = LINE + cos(freq*ref_x_nn(i));
-        last_x_nn = x_nn(0) + 0.5;
+        last_x_nn = x_nn(0) + const_nn ;
       }
       else{
         ref_x_nn(i) = last_x_nn + i*DT;
@@ -267,14 +285,16 @@ void CalculateTrajectory(){
     //
     // ref_x = ref_x_nn;
     // ref_y = ref_y_nn;
+    // ref_x_nn = ref_x;
+    // ref_y_nn = ref_y;
   }
 
   else if(path == "line"){
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      if(x(0) + x(3)*DT> last_x){
-        ref_x(i) = x(0) + x(3)*DT + i*DT;
+      if(x(0) + 0.5> last_x){
+        ref_x(i) = x(0) + 0.5 + i*DT;
         ref_y(i) = LINE;
-        last_x = x(0)+ x(3)*DT;
+        last_x = x(0)+ 0.5;
       }
       else{
         ref_x(i) = last_x   + i*DT;
@@ -286,13 +306,13 @@ void CalculateTrajectory(){
     }
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      if(x_nn(0) + x_nn(3)*DT > last_x_nn){
-        ref_x_nn(i) = x_nn(0) + x_nn(3)*DT + i*x_nn(3)*DT;
+      if(x_nn(0) + 0.5> last_x_nn){
+        ref_x_nn(i) = x_nn(0) + 0.5 + i*DT;
         ref_y_nn(i) = LINE;
-        last_x_nn = x_nn(0) + x_nn(3)*DT;
+        last_x_nn = x_nn(0) + 0.5;
       }
       else{
-        ref_x_nn(i) = last_x_nn + i*x_nn(3)*DT;
+        ref_x_nn(i) = last_x_nn + i*DT;
         ref_y_nn(i) = LINE;
       }
 
@@ -348,12 +368,20 @@ void CalculateMPC(){
   std::vector<double> result_mpc;
   result_mpc = Solve_MPC(x,ref_x,ref_y,0.0,0.0);
 
-  Eigen::VectorXd inputs_nn (21);
-  for(int i = 0; i < 20;  i++){
-    inputs_nn(i) = ref_y_robot_nn(i);
+  //inputs 40
+  int count_idx = 0;
+  Eigen::VectorXd inputs_nn (40);
+  for(int i = 0; i < 40-1;  i = i +2){
+    inputs_nn(i) = ref_x_robot_nn(count_idx);
+    inputs_nn(i+1) = ref_y_robot_nn(count_idx);
+    count_idx = count_idx +1;
   }
-
-  inputs_nn(20) = ref_theta_robot_nn;
+  //inputs 21
+  // Eigen::VectorXd inputs_nn (21);
+  // for(int i = 0; i < 20;  i = i + 1){
+  //   inputs_nn(i) = ref_y_robot_nn(i);
+  // }
+  // inputs_nn(20) = ref_theta_robot_nn;
 
   if (no_of_neurons == 0){
     u_nn(0) = 0.0;
@@ -604,13 +632,16 @@ void display() {
           if(theta_idx == 2){
             theta_idx = 0;
             y_idx = y_idx + 1.0;
-            freq = 0.5;
+            if(freq == 1.0)
+              freq += 1.0;
+            else
+              freq = 1.0;
           }
           else{
-            if(freq == 0.5)
-              freq += 0.5;
+            if(freq == 1.0)
+              freq += 1.0;
             else
-              freq = 0.5;
+              freq = 1.0;
             theta_idx = theta_idx + 1;
           }
 

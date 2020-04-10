@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   double freq = atof(argv[5]);
 
 
-  std::cout << "restart x0 =  " << 0.0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< 0.5 << std::endl;
+  std::cout << "restart x0 =  " << 0.0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << std::endl;
 
   srand (time(NULL));
   glInitMPC(X0,x1,x2,path_to_follow,neurons,freq);
