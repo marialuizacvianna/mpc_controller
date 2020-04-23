@@ -71,3 +71,8 @@ On file */src/lib/mpc/lib_mpc.h* there are other options for running the simulat
   * **1** -  If 1, it creates a file containing the trajectory followed by the vehicle controlled by the neural network and the values of angular speed calculated by it. It also includes the same information for the vehicle controlled by the classical MPC, this allows the comparison between both performances.
 
     It is necessary to **change the path** for saving the file at line 178 of file */src/lib_io.cpp* .
+
+
+## Reading the Neural Network file
+
+The constructor of the neural network solver uses a script for parsing the neural network file transforming it in matrices of weights and vectors of bias. The script can be found on the file */src/lib_nn.cpp* on the function *NN_CONTROLLER::NN_CONTROLLER(std::string file_name)* .
