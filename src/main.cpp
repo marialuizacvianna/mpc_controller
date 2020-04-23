@@ -18,20 +18,33 @@
 
 int main(int argc, char *argv[]) {
   std::string path_to_follow;
-  std::cout << "argv[0] == " << argv[0] << std::endl;
   std::cout << "argv[1] == " << argv[1] << std::endl;
   std::cout << "argv[2] == " << argv[2] << std::endl;
-  if(atoi(argv[1]) == 0){
+  if(atoi(argv[1]) == 0)
     path_to_follow = "line";
-    std::cout << "in\n";
-  }
+
   else if(atoi(argv[1]) == 1)
     path_to_follow = "sinus";
 
+  else if(atoi(argv[1]) == 2)
+    path_to_follow = "circle";
+
+  else if(atoi(argv[1]) == 3)
+    path_to_follow = "quad";
+
   int neurons =  atoi(argv[2]);
 
+  double x1 =  atof(argv[3]);
+
+  double x2 =  atof(argv[4]);
+
+  double freq = atof(argv[5]);
+
+
+  std::cout << "restart x0 =  " << 0.0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << std::endl;
+
   srand (time(NULL));
-  glInitMPC(X0,X1,X2,path_to_follow,neurons);
+  glInitMPC(X0,x1,x2,path_to_follow,neurons,freq);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);

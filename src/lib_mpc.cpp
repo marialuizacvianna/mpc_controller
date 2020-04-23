@@ -77,23 +77,21 @@ class FG_eval
     for (int t = 0; t < CONTROL_HORIZON; t++)
     {
 
-      fg[0] += 100*CppAD::pow(vars[y_start + t] - this->ref_y(t), 2);
-      fg[0] += 100*CppAD::pow(vars[x_start + t] - this->ref_x(t), 2);
-      // fg[0] += 1*CppAD::pow(vars[psi_start + t] - this->ref_t , 2);
-
+      fg[0] += CppAD::pow(vars[y_start + t] - this->ref_y(t), 2);
+      fg[0] += CppAD::pow(vars[x_start + t]  - this->ref_x(t), 2);
     }
 
     //Minimize the use of actuators
     // for (int t = 0; t < CONTROL_HORIZON - 1; t++)
     // {
-    //   fg[0] += 1*CppAD::pow(vars[delta_start + t], 2);
+    //   fg[0] += 0.1*CppAD::pow(vars[delta_start + t], 2);
     // }
-    //
-    // for (int t = 0; t < CONTROL_HORIZON - 2; t++)
-    // {
-    //   fg[0] += 1*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t ], 2);
-    // }
-    //
+
+    for (int t = 0; t < CONTROL_HORIZON - 2; t++)
+    {
+      fg[0] += CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t ], 2);
+    }
+
     // fg[0] += 10*CppAD::pow(vars[delta_start ] - this->ref_t, 2);
     // -----------------------  model constraints
 
@@ -184,8 +182,8 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eige
   // degrees (values in radians).
   for (int i = delta_start; i < n_vars; i++)
   {
-    vars_lowerbound[i] = -0.836332;
-    vars_upperbound[i] = 0.836332;
+    vars_lowerbound[i] = -0.836332;//-0.836332
+    vars_upperbound[i] = 0.836332;//0.836332
   }
 
   // Acceleration/decceleration upper and lower limits.
