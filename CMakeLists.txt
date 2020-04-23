@@ -20,4 +20,4 @@ include_directories(src/Eigen-3.3)
 
 add_executable(mpc ${sources})
 
-target_link_libraries(mpc ipopt z ssl uv uWS glut GLU GL ${PYTHON_LIBRARIES})
+target_link_libraries(mpc ipopt glut GLU GL ${PYTHON_LIBRARIES})
