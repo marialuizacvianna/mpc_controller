@@ -19,3 +19,6 @@ dataset_02_sinus - sinusoidal trajectories for NN with 21/40 inputs, output in t
 
 
 dataset_03_lines - straight trajectories for NN with 21/40 inputs.
+
+
+**Refer to rapport for understanding how inputs were chosen.**
