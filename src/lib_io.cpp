@@ -91,68 +91,128 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   else if (no_of_neurons == 5 ){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0204_2000/trained_nn_5";
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0104_1700/trained_nn_5";
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0904_1200/trained_nn_5";
   }
 
   else if (no_of_neurons == 10){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0104_1700/trained_nn_10";
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0904_1200/trained_nn_10";
   }
 
   else if (no_of_neurons == 15){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0104_1700/trained_nn_15";
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1200/trained_nn_15";
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1000/trained_nn_15"; //100 000
   }
 
   else if (no_of_neurons == 20){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0104_1700/trained_nn_15";
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/20 neurons/training_minimum_cost/1504_1500/trained_nn_20";
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1000/trained_nn_15"; //100 000
   }
 
   else if (no_of_neurons == 25){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0104_1700/trained_nn_15";
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/25 neurons/training_minimum_cost/1504_1500/trained_nn_25";
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1000/trained_nn_15"; //100 000
   }
 
   else if (no_of_neurons == 30){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0104_1700/trained_nn_15";
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/30 neurons/training_minimum_cost/1504_1500/trained_nn_30";
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1000/trained_nn_15"; //100 000
   }
 
   else if (no_of_neurons == 35){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0104_1700/trained_nn_15";
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/35 neurons/training_minimum_cost/1504_1500/trained_nn_35";
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1000/trained_nn_15"; //100 000
   }
 
   else if (no_of_neurons == 40){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0104_1700/trained_nn_15";
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/40 neurons/training_minimum_cost/1504_1500/trained_nn_40";
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1000/trained_nn_15"; //100 000
   }
 
   else if (no_of_neurons == 45){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0104_1700/trained_nn_15";
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/45 neurons/training_minimum_cost/1504_1500/trained_nn_45";
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1000/trained_nn_15"; //100 000
   }
 
   else if (no_of_neurons == 50){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0104_1700/trained_nn_15";
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1504_1500/trained_nn_50";
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1000/trained_nn_15"; //100 000
   }
 
   else if (no_of_neurons == 55){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0104_1700/trained_nn_15";
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/55 neurons/training_minimum_cost/1504_1500/trained_nn_55";
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1000/trained_nn_15"; //100 000
+  }
+
+  else if (no_of_neurons == 60){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/60 neurons/training_minimum_cost/2304_0930/trained_nn_60";
+  }
+
+  else if (no_of_neurons == 65){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/65 neurons/training_minimum_cost/2304_0930/trained_nn_65";
+  }
+
+  else if (no_of_neurons == 70){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/70 neurons/training_minimum_cost/2304_0930/trained_nn_70";
+  }
+
+
+  else if (no_of_neurons == 75){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/75 neurons/training_minimum_cost/2304_0930/trained_nn_75";
+  }
+
+  else if (no_of_neurons == 80){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/80 neurons/training_minimum_cost/2304_0930/trained_nn_80";
+  }
+
+  else if (no_of_neurons == 85){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/85 neurons/training_minimum_cost/2304_0930/trained_nn_85";
+  }
+
+  else if (no_of_neurons == 90){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/90 neurons/training_minimum_cost/2304_0930/trained_nn_90";
+  }
+
+  else if (no_of_neurons == 95){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/95 neurons/training_minimum_cost/2304_0930/trained_nn_95";
+  }
+
+  else if (no_of_neurons == 100){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/100 neurons/training_minimum_cost/2304_0930/trained_nn_100";
+  }
+
+  else if (no_of_neurons == 105){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/105 neurons/training_minimum_cost/2304_0930/trained_nn_105";
+  }
+
+  else if (no_of_neurons == 110){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/110 neurons/training_minimum_cost/2304_0930/trained_nn_110";
+  }
+
+  else if (no_of_neurons == 115){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/115 neurons/training_minimum_cost/2304_0930/trained_nn_115";
+  }
+
+  else if (no_of_neurons == 120){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/120 neurons/training_minimum_cost/2304_0930/trained_nn_120";
+  }
+
+  else if (no_of_neurons == 125){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/125 neurons/training_minimum_cost/2304_0930/trained_nn_125";
+  }
+
+  else if (no_of_neurons == 130){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/130 neurons/training_minimum_cost/2304_0930/trained_nn_130";
+  }
+
+  else if (no_of_neurons == 135){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/135 neurons/training_minimum_cost/2304_0930/trained_nn_135";
+  }
+
+  else if (no_of_neurons == 140){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/140 neurons/training_minimum_cost/2304_0930/trained_nn_140";
+  }
+
+  else if (no_of_neurons == 145){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/145 neurons/training_minimum_cost/2304_0930/trained_nn_145";
+  }
+
+  else if (no_of_neurons == 150){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/150 neurons/training_minimum_cost/2304_0930/trained_nn_150";
+  }
+
+  else if (no_of_neurons == 155){
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/155 neurons/training_minimum_cost/2304_0930/trained_nn_155";
   }
 
   time_step_counter = 0;
