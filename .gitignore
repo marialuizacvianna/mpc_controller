@@ -2,3 +2,4 @@
 **/build/CMakeFiles
 build/mpc
 build/CMakeCache.txt
+build/cmake_install.cmake
