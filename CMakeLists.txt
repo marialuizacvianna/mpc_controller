@@ -9,7 +9,7 @@ add_definitions(-std=c++14 -O3)
 find_package(PythonLibs REQUIRED)
 
 set(CXX_FLAGS "-Wall")
-set(CMAKE_CXX_FLAGS "${CXX_FLAGS} -pthread" )
+set(CMAKE_CXX_FLAGS "${CXX_FLAGS}" )
 
 set(sources src/lib_nn.cpp src/lib_mpc.cpp src/main.cpp src/lib_io.cpp)
 
