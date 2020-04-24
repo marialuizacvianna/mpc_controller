@@ -40,11 +40,13 @@ int main(int argc, char *argv[]) {
 
   double freq = atof(argv[5]);
 
+  std::string file_name;
+  file_name = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/105 neurons/training_minimum_cost/2304_0930/result_line.txt";
 
   std::cout << "restart x0 =  " << 0.0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << std::endl;
 
   srand (time(NULL));
-  glInitMPC(X0,x1,x2,path_to_follow,neurons,freq);
+  glInitMPC(X0,3.0,0.5,"line",105,0.5,file_name);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);

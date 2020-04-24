@@ -66,9 +66,11 @@ std::string path;
 double y_idx = 40.0;
 double theta_idx = 0.0;
 double freq = 1.0;
+int next_neuron = 105;
+int configuration = 1;
 
 
-void glInitMPC(double x0,double x1, double x2, std::string path_option,int neurons,double freq_choice){
+void glInitMPC(double x0,double x1, double x2, std::string path_option,int neurons,double freq_choice, std::string file_name){
   no_of_neurons = neurons;
   freq = freq_choice;
   x(0) = x0; //fx
@@ -235,7 +237,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   if(RESULTS_NN_FILE == 1){
-    dataset_file_nn.open("/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/55 neurons/training_minimum_cost/1504_1500/result_circle.txt", std::ios_base::app);
+    dataset_file_nn.open(file_name, std::ios_base::app);
   }
 
 }
@@ -731,41 +733,69 @@ void display() {
     double size_vector;
 
     if(time >= tf){
-        if(y_idx > 20.0){
+        if(next_neuron ==  110 && configuration == 4){
           glutDestroyWindow(1);
           if(RESULTS_FILE == 1)
             results_file.close();
+          if(RESULTS_NN_FILE == 1)
+            dataset_file_nn.close();
         }
 
         else{
+          dataset_file_nn.close();
+          std::string file_name;
+          file_name = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/"; //55 neurons/training_minimum_cost/1504_1500/result_circle.txt";
+
+          if (configuration == 4){
+            next_neuron = next_neuron +  5;
+            configuration = 1;
+          }
+
+          else{
+            configuration = configuration + 1;
+          }
+
+          file_name = file_name + std::to_string(next_neuron) + " neurons/training_minimum_cost/2304_0930/result_";
           time = 0.0;
           time_step_counter = 0.0;
 
-          if(theta_idx == 2){
-            theta_idx = 0;
-            y_idx = y_idx + 1.0;
-            if(freq == 1.0)
-              freq += 1.0;
-            else
-              freq = 1.0;
-          }
-          else{
-            if(freq == 1.0)
-              freq += 1.0;
-            else
-              freq = 1.0;
-            theta_idx = theta_idx + 1;
-          }
-
           x0 = 0.0;
-          x1 = y_idx;
-          x2 = theta_idx*1.5708;
 
-          std::cout << "restart x0 =  " << x0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << std::endl;
+          if(configuration == 1){
+            x1 = 3.0;
+            x2 = 0.5;
+            path = "line";
+            file_name = file_name + "line.txt";
+          }
+
+          if(configuration == 2){
+            x1 = 3.0;
+            x2 = 2.7;
+            freq = 0.5;
+            path = "sinus";
+            file_name = file_name + "sinus.txt";
+          }
+
+          if(configuration == 3){
+            x1 = 3.0;
+            x2 = 0.0;
+            freq = 1.0;
+            path = "sinus";
+            file_name = file_name + "sinus_2.txt";
+          }
+
+          if(configuration == 4){
+            x1 = 0.0;
+            x2 = 0.0;
+            path = "circle";
+            file_name = file_name + "circle.txt";
+          }
+
+          std::cout << "restart x0 =  " << x0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << ", path =  " << path << std::endl;
 
           glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-          glInitMPC(x0,x1, x2,path,no_of_neurons,freq);
+          glInitMPC(x0,x1, x2,path,next_neuron,freq,file_name);
         }
         return;
     }
