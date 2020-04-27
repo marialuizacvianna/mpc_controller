@@ -63,7 +63,7 @@ int no_of_neurons;
 
 std::string path;
 
-double y_idx = -20.0;
+double y_idx = 40.0;
 double theta_idx = 0.0;
 double freq = 1.0;
 int next_neuron = 105;
@@ -233,7 +233,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   angle2follow_nn = 0.0;
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
-    dataset_file.open("/../dataset/dataset_03_sinus.txt", std::ios_base::app);
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_03_spiral.txt", std::ios_base::app);
   }
 
   if(RESULTS_NN_FILE == 1){
