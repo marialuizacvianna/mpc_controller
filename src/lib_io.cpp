@@ -63,7 +63,7 @@ int no_of_neurons;
 
 std::string path;
 
-double y_idx = 40.0;
+double y_idx = -20.0;
 double theta_idx = 0.0;
 double freq = 1.0;
 int next_neuron = 105;
@@ -233,7 +233,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   angle2follow_nn = 0.0;
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_03_lines.txt", std::ios_base::app);
+    dataset_file.open("/../dataset/dataset_03_sinus.txt", std::ios_base::app);
   }
 
   if(RESULTS_NN_FILE == 1){
@@ -731,19 +731,16 @@ void display() {
     double deltax;
     double time = time_step_counter*DT + ti;
     double size_vector;
-
+    std::string file_name;
     if(time >= tf){
+      if(RESULTS_NN_FILE == 1){
         if(next_neuron ==  110 && configuration == 4){
-          glutDestroyWindow(1);
-          if(RESULTS_FILE == 1)
-            results_file.close();
           if(RESULTS_NN_FILE == 1)
             dataset_file_nn.close();
         }
 
         else{
           dataset_file_nn.close();
-          std::string file_name;
           file_name = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/"; //55 neurons/training_minimum_cost/1504_1500/result_circle.txt";
 
           if (configuration == 4){
@@ -797,7 +794,52 @@ void display() {
           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
           glInitMPC(x0,x1, x2,path,next_neuron,freq,file_name);
         }
-        return;
+      }
+
+      else if(RESULTS_FILE == 1){
+        if(y_idx > 20.0){
+         glutDestroyWindow(1);
+         if(RESULTS_FILE == 1)
+           results_file.close();
+        }
+
+       else{
+         time = 0.0;
+         time_step_counter = 0.0;
+
+         if(theta_idx == 2){
+           theta_idx = 0;
+           y_idx = y_idx + 1.0;
+           if(freq == 1.0)
+             freq = 0.5;
+           else
+             freq = 1.0;
+         }
+         else{
+           if(freq == 1.0)
+             freq = 0.5;
+           else
+             freq = 1.0;
+           theta_idx = theta_idx + 1;
+         }
+
+         x0 = 0.0;
+         x1 = y_idx;
+         x2 = theta_idx*1.5708;
+
+         std::cout << "restart x0 =  " << x0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << std::endl;
+
+         glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
+         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+         glInitMPC(x0,x1, x2,path,no_of_neurons,freq,file_name);
+       }
+      }
+
+      else{
+        glutDestroyWindow(1);
+      }
+
+      return;
     }
 
     //Run MPC
