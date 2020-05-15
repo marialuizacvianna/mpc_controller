@@ -10,6 +10,7 @@
 std::ofstream results_file;
 std::ofstream dataset_file;
 std::ofstream dataset_file_nn;
+std::ofstream inputs_file_nn;
 
 const double pi = std::acos(-1);
 
@@ -266,6 +267,10 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     dataset_file_nn.open(file_name, std::ios_base::app);
   }
 
+  if(INPUTS_NN_FILE == 1){
+    inputs_file_nn.open("/home/maria/Documents/MPC/mpc_controller/inputs_nn/line.txt");
+  }
+
 }
 void CalculateTrajectory(){
   if(path == "quad"){
@@ -510,6 +515,13 @@ void CalculateMPC(){
   for(int i = 0; i < 40-1;  i = i +2){
     inputs_nn(i) = ref_x_robot_nn(count_idx);
     inputs_nn(i+1) = ref_y_robot_nn(count_idx);
+    if(INPUTS_NN_FILE == 1){
+      inputs_file_nn << std::to_string(inputs_nn(i));
+      inputs_file_nn << ",";
+      inputs_file_nn << std::to_string(inputs_nn(i+1));
+      if(i < 38)
+        inputs_file_nn << ",";
+    }
     count_idx = count_idx +1;
   }
   //inputs 21
@@ -779,6 +791,7 @@ void display() {
     double size_vector;
     std::string file_name;
     if(time >= tf){
+      inputs_file_nn.close();
       if(RESULTS_NN_FILE == 1){
         if(next_neuron ==  50 && configuration == 4){
           glutDestroyWindow(1);
