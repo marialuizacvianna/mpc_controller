@@ -651,7 +651,7 @@ void drawTank() {
 
 
     if(trans_corr > -1){
-      printString(mystr, 2+ (trans_corr*35), 8, 0.5);
+      printString(mystr, 2+ (trans_corr*35), 5, 0.5);
     }
     else{
       printString(mystr, 2, 8, 0.5);
@@ -891,7 +891,7 @@ void display() {
         }
     }
 
-    glTranslatef(-15 - (trans_corr*35),0,-20);
+    glTranslatef(-15 - (trans_corr*35),5,-20);
     glColor3f(1,1,1);
 
 
