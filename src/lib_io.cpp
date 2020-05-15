@@ -644,7 +644,7 @@ void drawTank() {
       glVertex3d(result_x_nn.at(i),  result_y_nn.at(i),  0.0);
     glEnd();
 
-    drawCircle(0.5,0.5,0.2,15);
+    // drawCircleInput(0.5,0.5,0.2,15,1);
 
     // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
@@ -663,7 +663,7 @@ void drawTank() {
     free(mystr);
 }
 
-void drawCircle(float cx,float cy,float r,float num_segments){
+void drawCircleInput(float cx,float cy,float r,float num_segments, int count){
   glBegin(GL_LINE_LOOP);
   for(int ii = 0; ii < num_segments; ii++)
   {
@@ -676,6 +676,10 @@ void drawCircle(float cx,float cy,float r,float num_segments){
 
   }
   glEnd();
+
+  if (count < 40){
+    drawCircleInput( cx, cy - 0.8, r, num_segments, count + 1);
+  }
 }
 void drawRobotReference() {
     // Reference line
