@@ -268,7 +268,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   if(INPUTS_NN_FILE == 1){
-    inputs_file_nn.open("/home/maria/Documents/MPC/mpc_controller/inputs_nn/line.txt");
+    inputs_file_nn.open("../inputs_nn/line_relu.txt");
   }
 
 }
@@ -519,11 +519,12 @@ void CalculateMPC(){
       inputs_file_nn << std::to_string(inputs_nn(i));
       inputs_file_nn << ",";
       inputs_file_nn << std::to_string(inputs_nn(i+1));
-      if(i < 38)
-        inputs_file_nn << ",";
+      inputs_file_nn << ",";
     }
     count_idx = count_idx +1;
   }
+
+
   //inputs 21
   // Eigen::VectorXd inputs_nn (21);
   // for(int i = 0; i < 20;  i = i + 1){
@@ -544,6 +545,10 @@ void CalculateMPC(){
     // std::cout<< "mpc = "<<  u(0) << ",  output = "<< output<< ",  u_nn(0) = " << u_nn(0) << std::endl;
   }
 
+  if(INPUTS_NN_FILE == 1){
+    inputs_file_nn << u_nn(0);
+    inputs_file_nn << "\n";
+  }
   result_cost = result_mpc.at(1);
 
   if(RESULTS_FILE == 1){
