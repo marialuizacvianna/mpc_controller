@@ -644,6 +644,8 @@ void drawTank() {
       glVertex3d(result_x_nn.at(i),  result_y_nn.at(i),  0.0);
     glEnd();
 
+    drawCircle(0.5,0.5,0.2,15);
+
     // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
     sprintf(mystr,"Time %4.2f : %4.2f : %4.2f , Cost : %4.2f\n",
@@ -661,6 +663,20 @@ void drawTank() {
     free(mystr);
 }
 
+void drawCircle(float cx,float cy,float r,float num_segments){
+  glBegin(GL_LINE_LOOP);
+  for(int ii = 0; ii < num_segments; ii++)
+  {
+      float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle
+
+      float x = r * cosf(theta);//calculate the x component
+      float y = r * sinf(theta);//calculate the y component
+
+      glVertex2f(x + cx, y + cy);//output vertex
+
+  }
+  glEnd();
+}
 void drawRobotReference() {
     // Reference line
 
