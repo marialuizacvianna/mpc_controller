@@ -1,5 +1,5 @@
 #include "lib/nn/lib_nn.h"
-
+#include "math.h"
 
 NN_CONTROLLER::NN_CONTROLLER(std::string file_name){
   trained_nn_file_name_ = file_name;
@@ -56,7 +56,8 @@ double NN_CONTROLLER::Solve_NN(Eigen::VectorXd inputs){
   y1 = (W1_*inputs) + b1_;
 
   // y1 = ReLu(y1);
-  y1 = Sigmoid(y1);
+  // y1 = Sigmoid(y1);
+  y1 = Tanh(y1);
 
   Eigen::VectorXd yo = Eigen::VectorXd::Zero(no_of_outputs_);
 
@@ -82,6 +83,17 @@ Eigen::VectorXd NN_CONTROLLER::Sigmoid(Eigen::VectorXd x){
 
     for( unsigned i = 0; i != VECTOR_SIZE; ++i ) {
         output[ i ] = 1 / (1 + exp(-x[ i ]));
+    }
+
+    return output;
+}
+
+Eigen::VectorXd NN_CONTROLLER::Tanh(Eigen::VectorXd x){
+    const unsigned long VECTOR_SIZE = x.size();
+    Eigen::VectorXd output (VECTOR_SIZE);
+
+    for( unsigned i = 0; i != VECTOR_SIZE; ++i ) {
+        output[ i ] = tanh(x[ i ]);
     }
 
     return output;

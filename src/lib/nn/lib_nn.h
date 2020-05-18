@@ -29,6 +29,7 @@ class NN_CONTROLLER
 
     Eigen::VectorXd Sigmoid(Eigen::VectorXd x);
     Eigen::VectorXd ReLu(Eigen::VectorXd x);
+    Eigen::VectorXd Tanh(Eigen::VectorXd x);
 };
 
 
