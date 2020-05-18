@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import math
 
 def read_inputs(input_files):
     inputs = []
@@ -79,22 +80,25 @@ def ReLu (x):
 
     return A
 
+def sigmoid(x):
+  return 1/(1 + np.exp(-x))
 
 
 def Solve_NN(inputs_nn,W,b):
     x = np.array([inputs_nn]).T
     for i in range(len(W) - 1):
         y = W[i]@x +  b[i]
-        y = ReLu(y)
+        y = sigmoid(y)
+        relu_values = y
         x = y
     #output layer
     yo = W[len(W)- 1]@x +  b[len(W)- 1]
     u = max(min(yo,0.836332),-0.836332)
-    return u
+    return relu_values,u
 
 
 
-def draw_neural_net(ax, left, right, bottom, top, layer_sizes):
+def draw_neural_net(ax, relu_values, left, right, bottom, top, layer_sizes):
     '''
     Draw a neural network cartoon using matplotilb.
 
@@ -116,6 +120,8 @@ def draw_neural_net(ax, left, right, bottom, top, layer_sizes):
         - layer_sizes : list of int
             List of layer sizes, including input and output dimensionality
     '''
+
+    nb_neurons_active = 0
     n_layers = len(layer_sizes)
     v_spacing = (top - bottom)/float(max(layer_sizes))
     h_spacing = (right - left)/float(len(layer_sizes) - 1)
@@ -123,8 +129,14 @@ def draw_neural_net(ax, left, right, bottom, top, layer_sizes):
     for n, layer_size in enumerate(layer_sizes):
         layer_top = v_spacing*(layer_size - 1)/2. + (top + bottom)/2.
         for m in range(layer_size):
-            circle = plt.Circle((n*h_spacing + left, layer_top - m*v_spacing), v_spacing/4.,
-                                color='w', ec='k', zorder=4)
+            if(n != 1):
+                circle = plt.Circle((n*h_spacing + left, layer_top - m*v_spacing), v_spacing/4.,color='w', ec='k', zorder=4)
+            else:
+                if(relu_values[m] <= 0.5):
+                    circle = plt.Circle((n*h_spacing + left, layer_top - m*v_spacing), v_spacing/4.,color='w', ec='k', zorder=4)
+                else:
+                    nb_neurons_active = nb_neurons_active + 1
+                    circle = plt.Circle((n*h_spacing + left, layer_top - m*v_spacing), v_spacing/4.,color='r', ec='k', zorder=4)
             ax.add_artist(circle)
     # # Edges
     for n, (layer_size_a, layer_size_b) in enumerate(zip(layer_sizes[:-1], layer_sizes[1:])):
@@ -137,6 +149,7 @@ def draw_neural_net(ax, left, right, bottom, top, layer_sizes):
                 if((m == 0 and o == 0 ) or (m == layer_size_a -1 and o == layer_size_b -1)):
                     ax.add_artist(line)
 
+    return nb_neurons_active
 
 def init_figure():
     fig = plt.figure(figsize=(20, 20))
