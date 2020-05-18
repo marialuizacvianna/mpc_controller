@@ -18,6 +18,7 @@
 
 const std::string io_path = "../results/";
 
+void drawCircleInput(float cx,float cy,float r,float num_segments, int count);
 void glGetResults(std::vector<double> x, std::vector<double> y , std::vector<double> psi);
 void glGetCosts(double cost);
 void glGetCoefficients(std::vector<double> ref_x_vector,std::vector<double>  ref_y_vector,

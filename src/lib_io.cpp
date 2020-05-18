@@ -10,6 +10,7 @@
 std::ofstream results_file;
 std::ofstream dataset_file;
 std::ofstream dataset_file_nn;
+std::ofstream inputs_file_nn;
 
 const double pi = std::acos(-1);
 
@@ -63,10 +64,10 @@ int no_of_neurons;
 
 std::string path;
 
-double y_idx = -20.0;
+double y_idx = 40.0;
 double theta_idx = 0.0;
 double freq = 1.0;
-int next_neuron = 105;
+int next_neuron = 50;
 int configuration = 1;
 
 
@@ -85,67 +86,93 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   x_nn(3) = X3; //speed
 
   if (no_of_neurons == 0 ){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/3 neurons/training_minimum_cost/1903_1019/trained_nn_3";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/3 neurons/training_minimum_cost/1903_1019/trained_nn_3";
   }
 
   else if (no_of_neurons == 3 ){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/3 neurons/training_minimum_cost/0104_1700/trained_nn_3";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/3 neurons/training_minimum_cost/0104_1700/trained_nn_3";//line
   }
 
   else if (no_of_neurons == 5 ){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0904_1200/trained_nn_5";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0904_1200/trained_nn_5";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/5 neurons/training_minimum_cost/2704_1414/trained_nn_5";//line and sinus
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/5 neurons/training_minimum_cost/2704_2244/trained_nn_5";//line,sinus and spiral
   }
 
   else if (no_of_neurons == 10){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0904_1200/trained_nn_10";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0904_1200/trained_nn_10";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2704_1414/trained_nn_10";//line and sinus
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2704_2244/trained_nn_10";//line,sinus and spiral
   }
 
   else if (no_of_neurons == 15){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1200/trained_nn_15";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1200/trained_nn_15";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/15 neurons/training_minimum_cost/2704_1414/trained_nn_15";//line and sinus
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/15 neurons/training_minimum_cost/2704_2244/trained_nn_15";//line,sinus and spiral
   }
 
   else if (no_of_neurons == 20){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/20 neurons/training_minimum_cost/1504_1500/trained_nn_20";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/20 neurons/training_minimum_cost/1504_1500/trained_nn_20";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/20 neurons/training_minimum_cost/2704_1414/trained_nn_20";//line and sinus
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/20 neurons/training_minimum_cost/2704_2244/trained_nn_20";//line,sinus and spiral
   }
 
   else if (no_of_neurons == 25){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/25 neurons/training_minimum_cost/1504_1500/trained_nn_25";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/25 neurons/training_minimum_cost/1504_1500/trained_nn_25";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/25 neurons/training_minimum_cost/2704_1414/trained_nn_25";//line and sinus
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/25 neurons/training_minimum_cost/2704_2244/trained_nn_25";//line,sinus and spiral
   }
 
   else if (no_of_neurons == 30){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/30 neurons/training_minimum_cost/1504_1500/trained_nn_30";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/30 neurons/training_minimum_cost/1504_1500/trained_nn_30";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/30 neurons/training_minimum_cost/2704_1414/trained_nn_30";//line and sinus
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/30 neurons/training_minimum_cost/2704_2244/trained_nn_30";//line,sinus and spiral
   }
 
   else if (no_of_neurons == 35){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/35 neurons/training_minimum_cost/1504_1500/trained_nn_35";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/35 neurons/training_minimum_cost/1504_1500/trained_nn_35";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/35 neurons/training_minimum_cost/2704_1414/trained_nn_35";//line and sinus
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/35 neurons/training_minimum_cost/2704_2244/trained_nn_35";//line,sinus and spiral
   }
 
   else if (no_of_neurons == 40){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/40 neurons/training_minimum_cost/1504_1500/trained_nn_40";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/40 neurons/training_minimum_cost/1504_1500/trained_nn_40";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/40 neurons/training_minimum_cost/2704_1414/trained_nn_40";//line and sinus
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/40 neurons/training_minimum_cost/2704_2244/trained_nn_40";//line,sinus and spiral
   }
 
   else if (no_of_neurons == 45){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/45 neurons/training_minimum_cost/1504_1500/trained_nn_45";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/45 neurons/training_minimum_cost/1504_1500/trained_nn_45";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/45 neurons/training_minimum_cost/2704_1414/trained_nn_45";//line and sinus
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/45 neurons/training_minimum_cost/2704_2244/trained_nn_45";//line,sinus and spiral
   }
 
   else if (no_of_neurons == 50){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1504_1500/trained_nn_50";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1504_1500/trained_nn_50";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_1414/trained_nn_50";//line and sinus
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/trained_nn_50";//line,sinus and spiral relu
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/0505_1600/trained_nn_50";//line,sinus and spiral sigmoid
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1105_1400/trained_nn_50";//line,sinus and spiral tanh
   }
 
   else if (no_of_neurons == 55){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/55 neurons/training_minimum_cost/1504_1500/trained_nn_55";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/55 neurons/training_minimum_cost/1504_1500/trained_nn_55";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/55 neurons/training_minimum_cost/2704_1414/trained_nn_55";//line and sinus
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/55 neurons/training_minimum_cost/2704_2244/trained_nn_55";//line,sinus and spiral
   }
 
   else if (no_of_neurons == 60){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/60 neurons/training_minimum_cost/2304_0930/trained_nn_60";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/60 neurons/training_minimum_cost/2304_0930/trained_nn_60";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/60 neurons/training_minimum_cost/2704_1414/trained_nn_60";//line and sinus
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/60 neurons/training_minimum_cost/2704_2244/trained_nn_60";//line,sinus and spiral
   }
 
   else if (no_of_neurons == 65){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/65 neurons/training_minimum_cost/2304_0930/trained_nn_65";
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/65 neurons/training_minimum_cost/2304_0930/trained_nn_65";//line
   }
 
   else if (no_of_neurons == 70){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/70 neurons/training_minimum_cost/2304_0930/trained_nn_70";
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/70 neurons/training_minimum_cost/2304_0930/trained_nn_70";//line
   }
 
 
@@ -233,11 +260,15 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   angle2follow_nn = 0.0;
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
-    dataset_file.open("/../dataset/dataset_03_sinus.txt", std::ios_base::app);
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_03_spiral.txt", std::ios_base::app);
   }
 
   if(RESULTS_NN_FILE == 1){
     dataset_file_nn.open(file_name, std::ios_base::app);
+  }
+
+  if(INPUTS_NN_FILE == 1){
+    inputs_file_nn.open("../inputs_nn/line_sigmoid.txt");
   }
 
 }
@@ -484,8 +515,16 @@ void CalculateMPC(){
   for(int i = 0; i < 40-1;  i = i +2){
     inputs_nn(i) = ref_x_robot_nn(count_idx);
     inputs_nn(i+1) = ref_y_robot_nn(count_idx);
+    if(INPUTS_NN_FILE == 1){
+      inputs_file_nn << std::to_string(inputs_nn(i));
+      inputs_file_nn << ",";
+      inputs_file_nn << std::to_string(inputs_nn(i+1));
+      inputs_file_nn << ",";
+    }
     count_idx = count_idx +1;
   }
+
+
   //inputs 21
   // Eigen::VectorXd inputs_nn (21);
   // for(int i = 0; i < 20;  i = i + 1){
@@ -502,10 +541,14 @@ void CalculateMPC(){
     // double output = neural_controller.Solve_NN(inputs_nn);
     // double slope = (2.0 + 2.0) / (0.836332 + 0.836332);
     // u_nn(0) = -2.0 + slope * (output + 0.836332);
-    u_nn(0) = neural_controller.Solve_NN(inputs_nn);
+    u_nn(0) = -3*neural_controller.Solve_NN(inputs_nn);
     // std::cout<< "mpc = "<<  u(0) << ",  output = "<< output<< ",  u_nn(0) = " << u_nn(0) << std::endl;
   }
 
+  if(INPUTS_NN_FILE == 1){
+    inputs_file_nn << u_nn(0);
+    inputs_file_nn << "\n";
+  }
   result_cost = result_mpc.at(1);
 
   if(RESULTS_FILE == 1){
@@ -618,6 +661,8 @@ void drawTank() {
       glVertex3d(result_x_nn.at(i),  result_y_nn.at(i),  0.0);
     glEnd();
 
+    // drawCircleInput(0.5,0.5,0.2,15,1);
+
     // Time string
     char *mystr = (char*)malloc(100*sizeof(char));
     sprintf(mystr,"Time %4.2f : %4.2f : %4.2f , Cost : %4.2f\n",
@@ -625,7 +670,7 @@ void drawTank() {
 
 
     if(trans_corr > -1){
-      printString(mystr, 2+ (trans_corr*35), 8, 0.5);
+      printString(mystr, 2+ (trans_corr*35), 5, 0.5);
     }
     else{
       printString(mystr, 2, 8, 0.5);
@@ -635,6 +680,24 @@ void drawTank() {
     free(mystr);
 }
 
+void drawCircleInput(float cx,float cy,float r,float num_segments, int count){
+  glBegin(GL_LINE_LOOP);
+  for(int ii = 0; ii < num_segments; ii++)
+  {
+      float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle
+
+      float x = r * cosf(theta);//calculate the x component
+      float y = r * sinf(theta);//calculate the y component
+
+      glVertex2f(x + cx, y + cy);//output vertex
+
+  }
+  glEnd();
+
+  if (count < 40){
+    drawCircleInput( cx, cy - 0.8, r, num_segments, count + 1);
+  }
+}
 void drawRobotReference() {
     // Reference line
 
@@ -733,15 +796,17 @@ void display() {
     double size_vector;
     std::string file_name;
     if(time >= tf){
+      inputs_file_nn.close();
       if(RESULTS_NN_FILE == 1){
-        if(next_neuron ==  110 && configuration == 4){
+        if(next_neuron ==  50 && configuration == 4){
+          glutDestroyWindow(1);
           if(RESULTS_NN_FILE == 1)
             dataset_file_nn.close();
         }
 
         else{
           dataset_file_nn.close();
-          file_name = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/"; //55 neurons/training_minimum_cost/1504_1500/result_circle.txt";
+          file_name = "/home/maria/Documents/nn_mpc/trained_nn/"; //55 neurons/training_minimum_cost/1504_1500/result_circle.txt";
 
           if (configuration == 4){
             next_neuron = next_neuron +  5;
@@ -752,7 +817,7 @@ void display() {
             configuration = configuration + 1;
           }
 
-          file_name = file_name + std::to_string(next_neuron) + " neurons/training_minimum_cost/2304_0930/result_";
+          file_name = file_name + std::to_string(next_neuron) + " neurons/training_minimum_cost/0505_1600/result_";
           time = 0.0;
           time_step_counter = 0.0;
 
@@ -762,7 +827,7 @@ void display() {
             x1 = 3.0;
             x2 = 0.5;
             path = "line";
-            file_name = file_name + "line.txt";
+            file_name = file_name + "line_new.txt";
           }
 
           if(configuration == 2){
@@ -770,7 +835,7 @@ void display() {
             x2 = 2.7;
             freq = 0.5;
             path = "sinus";
-            file_name = file_name + "sinus.txt";
+            file_name = file_name + "sinus_new.txt";
           }
 
           if(configuration == 3){
@@ -778,14 +843,14 @@ void display() {
             x2 = 0.0;
             freq = 1.0;
             path = "sinus";
-            file_name = file_name + "sinus_2.txt";
+            file_name = file_name + "sinus_2_new.txt";
           }
 
           if(configuration == 4){
             x1 = 0.0;
             x2 = 0.0;
             path = "circle";
-            file_name = file_name + "circle.txt";
+            file_name = file_name + "circle_new.txt";
           }
 
           std::cout << "restart x0 =  " << x0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << ", path =  " << path << std::endl;
@@ -864,7 +929,7 @@ void display() {
         }
     }
 
-    glTranslatef(-15 - (trans_corr*35),0,-20);
+    glTranslatef(-15 - (trans_corr*35),5,-20);
     glColor3f(1,1,1);
 
 
