@@ -27,6 +27,7 @@ class NN_CONTROLLER
 
     std::string trained_nn_file_name_;
 
+    Eigen::VectorXd Sigmoid(Eigen::VectorXd x);
     Eigen::VectorXd ReLu(Eigen::VectorXd x);
 };
 

@@ -150,7 +150,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   else if (no_of_neurons == 50){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1504_1500/trained_nn_50";//line
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_1414/trained_nn_50";//line and sinus
-    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/trained_nn_50";//line,sinus and spiral
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/trained_nn_50";//line,sinus and spiral relu
     trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/0505_1600/trained_nn_50";//line,sinus and spiral sigmoid
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1105_1400/trained_nn_50";//line,sinus and spiral tanh
   }
@@ -817,7 +817,7 @@ void display() {
             configuration = configuration + 1;
           }
 
-          file_name = file_name + std::to_string(next_neuron) + " neurons/training_minimum_cost/1105_1400/result_";
+          file_name = file_name + std::to_string(next_neuron) + " neurons/training_minimum_cost/0505_1600/result_";
           time = 0.0;
           time_step_counter = 0.0;
 
@@ -827,7 +827,7 @@ void display() {
             x1 = 3.0;
             x2 = 0.5;
             path = "line";
-            file_name = file_name + "line.txt";
+            file_name = file_name + "line_new.txt";
           }
 
           if(configuration == 2){
@@ -835,7 +835,7 @@ void display() {
             x2 = 2.7;
             freq = 0.5;
             path = "sinus";
-            file_name = file_name + "sinus.txt";
+            file_name = file_name + "sinus_new.txt";
           }
 
           if(configuration == 3){
@@ -843,14 +843,14 @@ void display() {
             x2 = 0.0;
             freq = 1.0;
             path = "sinus";
-            file_name = file_name + "sinus_2.txt";
+            file_name = file_name + "sinus_2_new.txt";
           }
 
           if(configuration == 4){
             x1 = 0.0;
             x2 = 0.0;
             path = "circle";
-            file_name = file_name + "circle.txt";
+            file_name = file_name + "circle_new.txt";
           }
 
           std::cout << "restart x0 =  " << x0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << ", path =  " << path << std::endl;

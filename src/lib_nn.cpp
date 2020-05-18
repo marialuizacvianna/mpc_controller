@@ -55,7 +55,8 @@ double NN_CONTROLLER::Solve_NN(Eigen::VectorXd inputs){
 
   y1 = (W1_*inputs) + b1_;
 
-  y1 = ReLu(y1);
+  // y1 = ReLu(y1);
+  y1 = Sigmoid(y1);
 
   Eigen::VectorXd yo = Eigen::VectorXd::Zero(no_of_outputs_);
 
@@ -72,6 +73,18 @@ double NN_CONTROLLER::Solve_NN(Eigen::VectorXd inputs){
   output = yo(0);
 
   return output;
+}
+
+
+Eigen::VectorXd NN_CONTROLLER::Sigmoid(Eigen::VectorXd x){
+    const unsigned long VECTOR_SIZE = x.size();
+    Eigen::VectorXd output (VECTOR_SIZE);
+
+    for( unsigned i = 0; i != VECTOR_SIZE; ++i ) {
+        output[ i ] = 1 / (1 + exp(-x[ i ]));
+    }
+
+    return output;
 }
 
 
