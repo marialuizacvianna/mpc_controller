@@ -68,7 +68,7 @@ double y_idx = 40.0;
 double theta_idx = 0.0;
 double freq = 1.0;
 int next_neuron = 50;
-int configuration = 1;
+int configuration = 4;
 
 
 void glInitMPC(double x0,double x1, double x2, std::string path_option,int neurons,double freq_choice, std::string file_name){
@@ -148,11 +148,13 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   else if (no_of_neurons == 50){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1504_1500/trained_nn_50";//line
-    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_1414/trained_nn_50";//line and sinus
-    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/trained_nn_50";//line,sinus and spiral relu
-    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/0505_1600/trained_nn_50";//line,sinus and spiral sigmoid
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1105_1400/trained_nn_50";//line,sinus and spiral tanh
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1504_1500/trained_nn_50";//line relu
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_1414/trained_nn_50";//line and sinus relu
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/trained_nn_50";//line,sinus and spiral relu
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/0505_1600/trained_nn_50";//line,sinus sigmoid
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1105_1400/trained_nn_50";//line,sinus  tanh
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_0808/trained_nn_50";//line,sinus and spiral sigmoid
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_1215/trained_nn_50";//line,sinus and spiral tanh
   }
 
   else if (no_of_neurons == 55){
@@ -541,7 +543,7 @@ void CalculateMPC(){
     // double output = neural_controller.Solve_NN(inputs_nn);
     // double slope = (2.0 + 2.0) / (0.836332 + 0.836332);
     // u_nn(0) = -2.0 + slope * (output + 0.836332);
-    u_nn(0) = -3*neural_controller.Solve_NN(inputs_nn);
+    u_nn(0) = neural_controller.Solve_NN(inputs_nn);
     // std::cout<< "mpc = "<<  u(0) << ",  output = "<< output<< ",  u_nn(0) = " << u_nn(0) << std::endl;
   }
 
@@ -817,7 +819,7 @@ void display() {
             configuration = configuration + 1;
           }
 
-          file_name = file_name + std::to_string(next_neuron) + " neurons/training_minimum_cost/1105_1400/result_";
+          file_name = file_name + std::to_string(next_neuron) + " neurons/training_minimum_cost/1805_0808/result_";
           time = 0.0;
           time_step_counter = 0.0;
 
@@ -827,7 +829,7 @@ void display() {
             x1 = 3.0;
             x2 = 0.5;
             path = "line";
-            file_name = file_name + "line_new.txt";
+            file_name = file_name + "line.txt";
           }
 
           if(configuration == 2){
@@ -835,7 +837,7 @@ void display() {
             x2 = 2.7;
             freq = 0.5;
             path = "sinus";
-            file_name = file_name + "sinus_new.txt";
+            file_name = file_name + "sinus.txt";
           }
 
           if(configuration == 3){
@@ -843,14 +845,14 @@ void display() {
             x2 = 0.0;
             freq = 1.0;
             path = "sinus";
-            file_name = file_name + "sinus_2_new.txt";
+            file_name = file_name + "sinus_2.txt";
           }
 
           if(configuration == 4){
             x1 = 0.0;
             x2 = 0.0;
             path = "circle";
-            file_name = file_name + "circle_new.txt";
+            file_name = file_name + "circle.txt";
           }
 
           std::cout << "restart x0 =  " << x0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << ", path =  " << path << std::endl;

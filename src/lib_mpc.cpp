@@ -125,14 +125,12 @@ class FG_eval
       // equations for the model:
       // x_[t] = x[t-1] + v[t-1] * cos(psi[t-1]) * dt
       // y_[t] = y[t-1] + v[t-1] * sin(psi[t-1]) * dt
-      // psi_[t] = psi[t-1] + v[t-1] / Lf * delta[t-1] * dt
+      // psi_[t] = psi[t-1] +  delta[t-1] * dt
       // v_[t] = v[t-1] + a[t-1] * dt
-      // cte[t] = f(x[t-1]) - y[t-1] + v[t-1] * sin(epsi[t-1]) * dt
-      // epsi[t] = psi[t] - psides[t-1] + v[t-1] * delta[t-1] / Lf * dt
 
       fg[1 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * DT);
       fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * DT);
-      fg[1 + psi_start + t] = psi1 - (psi0 + delta0 * DT);
+      fg[1 + psi_start + t] = psi1 - (psi0 - 3.0 * delta0 * DT);
       fg[1 + v_start + t] = v1 - (v0 + 0.0 * DT);
 
     }
@@ -144,7 +142,7 @@ Eigen::VectorXd Propagate(Eigen::VectorXd x ,Eigen::VectorXd u) {
   Eigen::VectorXd x_propagate(SIZE_STATE);
   x_propagate(0) = x(0) + x(3)*cos(x(2))*DT;
   x_propagate(1) = x(1) + x(3)*sin(x(2))*DT;
-  x_propagate(2) = x(2) + u(0)*DT;
+  x_propagate(2) = x(2) - 3.0*u(0)*DT;
   x_propagate(3) = x(3);
   return x_propagate;
 };
@@ -182,8 +180,8 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eige
   // degrees (values in radians).
   for (int i = delta_start; i < n_vars; i++)
   {
-    vars_lowerbound[i] = -3*0.836332;//-0.836332
-    vars_upperbound[i] = 3*0.836332;//0.836332
+    vars_lowerbound[i] = -0.836332;//-0.836332
+    vars_upperbound[i] = 0.836332;//0.836332
   }
 
   // Acceleration/decceleration upper and lower limits.

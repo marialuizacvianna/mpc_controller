@@ -41,11 +41,11 @@ int main(int argc, char *argv[]) {
   double freq = atof(argv[5]);
 
   std::string file_name;
-  file_name = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1105_1400/result_line_new.txt";
+  file_name = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/result_line_3.txt";
 
   if(RESULTS_NN_FILE == 1){
-    x1 = 3.0;
-    x2 = 0.5;
+    x1 = 0.0;
+    x2 = 0.0;
     path_to_follow = "line";
   }
 
