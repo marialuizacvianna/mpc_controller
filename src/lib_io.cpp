@@ -543,7 +543,7 @@ void CalculateMPC(){
     // double output = neural_controller.Solve_NN(inputs_nn);
     // double slope = (2.0 + 2.0) / (0.836332 + 0.836332);
     // u_nn(0) = -2.0 + slope * (output + 0.836332);
-    u_nn(0) = neural_controller.Solve_NN(inputs_nn);
+    u_nn(0) = -neural_controller.Solve_NN(inputs_nn);
     // std::cout<< "mpc = "<<  u(0) << ",  output = "<< output<< ",  u_nn(0) = " << u_nn(0) << std::endl;
   }
 
