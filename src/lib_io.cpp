@@ -100,10 +100,10 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   else if (no_of_neurons == 10){
-    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0904_1200/trained_nn_10";//line
+    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0904_1200/trained_nn_10";//line
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2704_1414/trained_nn_10";//line and sinus
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2704_2244/trained_nn_10";//line,sinus and spiral
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/1905_1730/trained_nn_10";//line,sinus and spiral tanh 9 couches
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/1905_1730/trained_nn_10";//line,sinus and spiral tanh 9 couches
   }
 
   else if (no_of_neurons == 15){
@@ -151,11 +151,11 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   else if (no_of_neurons == 50){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1504_1500/trained_nn_50";//line relu
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_1414/trained_nn_50";//line and sinus relu
-    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/trained_nn_50";//line,sinus and spiral relu
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/trained_nn_50";//line,sinus and spiral relu
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/0505_1600/trained_nn_50";//line,sinus sigmoid
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1105_1400/trained_nn_50";//line,sinus  tanh
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_0808/trained_nn_50";//line,sinus and spiral sigmoid
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_1215/trained_nn_50";//line,sinus and spiral tanh
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_1215/trained_nn_50";//line,sinus and spiral tanh
   }
 
   else if (no_of_neurons == 55){
@@ -651,10 +651,25 @@ void drawTank() {
     M_nn = move_motif(M_nn,result_x_nn.at(size_vector_nn - 1),result_y_nn.at(size_vector_nn - 1),result_psi_nn.at(size_vector_nn - 1));
 
 
-    glColor3f(0.0, 1.0, 0.0);
+    glColor3f(1.0, 0.0, 1.0);
+    glBegin(GL_LINE_STRIP);
+    for(int i = 0; i < 15; i ++){
+      glVertex3d(M(0,i),  M(1,i),  0.0);
+    }
+    glEnd();
+
+    glColor3f(1.0, 0.0, 1.0);
     glBegin(GL_LINE_STRIP);
     for(int i = 0; i <= size_vector - 1; i ++)
       glVertex3d(result_x.at(i),  result_y.at(i),  0.0);
+    glEnd();
+
+
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_LINE_STRIP);
+    for(int i = 0; i < 15; i ++){
+      glVertex3d(M_nn(0,i),  M_nn(1,i),  0.0);
+    }
     glEnd();
 
 
@@ -738,40 +753,40 @@ void drawRobotReference() {
     }
     glEnd();
 
-    glLineWidth(2.5);
-    glColor3f(1.0, 1.0, 0.0);
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(result_x_nn.at(size_vector_result - 1), result_y_nn.at(size_vector_result - 1));
-    glVertex2f(result_x_nn.at(size_vector_result - 1) + 1.0*cos(result_psi_nn.at(size_vector_result - 1)), result_y_nn.at(size_vector_result - 1) + 1.0*sin(result_psi_nn.at(size_vector_result - 1)));
-
-    glEnd();
-
-
-    glLineWidth(2.5);
-    glColor3f(1.0, 1.0, 0.0);
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(result_x_nn.at(size_vector_result - 1), result_y_nn.at(size_vector_result - 1));
-    glVertex2f(result_x_nn.at(size_vector_result - 1) + 1.0*cos(result_psi_nn.at(size_vector_result - 1) + 1.5708), result_y_nn.at(size_vector_result - 1) + 1.0*sin(result_psi_nn.at(size_vector_result - 1)+ 1.5708));
-
-    glEnd();
-
-
-    glLineWidth(2.5);
-    glColor3f(0.0, 1.0, 0.0);
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(result_x.at(size_vector_result - 1), result_y.at(size_vector_result - 1));
-    glVertex2f(result_x.at(size_vector_result - 1) + 1.0*cos(result_psi.at(size_vector_result - 1)), result_y.at(size_vector_result - 1) + 1.0*sin(result_psi.at(size_vector_result - 1)));
-
-    glEnd();
+    // glLineWidth(2.5);
+    // glColor3f(1.0, 1.0, 0.0);
+    // glBegin(GL_LINE_STRIP);
+    // glVertex2f(result_x_nn.at(size_vector_result - 1), result_y_nn.at(size_vector_result - 1));
+    // glVertex2f(result_x_nn.at(size_vector_result - 1) + 1.0*cos(result_psi_nn.at(size_vector_result - 1)), result_y_nn.at(size_vector_result - 1) + 1.0*sin(result_psi_nn.at(size_vector_result - 1)));
+    //
+    // glEnd();
+    //
+    //
+    // glLineWidth(2.5);
+    // glColor3f(1.0, 1.0, 0.0);
+    // glBegin(GL_LINE_STRIP);
+    // glVertex2f(result_x_nn.at(size_vector_result - 1), result_y_nn.at(size_vector_result - 1));
+    // glVertex2f(result_x_nn.at(size_vector_result - 1) + 1.0*cos(result_psi_nn.at(size_vector_result - 1) + 1.5708), result_y_nn.at(size_vector_result - 1) + 1.0*sin(result_psi_nn.at(size_vector_result - 1)+ 1.5708));
+    //
+    // glEnd();
 
 
-    glLineWidth(2.5);
-    glColor3f(0.0, 1.0, 0.0);
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(result_x.at(size_vector_result - 1), result_y.at(size_vector_result - 1));
-    glVertex2f(result_x.at(size_vector_result - 1) + 1.0*cos(result_psi.at(size_vector_result - 1) + 1.5708), result_y.at(size_vector_result - 1) + 1.0*sin(result_psi.at(size_vector_result - 1)+ 1.5708));
-
-    glEnd();
+    // glLineWidth(2.5);
+    // glColor3f(0.0, 1.0, 0.0);
+    // glBegin(GL_LINE_STRIP);
+    // glVertex2f(result_x.at(size_vector_result - 1), result_y.at(size_vector_result - 1));
+    // glVertex2f(result_x.at(size_vector_result - 1) + 1.0*cos(result_psi.at(size_vector_result - 1)), result_y.at(size_vector_result - 1) + 1.0*sin(result_psi.at(size_vector_result - 1)));
+    //
+    // glEnd();
+    //
+    //
+    // glLineWidth(2.5);
+    // glColor3f(0.0, 1.0, 0.0);
+    // glBegin(GL_LINE_STRIP);
+    // glVertex2f(result_x.at(size_vector_result - 1), result_y.at(size_vector_result - 1));
+    // glVertex2f(result_x.at(size_vector_result - 1) + 1.0*cos(result_psi.at(size_vector_result - 1) + 1.5708), result_y.at(size_vector_result - 1) + 1.0*sin(result_psi.at(size_vector_result - 1)+ 1.5708));
+    //
+    // glEnd();
 
 
 }
