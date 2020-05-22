@@ -11,38 +11,87 @@ NN_CONTROLLER::NN_CONTROLLER(std::string file_name){
   no_of_inputs_ = atoi(line.c_str());
 
   std::getline(trained_nn_file, line);
-  no_of_hidd_ = atoi(line.c_str());
-
-  std::getline(trained_nn_file, line);
   no_of_outputs_ = atoi(line.c_str());
 
   std::getline(trained_nn_file, line);
-  no_of_neurons_hidd_ = atoi(line.c_str());
+  no_of_hidd_ = atoi(line.c_str());
 
-  W1_ = Eigen::MatrixXd::Zero(no_of_neurons_hidd_, no_of_inputs_);
-  b1_ = Eigen::VectorXd::Zero(no_of_neurons_hidd_);
-  W0_ = Eigen::MatrixXd::Zero(no_of_outputs_, no_of_neurons_hidd_);
-  b0_ = Eigen::VectorXd::Zero(no_of_outputs_);
-
-
-  for(int row = 0; row < no_of_neurons_hidd_; row++){
-    for(int col = 0; col < no_of_inputs_; col++){
-      std::getline(trained_nn_file, line);
-      W1_(row,col) = stod(line);
-    }
+  for(int i =0; i < no_of_hidd_; i ++){
     std::getline(trained_nn_file, line);
-    b1_(row) = stod(line);
+    no_of_neurons_hidd_.push_back(atoi(line.c_str()));
   }
 
-  for(int row = 0; row < no_of_outputs_; row++){
-    for(int col = 0; col < no_of_neurons_hidd_; col++){
-      std::getline(trained_nn_file, line);
-      W0_(row,col) = stod(line);
+  Eigen::MatrixXd W_tmp;
+  Eigen::VectorXd b_tmp;
+
+  int no_of_rows;
+  int no_of_cols;
+  // std::cout << "no_of_inputs_ == " << no_of_inputs_ <<std::endl;
+  // std::cout << "no_of_hidd_ == " << no_of_hidd_ <<std::endl;
+  // std::cout << "no_of_outputs_ == " << no_of_outputs_ <<std::endl;
+  // for(int i =0; i < no_of_hidd_  ; i ++){
+  //   std::cout << "no_of_neurons_hidd_ == " << no_of_neurons_hidd_.at(i) <<std::endl;
+  // }
+  for(int i =0; i < no_of_hidd_ + 1 ; i ++){
+    if(i == 0){
+      W_tmp = Eigen::MatrixXd::Zero(no_of_neurons_hidd_.at(0), no_of_inputs_);
+      b_tmp = Eigen::VectorXd::Zero(no_of_neurons_hidd_.at(0));
+
+      no_of_rows = no_of_neurons_hidd_.at(0);
+      no_of_cols = no_of_inputs_;
+
+    }
+    else if(i == no_of_hidd_){
+      W_tmp = Eigen::MatrixXd::Zero(no_of_outputs_, no_of_neurons_hidd_.at(no_of_hidd_ - 1));
+      b_tmp = Eigen::VectorXd::Zero(no_of_outputs_);
+
+      no_of_rows = no_of_outputs_;
+      no_of_cols =  no_of_neurons_hidd_.at(no_of_hidd_ - 1);
+
+    }
+    else{
+      W_tmp = Eigen::MatrixXd::Zero(no_of_neurons_hidd_.at(i), no_of_neurons_hidd_.at(i-1));
+      b_tmp = Eigen::VectorXd::Zero(no_of_neurons_hidd_.at(i));
+
+      no_of_rows = no_of_neurons_hidd_.at(i);
+      no_of_cols =  no_of_neurons_hidd_.at(i-1);
+
     }
 
-    std::getline(trained_nn_file, line);
-    b0_(row) = stod(line);
+    for(int row = 0; row < no_of_rows; row++){
+      for(int col = 0; col < no_of_cols; col++){
+        std::getline(trained_nn_file, line);
+        W_tmp(row,col) = stod(line);
+      }
+      std::getline(trained_nn_file, line);
+      b_tmp(row) = stod(line);
+    }
+
+    W_.push_back(W_tmp);
+    b_.push_back(b_tmp);
   }
+
+
+
+  //
+  // for(int row = 0; row < no_of_neurons_hidd_; row++){
+  //   for(int col = 0; col < no_of_inputs_; col++){
+  //     std::getline(trained_nn_file, line);
+  //     W1_(row,col) = stod(line);
+  //   }
+  //   std::getline(trained_nn_file, line);
+  //   b1_(row) = stod(line);
+  // }
+  //
+  // for(int row = 0; row < no_of_outputs_; row++){
+  //   for(int col = 0; col < no_of_neurons_hidd_; col++){
+  //     std::getline(trained_nn_file, line);
+  //     W0_(row,col) = stod(line);
+  //   }
+  //
+  //   std::getline(trained_nn_file, line);
+  //   b0_(row) = stod(line);
+  // }
 
   trained_nn_file.close();
 
@@ -51,17 +100,31 @@ NN_CONTROLLER::NN_CONTROLLER(std::string file_name){
 double NN_CONTROLLER::Solve_NN(Eigen::VectorXd inputs){
   double output;
 
-  Eigen::VectorXd y1 = Eigen::VectorXd::Zero(no_of_neurons_hidd_);
 
-  y1 = (W1_*inputs) + b1_;
+  Eigen::VectorXd inputs_i = inputs;
 
-  y1 = ReLu(y1);
-  // y1 = Sigmoid(y1);
-  // y1 = Tanh(y1);
+  for(int i = 0; i < no_of_hidd_; i++){
+    Eigen::VectorXd y_aux = Eigen::VectorXd::Zero(no_of_neurons_hidd_.at(i));
+    y_aux = W_.at(i)*inputs_i + b_.at(i);
+    y_aux = Tanh(y_aux);
+    inputs_i = y_aux;
+  }
 
   Eigen::VectorXd yo = Eigen::VectorXd::Zero(no_of_outputs_);
+  yo = (W_.at(no_of_hidd_ )*inputs_i) + b_.at(no_of_hidd_);
 
-  yo = (W0_*y1) + b0_;
+
+  // Eigen::VectorXd y1 = Eigen::VectorXd::Zero(no_of_neurons_hidd_);
+  //
+  // y1 = (W1_*inputs) + b1_;
+  //
+  // // y1 = ReLu(y1);
+  // // y1 = Sigmoid(y1);
+  // y1 = Tanh(y1);
+
+  // Eigen::VectorXd yo = Eigen::VectorXd::Zero(no_of_outputs_);
+  //
+  // yo = (W0_*y1) + b0_;
 
   for(int i =0; i < no_of_outputs_; i ++){
     if(yo(i) < -0.836332)

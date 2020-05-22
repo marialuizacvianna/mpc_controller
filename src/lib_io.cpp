@@ -67,8 +67,8 @@ std::string path;
 double y_idx = 40.0;
 double theta_idx = 0.0;
 double freq = 1.0;
-int next_neuron = 50;
-int configuration = 4;
+int next_neuron = 10;
+int configuration = 1;
 
 
 void glInitMPC(double x0,double x1, double x2, std::string path_option,int neurons,double freq_choice, std::string file_name){
@@ -102,7 +102,8 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   else if (no_of_neurons == 10){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0904_1200/trained_nn_10";//line
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2704_1414/trained_nn_10";//line and sinus
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2704_2244/trained_nn_10";//line,sinus and spiral
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2704_2244/trained_nn_10";//line,sinus and spiral
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/1905_1730/trained_nn_10";//line,sinus and spiral tanh 9 couches
   }
 
   else if (no_of_neurons == 15){
@@ -150,11 +151,11 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   else if (no_of_neurons == 50){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1504_1500/trained_nn_50";//line relu
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_1414/trained_nn_50";//line and sinus relu
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/trained_nn_50";//line,sinus and spiral relu
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/trained_nn_50";//line,sinus and spiral relu
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/0505_1600/trained_nn_50";//line,sinus sigmoid
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1105_1400/trained_nn_50";//line,sinus  tanh
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_0808/trained_nn_50";//line,sinus and spiral sigmoid
-    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_1215/trained_nn_50";//line,sinus and spiral tanh
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_1215/trained_nn_50";//line,sinus and spiral tanh
   }
 
   else if (no_of_neurons == 55){
@@ -270,7 +271,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   if(INPUTS_NN_FILE == 1){
-    inputs_file_nn.open("../inputs_nn/line_sigmoid.txt");
+    inputs_file_nn.open("../inputs_nn/line_tanh.txt");
   }
 
 }
@@ -800,7 +801,7 @@ void display() {
     if(time >= tf){
       inputs_file_nn.close();
       if(RESULTS_NN_FILE == 1){
-        if(next_neuron ==  50 && configuration == 4){
+        if(next_neuron ==  10 && configuration == 4){
           glutDestroyWindow(1);
           if(RESULTS_NN_FILE == 1)
             dataset_file_nn.close();
@@ -819,7 +820,7 @@ void display() {
             configuration = configuration + 1;
           }
 
-          file_name = file_name + std::to_string(next_neuron) + " neurons/training_minimum_cost/1805_0808/result_";
+          file_name = file_name + std::to_string(next_neuron) + " neurons/training_minimum_cost/1905_1730/result_";
           time = 0.0;
           time_step_counter = 0.0;
 
