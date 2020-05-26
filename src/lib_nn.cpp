@@ -106,7 +106,8 @@ double NN_CONTROLLER::Solve_NN(Eigen::VectorXd inputs){
   for(int i = 0; i < no_of_hidd_; i++){
     Eigen::VectorXd y_aux = Eigen::VectorXd::Zero(no_of_neurons_hidd_.at(i));
     y_aux = W_.at(i)*inputs_i + b_.at(i);
-    y_aux = Tanh(y_aux);
+    // y_aux = Tanh(y_aux);
+    y_aux = ReLu(y_aux);
     inputs_i = y_aux;
   }
 

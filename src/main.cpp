@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   double freq = atof(argv[5]);
 
   std::string file_name;
-  file_name = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/1905_1730/result_line.txt";
+  file_name = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2505_1550/result_line.txt";
 
   if(RESULTS_NN_FILE == 1){
     x1 = 3.0;
