@@ -427,18 +427,19 @@ void CalculateTrajectory(){
         ref_y_vector_w.push_back(ref_y(i));
       }
 
-    double ref_v_x_nn = (x_nn(3))/sqrt(1+(sin(freq*(x_nn(0) +const_aux))*sin(freq*(x_nn(0) +const_aux))));
+    // double ref_v_x_nn = (x_nn(3))/sqrt(1+(sin(freq*(x_nn(0) +const_aux))*sin(freq*(x_nn(0) +const_aux))));
+    double ref_v_x_nn = 1.0;
     for(int i = 0; i < CONTROL_HORIZON; i++){
       if( x_nn(0) + const_nn > last_x_nn){
         ref_x_nn(i) = x_nn(0)  + const_nn  + ref_v_x_nn*i*DT;
         ref_y_nn(i) = LINE + cos(freq*ref_x_nn(i));
         last_x_nn = x_nn(0) + const_nn ;
-        ref_v_x_nn = (x_nn(3))/sqrt(1+(sin(freq*ref_x_nn(i))*sin(freq*ref_x_nn(i))));
+        // ref_v_x_nn = (x_nn(3))/sqrt(1+(sin(freq*ref_x_nn(i))*sin(freq*ref_x_nn(i))));
       }
       else{
         ref_x_nn(i) = last_x_nn + ref_v_x_nn*i*DT;
         ref_y_nn(i) = LINE + cos(freq*ref_x_nn(i));
-        ref_v_x_nn = (x_nn(3))/sqrt(1+(sin(freq*ref_x_nn(i))*sin(freq*ref_x_nn(i))));
+        // ref_v_x_nn = (x_nn(3))/sqrt(1+(sin(freq*ref_x_nn(i))*sin(freq*ref_x_nn(i))));
       }
 
       ref_x_vector_nn.push_back(ref_x_nn(i));
