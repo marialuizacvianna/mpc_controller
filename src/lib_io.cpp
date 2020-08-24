@@ -407,7 +407,7 @@ void CalculateTrajectory(){
       // }
       // else{
         const_aux = 0.0;
-        const_nn = 0.0;
+        const_nn = 0.5;
       // }
       double ref_v_x = (x(3))/sqrt(1+(sin(freq*(x(0) +const_aux))*sin(freq*(x(0) +const_aux))));
       for(int i = 0; i < CONTROL_HORIZON; i++){
