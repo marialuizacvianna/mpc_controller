@@ -401,57 +401,58 @@ void CalculateTrajectory(){
       double const_aux;
       double const_nn;
 
-      if(freq == 2.0){
-        const_aux = x(3)*cos(x(2))*DT;
-        const_nn = x_nn(3)*cos(x_nn(2))*DT;
-      }
-      else{
-        const_aux = 0.5;
-        const_nn = 0.5;
-      }
-
+      // if(freq == 2.0){
+      //   const_aux = x(3)*cos(x(2))*DT;
+      //   const_nn = x_nn(3)*cos(x_nn(2))*DT;
+      // }
+      // else{
+        const_aux = 0.0;
+        const_nn = 0.0;
+      // }
+      double ref_v_x = (x(3))/sqrt(1+(sin(freq*(x(0) +const_aux))*sin(freq*(x(0) +const_aux))));
       for(int i = 0; i < CONTROL_HORIZON; i++){
         if( x(0) + const_aux > last_x){
-          ref_x(i) = x(0) +const_aux ;
+          ref_x(i) = x(0) +const_aux + ref_v_x*DT*i;
           ref_y(i) = LINE + std::cos(freq*ref_x(i));
           last_x = x(0) + const_aux  ;
+          ref_v_x = (x(3))/sqrt(1+(sin(freq*ref_x(i))*sin(freq*ref_x(i))));
         }
         else{
-          ref_x(i) = last_x + i*DT;
+          ref_x(i) = x(0) +const_aux + ref_v_x*DT*i;
           ref_y(i) = LINE + cos(freq*ref_x(i));
+          ref_v_x = (x(3))/sqrt(1+(sin(freq*ref_x(i))*sin(freq*ref_x(i))));
         }
 
         ref_x_vector_w.push_back(ref_x(i));
         ref_y_vector_w.push_back(ref_y(i));
       }
 
+    double ref_v_x_nn = (x_nn(3))/sqrt(1+(sin(freq*(x_nn(0) +const_aux))*sin(freq*(x_nn(0) +const_aux))));
     for(int i = 0; i < CONTROL_HORIZON; i++){
       if( x_nn(0) + const_nn > last_x_nn){
-        ref_x_nn(i) = x_nn(0)  + const_nn  + i*DT;
+        ref_x_nn(i) = x_nn(0)  + const_nn  + ref_v_x_nn*i*DT;
         ref_y_nn(i) = LINE + cos(freq*ref_x_nn(i));
         last_x_nn = x_nn(0) + const_nn ;
+        ref_v_x_nn = (x_nn(3))/sqrt(1+(sin(freq*ref_x_nn(i))*sin(freq*ref_x_nn(i))));
       }
       else{
-        ref_x_nn(i) = last_x_nn + i*DT;
+        ref_x_nn(i) = last_x_nn + ref_v_x_nn*i*DT;
         ref_y_nn(i) = LINE + cos(freq*ref_x_nn(i));
+        ref_v_x_nn = (x_nn(3))/sqrt(1+(sin(freq*ref_x_nn(i))*sin(freq*ref_x_nn(i))));
       }
 
       ref_x_vector_nn.push_back(ref_x_nn(i));
       ref_y_vector_nn.push_back(ref_y_nn(i));
     }
-    //
-    // ref_x = ref_x_nn;
-    // ref_y = ref_y_nn;
-    // ref_x_nn = ref_x;
-    // ref_y_nn = ref_y;
+
   }
 
   else if(path == "line"){
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      if(x(0) + 0.5> last_x){
-        ref_x(i) = x(0) + 0.5 + i*DT;
+      if(x(0)+0.5 > last_x){
+        ref_x(i) = x(0) +  0.5+x(3)*i*DT;
         ref_y(i) = LINE;
-        last_x = x(0)+ 0.5;
+        last_x = x(0)+0.5;
       }
       else{
         ref_x(i) = last_x   + i*DT;
@@ -464,7 +465,7 @@ void CalculateTrajectory(){
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
       if(x_nn(0) + 0.5> last_x_nn){
-        ref_x_nn(i) = x_nn(0) + 0.5 + i*DT;
+        ref_x_nn(i) = x_nn(0) + 0.5 +x_nn(3)*i*DT;
         ref_y_nn(i) = LINE;
         last_x_nn = x_nn(0) + 0.5;
       }
