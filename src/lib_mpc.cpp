@@ -1,5 +1,8 @@
 #include "lib/mpc/lib_mpc.h"
 
+double wheelbase = 0.3302;
+double l_r = 0.17145;
+double l_f = wheelbase - l_r;
 // The solver takes all the state variables and actuator
 // variables in a singular vector. Thus, we should to establish
 // when one variable starts and another ends to make our lifes easier.
@@ -130,7 +133,7 @@ class FG_eval
 
       fg[1 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * DT);
       fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * DT);
-      fg[1 + psi_start + t] = psi1 - (psi0 + 3.0 * delta0 * DT);
+      fg[1 + psi_start + t] = psi1 - (psi0 +  v0* delta0 /l_f* DT);
       fg[1 + v_start + t] = v1 - (v0 + 0.0 * DT);
 
     }
@@ -142,7 +145,7 @@ Eigen::VectorXd Propagate(Eigen::VectorXd x ,Eigen::VectorXd u) {
   Eigen::VectorXd x_propagate(SIZE_STATE);
   x_propagate(0) = x(0) + x(3)*cos(x(2))*DT;
   x_propagate(1) = x(1) + x(3)*sin(x(2))*DT;
-  x_propagate(2) = x(2) + 3.0*u(0)*DT;
+  x_propagate(2) = x(2) + x(3)*u(0)/l_f*DT;
   x_propagate(3) = x(3);
   return x_propagate;
 };
