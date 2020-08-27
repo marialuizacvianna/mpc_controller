@@ -77,22 +77,13 @@ class F110Env(gym.Env, utils.EzPickle):
         self.x = None
         self.y = None
         self.theta = None
+        self.speed = None
 
         self.in_collision = False
         self.collision_angle = None
 
         self.origin = []
 
-
-    def _start_executable(self, path):
-        mu = self.params[0]
-        h_cg = self.params[1]
-        l_r = self.params[2]
-        cs_f = self.params[3]
-        cs_r = self.params[4]
-        I_z = self.params[5]
-        mass = self.params[6]
-        args = [path+'sim_server', str(self.timestep), str(self.num_agents), str(self.port), str(mu), str(h_cg), str(l_r), str(cs_f), str(cs_r), str(I_z), str(mass)]
 
 
     def _check_done(self):
@@ -106,7 +97,10 @@ class F110Env(gym.Env, utils.EzPickle):
 
         """
 
+        return 0
+
         # to do
+        #fazer com base no tempo (?)
 
 
     def _update_state(self, obs_dict):
@@ -120,11 +114,10 @@ class F110Env(gym.Env, utils.EzPickle):
 
 
 
-    def compute_reward(self, observations, done, state_map):
+    def _compute_reward(self, last_action,action, observations, done, state_map):
         if(len(state_map) == 0 ):
             return 0
 
-        #TODO
 
         X = observations['poses_x'][observations['ego_idx']]
         Y = observations['poses_y'][observations['ego_idx']]
@@ -141,258 +134,99 @@ class F110Env(gym.Env, utils.EzPickle):
 
         angle_ref = math.atan2(dy,dx)
 
+        reward = -(last_action - action)**2
 
-        map_dist = (first_ref_x - X)**2 + (first_ref_y - Y)**2 + 100*(angle_ref - theta)**2
+        map_dist = (first_ref_x - X)**2 + (first_ref_y - Y)**2
 
-        reward = -map_dist
+        reward = reward - map_dist
 
-        reward =  max(min(reward, 0), -10)
+        # reward =  max(min(reward, 0), -10)
 
         return reward
 
+    def _compute_accel(self,desired_speed):
+        dif = (desired_speed - self.speed)
+        accel = 0
+
+        if (self.speed > 0):
+            if (dif > 0):
+                kp = 2.0 * self.max_accel / self.max_speed
+                accel = kp*dif
+                accel = min(max(accel, -self.max_accel), self.max_accel)
+            else:
+                accel = -self.max_decel
+
+        else:
+            if (dif > 0):
+                accel = self.max_decel
+            else:
+                kp = 2.0 * self.max_accel / self.max_speed;
+                accel = kp*dif
+                accel = min(max(accel, -self.max_accel), self.max_accel)
+
+        return accel
+
+    def _propagate(self, speed, steer_angle):
+        accel = self.compute_accel(speed)
+        obs = {'ego_idx': self.ego_idx, 'poses_x': [], 'poses_y': [], 'poses_theta': [], 'linear_vels': []}
+        x1 = self.x + self.speed *cos(self.theta) * self.dt
+        y1 = self.y + self.speed *sin(self.theta) * self.dt
+        theta1 = self.theta + self.speed*sin(steer_angle) /l_f* self.dt
+        v1 = self.speed + accel* self.dt
+
+        obs['poses_x'].append(x1)
+        obs['poses_y'].append(y1)
+        obs['poses_theta'].append(theta1)
+        obs['linear_vels'].append(v1)
+
+        return obs
 
     def step(self, action, state_map):
-        #TODO
-        # can't step if params not set
-        if not self.params_set:
-            print('ERROR - Gym Env - Params not set, call update params before stepping.')
-            sys.exit()
         # action is a list of steering angles + command velocities
         # also a ego car index
         # action should a DICT with {'ego_idx': int, 'speed':[], 'steer':[]}
         requested_vel = action['speed']
         requested_ang = action['steer']
 
-        #TODO APPLY REQUEST STEP
 
-        # TODO get results
-        # TODO: also check for stepping fail
-        #observations and future entry to neural network
-
-        # construct observation dict
-        # Observation DICT, assume indices consistent: {'ego_idx':int, 'scans':[[]], 'poses_x':[], 'poses_y':[], 'poses_theta':[], 'linear_vels_x':[], 'linear_vels_y':[], 'ang_vels_z':[], 'collisions':[], 'collision_angles':[]}
-        obs = {'ego_idx': observations_proto.ego_idx, 'scans': [], 'poses_x': [], 'poses_y': [], 'poses_theta': [], 'linear_vels_x': [], 'linear_vels_y': [], 'ang_vels_z': [], 'collisions': [], 'collision_angles': [], 'lap_times': [], 'lap_counts': []}
-        for car_obs in carobs_list:
-            obs['scans'].append(car_obs.scan)
-            obs['poses_x'].append(car_obs.pose_x)
-            obs['poses_y'].append(car_obs.pose_y)
-            if abs(car_obs.theta) < np.pi:
-                obs['poses_theta'].append(car_obs.theta)
-            else:
-                obs['poses_theta'].append(-((2 * np.pi) - car_obs.theta))
-            obs['linear_vels_x'].append(car_obs.linear_vel_x)
-            obs['linear_vels_y'].append(car_obs.linear_vel_y)
-            obs['ang_vels_z'].append(car_obs.ang_vel_z)
-            obs['collisions'].append(car_obs.collision)
-            obs['collision_angles'].append(car_obs.collision_angle)
-
-        obs['lap_times'] = self.lap_times
-        obs['lap_counts'] = self.lap_counts
-
+        obs = self._propagate(requested_vel,requested_ang)
 
         # update accumulated time in env
         self.current_time = self.current_time + self.timestep
-        # TODO: donezo should be done in simulator? could be done here as well
-        self._update_state(obs)
-        if self.double_finish:
-            done, temp = self._check_done()
-            info = {'checkpoint_done': temp}
-        else:
-            done = self._check_done()
-            info = {}
 
-        # print("step , x = ",obs['poses_x'][0], " ,y = ",obs['poses_y'][0], " , theta = ", obs['poses_theta'][0])
+        self._update_state(obs)
+
+        done = self._check_done()
+
         reward = self.compute_reward(obs, done, state_map)
-        # TODO: return obs, reward, done, info
+
         return obs, reward, done, info
 
     def reset(self, poses=None):
 
         self.current_time = 0.0
-        self.in_collision = False
-        self.collision_angles = None
-        self.num_toggles = 0
-        self.near_start = True
-        self.near_starts = np.array([True]*self.num_agents)
-        self.toggle_list = np.zeros((self.num_agents,))
         if poses:
             pose_x = poses['x']
             pose_y = poses['y']
             pose_theta = poses['theta']
-            self.start_x = pose_x[0]
-            self.start_y = pose_y[0]
-            self.start_theta = pose_theta[0]
-            self.start_xs = np.array(pose_x)
-            self.start_ys = np.array(pose_y)
-            self.start_thetas = np.array(pose_theta)
-            self.start_rot = np.array([[np.cos(-self.start_theta), -np.sin(-self.start_theta)],
-                                        [np.sin(-self.start_theta), np.cos(-self.start_theta)]])
-            # create reset by pose proto
-            reset_request_proto = sim_requests_pb2.SimRequest()
-            reset_request_proto.type = 4
-            reset_request_proto.reset_bypose_request.num_cars = self.num_agents
-            reset_request_proto.reset_bypose_request.ego_idx = 0
-            reset_request_proto.reset_bypose_request.car_x.extend(pose_x)
-            reset_request_proto.reset_bypose_request.car_y.extend(pose_y)
-            reset_request_proto.reset_bypose_request.car_theta.extend(pose_theta)
-            reset_request_string = reset_request_proto.SerializeToString()
-            self.socket.send(reset_request_string)
+            self.x = pose_x[0]
+            self.y = pose_y[0]
+            self.theta = pose_theta[0]
+            self.v = 0.0
+
         else:
             # create reset proto
-            self.start_x = 0.0
-            self.start_y = 0.0
-            self.start_theta = 0.0
-            self.start_rot = np.array([[np.cos(-self.start_theta), -np.sin(-self.start_theta)],
-                                        [np.sin(-self.start_theta), np.cos(-self.start_theta)]])
-            reset_request_proto = sim_requests_pb2.SimRequest()
-            reset_request_proto.type = 2
-            reset_request_proto.reset_request.num_cars = self.num_agents
-            reset_request_proto.reset_request.ego_idx = 0
-            # serialize reset proto
-            reset_request_string = reset_request_proto.SerializeToString()
-            # send reset proto string
-            self.socket.send(reset_request_string)
-        # receive response from sim
-        reset_response_string = self.socket.recv()
-        reset_response_proto = sim_requests_pb2.SimResponse()
-        reset_response_proto.ParseFromString(reset_response_string)
-        if reset_response_proto.reset_resp.result:
-            print('Gym env - Reset failed')
-            # TODO: failure handling
-            return None
+            self.x = 0.0
+            self.y = 0.0
+            self.theta = 0.0
+            self.v = 0.0
+
+
         # TODO: return with gym convention, one step?
         vels = [0.0] * self.num_agents
         angs = [0.0] * self.num_agents
         action = {'ego_idx': self.ego_idx, 'speed': vels, 'steer': angs}
-        # print('Gym env - Reset done')
-        ref_points = []
 
         obs, reward, done, info = self.step(action, ref_points)
-        # print('Gym env - step done for reset')
+
         return obs, reward, done, info
-
-    def init_map(self, map_path, img_ext, rgb, flip):
-        """
-            init a map for the gym env
-            map_path: full path for the yaml, same as ROS, img and yaml in same dir
-            rgb: map grayscale or rgb
-            flip: if map needs flipping
-        """
-
-        self.map_path = map_path
-        if not map_path.endswith('.yaml'):
-            print('Gym env - Please use a yaml file for map initialization.')
-            print('Exiting...')
-            sys.exit()
-
-        # split yaml ext name
-        map_img_path = os.path.splitext(self.map_path)[0] + img_ext
-        self.map_img = np.array(Image.open(map_img_path).transpose(Image.FLIP_TOP_BOTTOM))
-        self.map_img = self.map_img.astype(np.float64)
-        if flip:
-            self.map_img = self.map_img[::-1]
-
-        if rgb:
-            self.map_img = np.dot(self.map_img[..., :3], [0.29, 0.57, 0.14])
-
-        # update map metadata
-        self.map_height = self.map_img.shape[0]
-        self.map_width = self.map_img.shape[1]
-        self.free_thresh = 0.6  # TODO: double check
-        with open(self.map_path, 'r') as yaml_stream:
-            try:
-                map_metadata = yaml.safe_load(yaml_stream)
-                self.map_resolution = map_metadata['resolution']
-                self.origin = map_metadata['origin']
-            except yaml.YAMLError as ex:
-                print(ex)
-        self.map_inited = True
-
-        # load waypoints
-        # self.csv_path = os.path.splitext(self.map_path)[0] + '.csv'
-        # with open(self.csv_path) as f:
-        #     self.waypoints = [tuple(line) for line in csv.reader(f)]
-        #     # waypoints are [x, y, speed, theta]
-        #     self.waypoints = np.array([(float(pt[0]), float(pt[1]), float(pt[2]), float(pt[3])) for pt in self.waypoints])
-
-
-    def render(self, mode='human', close=False):
-        return
-
-    # def get_min_dist(self, position):
-    #     wpts = self.waypoints[:, 0:2]
-    #      # = position[0:2]
-    #     nearest_point, nearest_dist, t, i = self.nearest_point_on_trajectory(position, wpts)
-    #     # speed = self.waypoints[i, 2]
-    #     return nearest_dist
-
-    # def nearest_point_on_trajectory(self, point, trajectory):
-    #     '''
-    #     Return the nearest point along the given piecewise linear trajectory.
-
-    #     Same as nearest_point_on_line_segment, but vectorized. This method is quite fast, time constraints should
-    #     not be an issue so long as trajectories are not insanely long.
-
-    #         Order of magnitude: trajectory length: 1000 --> 0.0002 second computation (5000fps)
-
-    #     point: size 2 numpy array
-    #     trajectory: Nx2 matrix of (x,y) trajectory waypoints
-    #         - these must be unique. If they are not unique, a divide by 0 error will destroy the world
-    #     '''
-    #     diffs = trajectory[1:,:] - trajectory[:-1,:]
-    #     l2s   = diffs[:,0]**2 + diffs[:,1]**2
-    #     # this is equivalent to the elementwise dot product
-    #     dots = np.sum((point - trajectory[:-1,:]) * diffs[:,:], axis=1)
-    #     t = np.clip(dots / l2s, 0.0, 1.0)
-    #     projections = trajectory[:-1,:] + (t*diffs.T).T
-    #     dists = np.linalg.norm(point - projections,axis=1)
-    #     min_dist_segment = np.argmin(dists)
-    #     return projections[min_dist_segment], dists[min_dist_segment], t[min_dist_segment], min_dist_segment
-
-    def update_params(self, mu, h_cg, l_r, cs_f, cs_r, I_z, mass, exe_path, double_finish=False):
-        # if not self.sim_p is None:
-        #     print('Gym env - Sim server exists, killing...')
-        #     self.socket.send(b'dead')
-        #     self.sim_p.kill()
-        #     os.kill(self.sim_p.pid, signal.SIGINT)
-        #     self.sim_p = None
-        # print('in update params')
-
-        self.params = [mu, h_cg, l_r, cs_f, cs_r, I_z, mass]
-        self.params_set = True
-        if self.sim_p is None:
-            # print('starting ex and setting map')
-            self._start_executable(exe_path)
-            self._set_map()
-        self.double_finish = double_finish
-        # print('before creating proto')
-
-        # create update proto
-        update_param_proto = sim_requests_pb2.SimRequest()
-        update_param_proto.type = 3
-        update_param_proto.update_request.mu = mu
-        update_param_proto.update_request.h_cg = h_cg
-        update_param_proto.update_request.l_r = l_r
-        update_param_proto.update_request.cs_f = cs_f
-        update_param_proto.update_request.cs_r = cs_r
-        update_param_proto.update_request.I_z = I_z
-        update_param_proto.update_request.mass = mass
-        # serialize reset proto
-        update_param_string = update_param_proto.SerializeToString()
-        # print('proto serialized')
-        # send update param request
-        self.socket.send(update_param_string)
-        # print('Gym env - Update param request sent.')
-        # receive response
-        update_response_string = self.socket.recv()
-        update_response_proto = sim_requests_pb2.SimResponse()
-        update_response_proto.ParseFromString(update_response_string)
-        if update_response_proto.update_resp.result:
-            print('Gym env - Update param failed')
-            return None
-
-        # print('Gym env - params updated.')
-        # start executable
-        # self._start_executable()
-        # call set map
-        # self._set_map()
