@@ -29,9 +29,6 @@ from gym.utils import seeding
 # zmq imports
 import zmq
 
-# protobuf import
-import sim_requests_pb2
-
 # others
 import numpy as np
 # no cv2 if python 3
@@ -48,7 +45,7 @@ import csv
 # from matplotlib.pyplot import imshow
 # import matplotlib.pyplot as plt
 
-class F110Env(gym.Env, utils.EzPickle):
+class F110Env(gym.Env):
     """
     OpenAI gym environment for F1/10 simulator
     Use 0mq's REQ-REP pattern to communicate to the C++ simulator
