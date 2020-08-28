@@ -6,6 +6,37 @@ import gym_f110
 import numpy as np
 import tensorflow.compat.v1  as tf
 from ddpg_agent import DDPG_Agent
+import time
+import math
+from utils import  Memory
+
+from memory import ReplayBuffer
+
+BUFFER_SIZE = 1000000
+RANDOM_SEED = 25
+LR_CYCLE = 100
+# Number of episodes to be run
+MAX_EPISODES = 2000
+
+
+MINIBATCH_SIZE = 128
+
+# Learning rates
+MAX_ACTOR_LEARNING_RATE = 1e-3
+MIN_ACTOR_LEARNING_RATE = 1e-4
+
+MAX_CRITIC_LEARNING_RATE = 5e-4
+MIN_CRITIC_LEARNING_RATE = 5e-4
+
+# Max number of steps in each episode
+MAX_EP_STEPS = 130
+
+
+# Memory warmup
+MEMORY_WARMUP = 1024
+
+# Discount factor reflects the agents preference for short-term rewards over long-term rewards
+GAMMA = 0.9
 
 class F110_RL(object):
     def __init__(self,sess):
@@ -53,6 +84,7 @@ class F110_RL(object):
         self.chunk_size = 20000
         self.always_explore = False
         self.agent = DDPG_Agent(self.sess,self.state_size, self.action_size, self.buffer_max_size, self.chunk_size ,self.racecar_env.max_steering_angle, always_explore=self.always_explore)
+        self.last_action =0.0
 
     def iterate(self):
         glViewport(0, 0, 500,500)
@@ -90,9 +122,8 @@ class F110_RL(object):
 
 
     def display(self):
-        time = self.time_step_counter*self.racecar_env.dt + self.ti
-        print("time = ", time)
-        if(time >= self.tf):
+        time_i = self.time_step_counter*self.racecar_env.dt + self.ti
+        if(time_i >= self.tf):
             if(do_training):
                 x = np.zeros(5)
                 self.time_step_counter = 0
@@ -112,18 +143,20 @@ class F110_RL(object):
         glutSwapBuffers()
 
 
-    def calculate_trajectory(self):
+    def _calculate_trajectory(self,X):
+        state_map = []
         if(self.path == 2):
             #circle
             cx = 0.0
             cy = 0.0
+
             circle_ray = self.angle2follow/3.14
 
             for i in range(self.CONTROL_HORIZON):
-                bound_up_x = self.X[0] > (circle_ray*np.cos(self.angle2follow) + cx - 1.0)
-                bound_down_x = self.X[0] < (circle_ray*np.cos(self.angle2follow) + cx + 1.0)
-                bound_up_y = self.X[1] > (circle_ray*np.sin(self.angle2follow) + cy - 1.0)
-                bound_down_y = self.X[1] < (circle_ray*np.sin(self.angle2follow) + cy + 1.0)
+                bound_up_x = X[0] > (circle_ray*np.cos(self.angle2follow) + cx - 1.0)
+                bound_down_x = X[0] < (circle_ray*np.cos(self.angle2follow) + cx + 1.0)
+                bound_up_y =X[1] > (circle_ray*np.sin(self.angle2follow) + cy - 1.0)
+                bound_down_y = X[1] < (circle_ray*np.sin(self.angle2follow) + cy + 1.0)
                 if(bound_up_x and bound_down_x and bound_up_y and bound_down_y):
                     angle2follow_it = self.angle2follow + i*self.racecar_env.dt
                     circle_ray = angle2follow_it/3.14
@@ -139,53 +172,214 @@ class F110_RL(object):
 
                 self.ref_x_vector_map.append(self.ref_x[i])
                 self.ref_y_vector_map.append(self.ref_y[i])
-
+                state_map.append(self.ref_x[i])
+                state_map.append(self.ref_y[i])
         elif(self.path == 1):
             #sinus
-            ref_v_x = (self.X[3])/sqrt(1+(np.sin(self.sinus_freq*(self.X[0]))**2))
+            ref_v_x = (X[3])/sqrt(1+(np.sin(self.sinus_freq*(X[0]))**2))
 
             for i in range(self.CONTROL_HORIZON):
-                if(self.X[0] > self.last_x):
-                    self.ref_x[i] = self.X[0] + ref_v_x*self.racecar_env.dt*i
+                if(X[0] > self.last_x):
+                    self.ref_x[i] = X[0] + ref_v_x*self.racecar_env.dt*i
                     self.ref_y[i] = self.line_offset + np.cos(self.sinus_freq*self.ref_x[i])
-                    self.last_x = self.X[0]
-                    ref_v_x = (self.X[3])/sqrt(1+(np.sin(self.sinus_freq*self.ref_x[i])**2))
+                    self.last_x = X[0]
+                    ref_v_x = (X[3])/sqrt(1+(np.sin(self.sinus_freq*self.ref_x[i])**2))
                 else:
-                    self.ref_x[i] = self.X[0] + ref_v_x*self.racecar_env.dt*i
+                    self.ref_x[i] = X[0] + ref_v_x*self.racecar_env.dt*i
                     self.ref_y[i] = self.line_offset + np.cos(self.sinus_freq*self.ref_x[i])
-                    ref_v_x = (self.X[3])/sqrt(1+(np.sin(self.sinus_freq*self.ref_x[i])**2))
+                    ref_v_x = (X[3])/sqrt(1+(np.sin(self.sinus_freq*self.ref_x[i])**2))
 
                 self.ref_x_vector_map.append(self.ref_x[i])
                 self.ref_y_vector_map.append(self.ref_y[i])
-
+                state_map.append(self.ref_x[i])
+                state_map.append(self.ref_y[i])
 
         elif(self.path == 0):
             #line
             for i in range(self.CONTROL_HORIZON):
-                if(self.X[0]+0.5 > self.last_x):
-                    self.ref_x[i] = self.X[0] + 0.5 + self.X[3]*i*self.racecar_env.dt
+                if(X[0]+0.5 > self.last_x):
+                    self.ref_x[i] = X[0] + 0.5 + X[3]*i*self.racecar_env.dt
                     self.ref_y[i] = self.line_offset
-                    self.last_x = self.X[0] + 0.5
+                    self.last_x = X[0] + 0.5
 
                 else:
-                    self.ref_x[i] = self.X[0] + 0.5 + self.X[3]*i*self.racecar_env.dt
+                    self.ref_x[i] = X[0] + 0.5 + X[3]*i*self.racecar_env.dt
                     self.ref_y[i] = self.line_offset
 
                 self.ref_x_vector_map.append(self.ref_x[i])
                 self.ref_y_vector_map.append(self.ref_y[i])
+                state_map.append(self.ref_x[i])
+                state_map.append(self.ref_y[i])
 
+        return state_map
+
+    def _find_state(self,X):
+        state_map = self._calculate_trajectory(X)
+        state = state_map
+        #change frame of reference points from map to the robot frame
+        for i in range(0,self.CONTROL_HORIZON*2,2):
+            state[i+1] = (state_map[i+1] - X[1])*math.cos(X[2]) - (state_map[i]  - X[0])*math.sin(X[2])
+            state[i] =  (state_map[i]  - X[0])*math.cos(X[2]) + (state_map[i+1] - X[1])*math.sin(X[2])
+
+        state =  np.reshape(state, (1,self.agent.actor.s_dim, 1))
+        state_map =  np.reshape(state_map, (1,self.agent.actor.s_dim, 1))
+        return state,state_map
+
+    def _update_sim_state(self):
+        self.X[0] = self.obs['poses_x'][0]
+        self.X[1] = self.obs['poses_y'][0]
+        self.X[2] = self.obs['poses_theta'][0]
+        self.X[3] = self.obs['linear_vels'][0]
 
 
     def run_rl(self):
-        self.calculate_trajectory()
+        self.sess.run(tf.global_variables_initializer())
+        # Initialize target network weights
+        self.agent.actor.update_target_network()
+        self.agent.critic.update_target_network()
 
-        #change frame of reference points from map to the robot frame
-        for i in range(self.CONTROL_HORIZON):
-            self.ref_y_robot[i] = (self.ref_y[i] - self.X[1])*np.cos(self.X[2]) - (self.ref_x[i]  - self.X[0])*np.sin(self.X[2])
-            self.ref_x_robot[i] =  (self.ref_x[i]  - self.X[0])*np.cos(self.X[2]) + (self.ref_y[i] - self.X[1])*np.sin(self.X[2])
+        total_time = time.time()
+        steps = 0
+
+        self.agent.actor.learning_rate = MAX_ACTOR_LEARNING_RATE
+        self.agent.critic.learning_rate = MAX_CRITIC_LEARNING_RATE
+
+        # Initialize replay buffER
+        replay_buffer = ReplayBuffer(BUFFER_SIZE, RANDOM_SEED)
+
+        try:
+            save_interval = 0
+
+            do_training = True
+
+            while do_training:
+                # update learning rates using cosine annealing
+                # T_cur = i % LR_CYCLE
+                # self.agent.actor.learning_rate = MIN_ACTOR_LEARNING_RATE +\
+                #               0.5 * (MAX_ACTOR_LEARNING_RATE - MIN_ACTOR_LEARNING_RATE) * \
+                #               (1 + np.cos(np.pi * T_cur / LR_CYCLE))
+                #
+                # self.agent.critic.learning_rate = MIN_CRITIC_LEARNING_RATE +\
+                #               0.5 * (MAX_CRITIC_LEARNING_RATE - MIN_CRITIC_LEARNING_RATE) * \
+                #               (1 + np.cos(np.pi * T_cur / LR_CYCLE))
+
+                episode_time = time.time()
+
+                initial_state = {'x':[np.random.uniform(1,4)], 'y': [0.0], 'theta': [np.random.uniform(0.4,1)]}
+                self.obs, _, self.done  = self.racecar_env.reset(initial_state)
+                ep_ave_max_q = 0
+                done = False
+                cumulated_reward = 0
+
+                X = self.X
+
+                next_X = X
 
 
-        #todo
+                state,state_map = self._find_state(X)
+
+                next_state = state
+
+                episode_steps = 0
+
+
+                while not done:
+                    steps+=1
+                    episode_steps+=1
+
+                    a = self.agent.act(state)
+
+                    action_speed = 3.0
+
+                    action = {'ego_idx': 0, 'speed': [action_speed], 'steer': [a]}
+
+
+                    self.obs, reward, done = self.racecar_env.step(action,state_map,self.last_action)
+                    # c = readchar.readchar()
+                    self._update_sim_state()
+
+                    self.last_action = a
+
+                    next_X[0] = self.X[0]
+                    next_X[1] = self.X[1]
+                    next_X[2] = self.X[2]
+                    next_X[2] = self.X[3]
+
+                    next_state,state_map = self._find_state(next_X)
+
+                    # memory.append(action,state[0], next_state[0], reward, done)
+                    replay_buffer.add(np.reshape(state, (self.agent.actor.s_dim, 1)), np.reshape(a, (self.agent.actor.a_dim,)), reward,
+                                  done, np.reshape(next_state, (self.agent.actor.s_dim, 1)))
+                    X = next_X
+
+                    state = next_state
+
+                    cumulated_reward += reward
+
+
+
+                    # Keep adding experience to the memory until
+                    # there are at least minibatch size samples
+                    save_interval+=1
+
+                    if save_interval >= self.sample_batch_size:
+                        save_interval = 0
+                        s_batch, a_batch, r_batch, d_batch, s2_batch = replay_buffer.sample_batch(MINIBATCH_SIZE)
+
+                        # Find target estimate to use for updating the Q-function
+
+                        #  Predict_traget function determines Q-value of next state
+                        target_q = self.agent.critic.predict_target(s2_batch, self.agent.actor.predict_target(s2_batch))
+
+                        # Complete target estimate (R(t+1) + Q(s(t+1),a(t+1)))
+                        y_i = []
+                        for k in xrange(MINIBATCH_SIZE):
+                            if d_batch[k]:
+                                y_i.append(r_batch[k])
+                            else:
+                                y_i.append(r_batch[k] + GAMMA * target_q[k][0])
+
+                        # Perform gradient descent to update critic
+
+                        predicted_q_value, _ = self.agent.critic.train(s_batch, a_batch, np.reshape(y_i, (MINIBATCH_SIZE, 1)))
+
+
+
+                        ep_ave_max_q += np.amax(predicted_q_value, axis = 0)
+
+                        # Perform "Learning" phase by moving policy parameters in direction of deterministic policy gradient
+                        a_outs = self.agent.actor.predict(s_batch)
+                        grads = self.agent.critic.action_gradients(s_batch, a_outs)
+                        self.agent.actor.train(s_batch, grads[0])
+
+                        # Update target networks
+                        self.agent.actor.update_target_network()
+                        self.agent.critic.update_target_network()
+                    # if save_interval >= self.sample_batch_size:
+                    #     save_interval = 0
+                    #     replay_time = time.time()
+                    #     self.agent.replay(memory)
+                    #     rospy.loginfo("Replay time {}".format(time.time()-replay_time))
+                    #     if steps >= self.sample_batch_size*200:
+                    #         do_training = False
+                    #     memory = Memory()
+
+
+                if self.highest_reward < cumulated_reward:
+                    self.highest_reward = cumulated_reward
+
+                if self.agent.exploration_rate > self.agent.exploration_min:
+                    self.agent.exploration_rate *= self.agent.exploration_decay
+
+                rospy.loginfo("total episode_steps {}, reward {}/{}".format(episode_steps, cumulated_reward, self.highest_reward))
+                rospy.loginfo("Episode time {}, total {}".format(self.format_time(episode_time),
+                                                                self.format_time(total_time)))
+                rospy.loginfo("exploration_rate {}".format(self.agent.exploration_rate))
+                rospy.loginfo("steps: {} / self.sample_batch_size*200 : {} ".format(steps,self.sample_batch_size*200))
+
+
+        finally:
+            self.racecar_env.close()
 
     def run(self):
         x = np.zeros(5)

@@ -209,7 +209,7 @@ class F110Env(gym.Env):
 
         done = self._check_done()
 
-        reward = self._compute_reward(last_action,action,obs, done, state_map)
+        reward = self._compute_reward(last_action,requested_ang,obs, done, state_map)
 
         return obs, reward, done
 
