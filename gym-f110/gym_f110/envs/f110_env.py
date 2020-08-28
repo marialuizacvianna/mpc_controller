@@ -41,6 +41,8 @@ import subprocess
 import math
 import yaml
 import csv
+import numpy as np
+import math
 
 # from matplotlib.pyplot import imshow
 # import matplotlib.pyplot as plt
@@ -67,7 +69,7 @@ class F110Env(gym.Env):
 
         # default
         self.ego_idx = 0
-
+        self.dt = 0.01
         # env states
         # more accurate description should be ego car state
         # might not need to keep scan
@@ -81,6 +83,17 @@ class F110Env(gym.Env):
 
         self.origin = []
 
+        #racecar parameters
+        self.max_speed = 20.0
+        self.max_accel = 9.51
+        self.max_decel = 13.26
+        self.max_steering_vel = 3.2
+        self.max_steering_angle = 0.4189
+
+        self.wheelbase = 0.3302
+        self.mass= 3.74
+        self.l_r = 0.17145
+        self.l_f = self.wheelbase - self.l_r
 
 
     def _check_done(self):
@@ -108,6 +121,7 @@ class F110Env(gym.Env):
         self.x = obs_dict['poses_x'][obs_dict['ego_idx']]
         self.y = obs_dict['poses_y'][obs_dict['ego_idx']]
         self.theta = obs_dict['poses_theta'][obs_dict['ego_idx']]
+        self.speed = obs_dict['linear_vels'][obs_dict['ego_idx']]
 
 
 
@@ -164,11 +178,11 @@ class F110Env(gym.Env):
         return accel
 
     def _propagate(self, speed, steer_angle):
-        accel = self.compute_accel(speed)
+        accel = self._compute_accel(speed)
         obs = {'ego_idx': self.ego_idx, 'poses_x': [], 'poses_y': [], 'poses_theta': [], 'linear_vels': []}
-        x1 = self.x + self.speed *cos(self.theta) * self.dt
-        y1 = self.y + self.speed *sin(self.theta) * self.dt
-        theta1 = self.theta + self.speed*sin(steer_angle) /l_f* self.dt
+        x1 = self.x + self.speed *math.cos(self.theta) * self.dt
+        y1 = self.y + self.speed *math.sin(self.theta) * self.dt
+        theta1 = self.theta + self.speed*math.sin(steer_angle) /self.l_f* self.dt
         v1 = self.speed + accel* self.dt
 
         obs['poses_x'].append(x1)
@@ -178,12 +192,12 @@ class F110Env(gym.Env):
 
         return obs
 
-    def step(self, action, state_map):
+    def step(self, action, state_map,last_action):
         # action is a list of steering angles + command velocities
         # also a ego car index
         # action should a DICT with {'ego_idx': int, 'speed':[], 'steer':[]}
-        requested_vel = action['speed']
-        requested_ang = action['steer']
+        requested_vel = action['speed'][self.ego_idx]
+        requested_ang = action['steer'][self.ego_idx]
 
 
         obs = self._propagate(requested_vel,requested_ang)
@@ -195,9 +209,9 @@ class F110Env(gym.Env):
 
         done = self._check_done()
 
-        reward = self.compute_reward(obs, done, state_map)
+        reward = self._compute_reward(last_action,action,obs, done, state_map)
 
-        return obs, reward, done, info
+        return obs, reward, done
 
     def reset(self, poses=None):
 
@@ -209,21 +223,22 @@ class F110Env(gym.Env):
             self.x = pose_x[0]
             self.y = pose_y[0]
             self.theta = pose_theta[0]
-            self.v = 0.0
+            self.speed = 0.0
 
         else:
             # create reset proto
             self.x = 0.0
             self.y = 0.0
             self.theta = 0.0
-            self.v = 0.0
+            self.speed = 0.0
 
 
         # TODO: return with gym convention, one step?
         vels = [0.0] * self.num_agents
         angs = [0.0] * self.num_agents
         action = {'ego_idx': self.ego_idx, 'speed': vels, 'steer': angs}
+        ref_points = []
+        last_action = 0.0
+        obs, reward, done = self.step(action, ref_points,last_action)
 
-        obs, reward, done, info = self.step(action, ref_points)
-
-        return obs, reward, done, info
+        return obs, reward, done
