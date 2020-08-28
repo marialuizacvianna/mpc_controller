@@ -90,7 +90,7 @@ class F110_RL(object):
         glViewport(0, 0, 500,500)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(0.0, 500, 0.0, 500, 0.0, 1.0)
+        glOrtho(-30.0, 10, -30.0, 10.0, 0.0, 1.0)
         glMatrixMode (GL_MODELVIEW)
         glLoadIdentity()
 
@@ -138,8 +138,8 @@ class F110_RL(object):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) # Remove everything from screen (i.e. displays all white)
         glLoadIdentity() # Reset all graphic/shape's position
         self.iterate()
-        self.run_rl()
-        self.draw_tank(np.array([[100],[100],[1]]))
+        # self.run_rl()
+        self.draw_tank(np.array([[self.X[0]],[self.X[1]],[self.X[2]]]))
         glutSwapBuffers()
 
 
@@ -304,7 +304,7 @@ class F110_RL(object):
                     next_X[1] = self.X[1]
                     next_X[2] = self.X[2]
                     next_X[2] = self.X[3]
-
+                    self.display()
                     next_state,state_map = self._find_state(next_X)
 
                     # memory.append(action,state[0], next_state[0], reward, done)
@@ -386,11 +386,11 @@ class F110_RL(object):
         self.glInitEnv(x)
         glutInit()
         glutInitDisplayMode(GLUT_RGBA) # Set the display mode to be colored
-        glutInitWindowSize(500, 500)   # Set the w and h of your window
+        glutInitWindowSize(2000, 1000)   # Set the w and h of your window
         glutInitWindowPosition(0, 0)   # Set the position at which this windows should appear
         wind = glutCreateWindow("OpenGL Coding Practice") # Set a window title
-        glutDisplayFunc(self.display)
-        glutIdleFunc(self.display) # Keeps the window open
+        glutDisplayFunc(self.run_rl)
+        glutIdleFunc(self.run_rl) # Keeps the window open
         glutMainLoop()  # Keeps the above created window displaying/running in a loop
 
 
