@@ -86,6 +86,17 @@ class F110_RL(object):
         self.agent = DDPG_Agent(self.sess,self.state_size, self.action_size, self.buffer_max_size, self.chunk_size ,self.racecar_env.max_steering_angle, always_explore=self.always_explore)
         self.last_action =0.0
 
+        #mpc
+        self.result_x = []
+        self.result_y = []
+        self.result_theta = []
+        self.trans_corr = -1
+        self.trans_lastx = 0
+        self.ref_x_vector_w = []
+        self.dt = self.racecar_env.dt
+        self.X[3] = 3.0
+
+
     def iterate(self):
         glViewport(0, 0, 500,500)
         glMatrixMode(GL_PROJECTION)
@@ -110,6 +121,7 @@ class F110_RL(object):
         return(R.dot(M2))
 
     def draw_tank(self,x,r=1):
+        glLineWidth(0.5)
         glColor3f(1.0, 0.0, 3.0) # Set the color to pink
         x=x.flatten()
         M = r*np.array([[1,-1,0,0,-1,-1,0,0,-1,1,0,0,3,3,0], [-2,-2,-2,-1,-1,1,1,2,2,2,2,1,0.5,-0.5,-1]])
@@ -122,7 +134,7 @@ class F110_RL(object):
 
 
     def display(self):
-        time_i = self.time_step_counter*self.racecar_env.dt + self.ti
+        time_i = self.time_step_counter*self.dt + self.ti
         if(time_i >= self.tf):
             if(do_training):
                 x = np.zeros(5)
@@ -158,14 +170,14 @@ class F110_RL(object):
                 bound_up_y =X[1] > (circle_ray*np.sin(self.angle2follow) + cy - 1.0)
                 bound_down_y = X[1] < (circle_ray*np.sin(self.angle2follow) + cy + 1.0)
                 if(bound_up_x and bound_down_x and bound_up_y and bound_down_y):
-                    angle2follow_it = self.angle2follow + i*self.racecar_env.dt
+                    angle2follow_it = self.angle2follow + i*self.dt
                     circle_ray = angle2follow_it/3.14
                     self.ref_x[i] = circle_ray*np.cos(angle2follow_it) + cx
                     self.ref_y[i] = circle_ray*np.sin(angle2follow_it) + cy
-                    self.angle2follow = angle2follow + 0.5*DT
+                    self.angle2follow = angle2follow + 0.5*self.dt
 
                 else:
-                    angle2follow_it = self.angle2follow + i*DT
+                    angle2follow_it = self.angle2follow + i*self.dt
                     self.ref_x[i] = circle_ray*np.cos(angle2follow_it) + cx
                     self.ref_y[i] = circle_ray*np.sin(angle2follow_it) + cy
 
@@ -180,12 +192,12 @@ class F110_RL(object):
 
             for i in range(self.CONTROL_HORIZON):
                 if(X[0] > self.last_x):
-                    self.ref_x[i] = X[0] + ref_v_x*self.racecar_env.dt*i
+                    self.ref_x[i] = X[0] + ref_v_x*self.dt*i
                     self.ref_y[i] = self.line_offset + np.cos(self.sinus_freq*self.ref_x[i])
                     self.last_x = X[0]
                     ref_v_x = (X[3])/sqrt(1+(np.sin(self.sinus_freq*self.ref_x[i])**2))
                 else:
-                    self.ref_x[i] = X[0] + ref_v_x*self.racecar_env.dt*i
+                    self.ref_x[i] = X[0] + ref_v_x*self.dt*i
                     self.ref_y[i] = self.line_offset + np.cos(self.sinus_freq*self.ref_x[i])
                     ref_v_x = (X[3])/sqrt(1+(np.sin(self.sinus_freq*self.ref_x[i])**2))
 
@@ -198,12 +210,12 @@ class F110_RL(object):
             #line
             for i in range(self.CONTROL_HORIZON):
                 if(X[0]+0.5 > self.last_x):
-                    self.ref_x[i] = X[0] + 0.5 + X[3]*i*self.racecar_env.dt
+                    self.ref_x[i] = X[0] + 0.5 + X[3]*i*self.dt
                     self.ref_y[i] = self.line_offset
                     self.last_x = X[0] + 0.5
 
                 else:
-                    self.ref_x[i] = X[0] + 0.5 + X[3]*i*self.racecar_env.dt
+                    self.ref_x[i] = X[0] + 0.5 + X[3]*i*self.dt
                     self.ref_y[i] = self.line_offset
 
                 self.ref_x_vector_map.append(self.ref_x[i])
@@ -381,6 +393,106 @@ class F110_RL(object):
         finally:
             self.racecar_env.close()
 
+    def propagate(self,u):
+      self.X[0] = self.X[0] + self.X[3]*math.cos(self.X[2])*self.dt;
+      self.X[1] = self.X[1] + self.X[3]*math.sin(self.X[2])*self.dt;
+      self.X[2] = self.X[2] + self.X[3]*math.sin(u)/self.racecar_env.l_f*self.dt;
+      self.X[3] = self.X[3]
+
+    def CalculateMPC(self):
+        self.result_x.append(self.X[0])
+        self.result_y.append(self.X[1])
+        self.result_theta.append(self.X[2])
+
+        state,state_map = self._find_state(self.X)
+        u = 0.0
+        self.propagate(u)
+
+    def drawRobotReference(self):
+        # Reference line in the robot reference frame
+        glLineWidth(10.0)
+        glColor3f(255,255,255)
+        glBegin(GL_LINE_STRIP)
+
+        for i in range(self.CONTROL_HORIZON):
+            glVertex2f(self.ref_x_robot[i], self.ref_y_robot[i])
+
+        glEnd()
+
+        glLineWidth(10.0)
+        glColor3f(255,20,147)
+        glBegin(GL_LINE_STRIP)
+
+
+        for i in range(self.CONTROL_HORIZON):
+            glVertex2f(self.ref_x[i], self.ref_y[i])
+
+        glEnd()
+
+
+
+    def drawReference(self):
+        # Reference line
+        glLineWidth(0.5)
+        glColor3f(1.0, 0.0, 0.0)
+        glBegin(GL_LINE_STRIP)
+        for   i in range(len(self.ref_x_vector_map)):
+            glVertex2f(self.ref_x_vector_map[i],self.ref_y_vector_map[i])
+
+        glEnd()
+
+    def run_mpc(self):
+        time_i = self.time_step_counter*self.dt + self.ti
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) # Remove everything from screen (i.e. displays all white)
+        glLoadIdentity() # Reset all graphic/shape's position
+        self.iterate()
+        self.CalculateMPC()
+        size_vector  = len(self.result_x)
+        # self.run_rl()
+        if(self.trans_corr == -1):
+            self.trans_lastx = self.result_x[size_vector - 1]
+            self.trans_corr = 0
+        else:
+            deltax = self.result_x[size_vector - 1] - self.trans_lastx
+            if (deltax >= 35 ):
+                self.trans_corr  = self.trans_corr  + 1
+                self.trans_lastx = self.result_x[size_vector - 1]
+        glTranslatef(-15 - (0.0*35),5,0)
+
+        self.draw_tank(np.array([[self.X[0]],[self.X[1]],[self.X[2]]]))
+        self.drawReference()
+        self.drawRobotReference()
+
+
+
+        glutSwapBuffers()
+
+
+    # //Visualize MPC results
+    # drawTank();
+    # drawRobotReference();
+    # drawReference();
+    # glutSwapBuffers();
+    # // getchar();
+    def reshape_mpc (self):
+        width = glutGet(GLUT_WINDOW_WIDTH)
+        height = glutGet(GLUT_WINDOW_HEIGHT)
+        glViewport (0, 0, width, height)
+        glMatrixMode (GL_PROJECTION)
+        glLoadIdentity ()
+        gluPerspective (60, width / height, 0.1, 100.0)
+        # glOrtho(0.0, width, height, 0.0, 0.0, 1.0)
+        glMatrixMode (GL_MODELVIEW)
+        glLoadIdentity()
+
+        # glViewport(0, 0, 500,500)
+        # glMatrixMode(GL_PROJECTION)
+        # glLoadIdentity()
+        # glOrtho(-30.0, 10, -30.0, 10.0, 0.0, 1.0)
+        # glMatrixMode (GL_MODELVIEW)
+        # glLoadIdentity()
+    def test_run(self):
+        print("nothing here")
     def run(self):
         x = np.zeros(5)
         self.glInitEnv(x)
@@ -388,9 +500,10 @@ class F110_RL(object):
         glutInitDisplayMode(GLUT_RGBA) # Set the display mode to be colored
         glutInitWindowSize(2000, 1000)   # Set the w and h of your window
         glutInitWindowPosition(0, 0)   # Set the position at which this windows should appear
-        wind = glutCreateWindow("OpenGL Coding Practice") # Set a window title
-        glutDisplayFunc(self.run_rl)
-        glutIdleFunc(self.run_rl) # Keeps the window open
+        wind = glutCreateWindow("F110Env Simulation") # Set a window title
+        glutDisplayFunc(self.run_mpc)
+        glutIdleFunc(self.run_mpc) # Keeps the window open
+        # glutReshapeFunc (self.reshape_mpc)
         glutMainLoop()  # Keeps the above created window displaying/running in a loop
 
 

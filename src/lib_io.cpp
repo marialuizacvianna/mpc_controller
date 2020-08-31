@@ -983,6 +983,7 @@ void display() {
 }
 
 void reshape (int w, int h) {
+    std::cout << "w = " << w << " , h = " << h << std::endl;
     glViewport (0, 0, (GLsizei)w, (GLsizei)h);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity ();
