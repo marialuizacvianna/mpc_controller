@@ -457,8 +457,8 @@ class F110_RL(object):
             if (deltax >= 35 ):
                 self.trans_corr  = self.trans_corr  + 1
                 self.trans_lastx = self.result_x[size_vector - 1]
-        glTranslatef(-15 - (0.0*35),5,0)
-
+        glTranslatef(-15 - (self.trans_corr*35),5,0)
+        print("self.X = ", self.X)
         self.draw_tank(np.array([[self.X[0]],[self.X[1]],[self.X[2]]]))
         self.drawReference()
         self.drawRobotReference()
