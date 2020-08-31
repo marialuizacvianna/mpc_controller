@@ -152,6 +152,8 @@ class F110_RL(object):
         self.iterate()
         # self.run_rl()
         self.draw_tank(np.array([[self.X[0]],[self.X[1]],[self.X[2]]]))
+        self.drawReference()
+        self.drawRobotReference()
         glutSwapBuffers()
 
 
