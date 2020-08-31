@@ -86,6 +86,9 @@ class F110_RL(object):
         self.agent = DDPG_Agent(self.sess,self.state_size, self.action_size, self.buffer_max_size, self.chunk_size ,self.racecar_env.max_steering_angle, always_explore=self.always_explore)
         self.last_action =0.0
 
+        self.do_training = True
+        self.biggest_x = 0.0
+
         #mpc
         self.result_x = []
         self.result_y = []
@@ -134,9 +137,10 @@ class F110_RL(object):
 
 
     def display(self):
+        self.time_step_counter = self.time_step_counter +1
         self.time_i = self.time_step_counter*self.dt + self.ti
         if(self.time_i >= self.tf):
-            if(do_training):
+            if(self.do_training):
                 x = np.zeros(5)
                 self.time_step_counter = 0
                 glClearColor(0.0, 0.0, 0.0, 1.0 )
@@ -189,17 +193,19 @@ class F110_RL(object):
                 state_map.append(self.ref_x[i])
                 state_map.append(self.ref_y[i])
         elif(self.path == 1):
+            if(X[0] > self.biggest_x):
+                self.biggest_x = X[0]
             #sinus
-            ref_v_x = (X[3])/math.sqrt(1+(math.sin(self.sinus_freq*(X[0]))**2))
+            ref_v_x = (X[3])/math.sqrt(1+(math.sin(self.sinus_freq*(self.biggest_x))**2))
 
             for i in range(self.CONTROL_HORIZON):
-                if(X[0] > self.last_x):
-                    self.ref_x[i] = X[0] + ref_v_x*self.dt*i
+                if(self.biggest_x  > self.last_x):
+                    self.ref_x[i] = self.biggest_x + ref_v_x*self.dt*i
                     self.ref_y[i] = self.line_offset + math.cos(self.sinus_freq*self.ref_x[i])
-                    self.last_x = X[0]
+                    self.last_x = self.biggest_x
                     ref_v_x = (X[3])/math.sqrt(1+(math.sin(self.sinus_freq*self.ref_x[i])**2))
                 else:
-                    self.ref_x[i] = X[0] + ref_v_x*self.dt*i
+                    self.ref_x[i] = self.biggest_x + ref_v_x*self.dt*i
                     self.ref_y[i] = self.line_offset + math.cos(self.sinus_freq*self.ref_x[i])
                     ref_v_x = (X[3])/math.sqrt(1+(math.sin(self.sinus_freq*self.ref_x[i])**2))
 
@@ -264,9 +270,8 @@ class F110_RL(object):
         try:
             save_interval = 0
 
-            do_training = True
 
-            while do_training:
+            while self.do_training:
                 # update learning rates using cosine annealing
                 # T_cur = i % LR_CYCLE
                 # self.agent.actor.learning_rate = MIN_ACTOR_LEARNING_RATE +\
@@ -296,7 +301,8 @@ class F110_RL(object):
 
                 episode_steps = 0
 
-
+                self.biggest_x = 0.0
+                
                 while not done:
                     steps+=1
                     episode_steps+=1
@@ -330,7 +336,7 @@ class F110_RL(object):
                     state = next_state
 
                     cumulated_reward += reward
-                    print("cumulated_reward = ", cumulated_reward)
+                    print("self.time_i = ", self.time_i,"  , cumulated_reward = ", cumulated_reward)
 
 
                     # Keep adding experience to the memory until
