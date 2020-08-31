@@ -98,10 +98,10 @@ class F110_RL(object):
 
 
     def iterate(self):
-        glViewport(0, 0, 500,500)
+        glViewport(0, 0, 2000,1000)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-30.0, 10, -30.0, 10.0, 0.0, 1.0)
+        glOrtho(-100, 100, -50, 50, 0.0, 1.0)
         glMatrixMode (GL_MODELVIEW)
         glLoadIdentity()
 
