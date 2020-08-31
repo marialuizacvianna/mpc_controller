@@ -72,7 +72,7 @@ class F110_RL(object):
         self.ref_x_vector_map = []
         self.ref_y_vector_map = []
 
-        self.path = 1 #line default
+        self.path = 0 #line default
         self.line_offset = 0 #default
 
         self.sinus_freq = 1.0
@@ -145,7 +145,7 @@ class F110_RL(object):
                 self.time_step_counter = 0
                 glClearColor(0.0, 0.0, 0.0, 1.0 )
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-                glInitMPC(x)
+                # glInitMPC(x)
             else:
                 glutDestroyWindow(1)
 
@@ -216,21 +216,26 @@ class F110_RL(object):
 
         elif(self.path == 0):
             #line
+            if(X[0] > self.biggest_x):
+                self.biggest_x = X[0]
             for i in range(self.CONTROL_HORIZON):
-                if(X[0]+0.5 > self.last_x):
-                    self.ref_x[i] = X[0] + 0.5 + X[3]*i*self.dt
+                if(self.biggest_x+0.5 > self.last_x):
+                    self.ref_x[i] = self.biggest_x + 0.5 + X[3]*i*self.dt
                     self.ref_y[i] = self.line_offset
-                    self.last_x = X[0] + 0.5
+                    self.last_x = self.biggest_x + 0.5
 
                 else:
-                    self.ref_x[i] = X[0] + 0.5 + X[3]*i*self.dt
+                    self.ref_x[i] = self.biggest_x + 0.5 + X[3]*i*self.dt
                     self.ref_y[i] = self.line_offset
-
+                # print("self.dt = ",self.dt," , i = ",i, " , X[3] = ", X[3] ," , increment = ", X[3]*i*self.dt)
                 self.ref_x_vector_map.append(self.ref_x[i])
                 self.ref_y_vector_map.append(self.ref_y[i])
                 state_map.append(self.ref_x[i])
                 state_map.append(self.ref_y[i])
 
+        dist = math.sqrt( (self.ref_x[0] - self.ref_x[self.CONTROL_HORIZON - 1])**2 + (self.ref_y[0] - self.ref_y[self.CONTROL_HORIZON - 1])**2 )
+        # print("dist = ", dist)
+        # print("self.ref_x = ", self.ref_x)
         return state_map
 
     def _find_state(self,X):
@@ -302,7 +307,7 @@ class F110_RL(object):
                 episode_steps = 0
 
                 self.biggest_x = 0.0
-                
+
                 while not done:
                     steps+=1
                     episode_steps+=1
@@ -316,8 +321,9 @@ class F110_RL(object):
 
                     self.obs, reward, done = self.racecar_env.step(action,state_map,self.last_action,self.time_i)
                     # c = readchar.readchar()
+                    print("self.X[3] before  = ", self.X[3])
                     self._update_sim_state()
-
+                    print("self.X[3] after  = ", self.X[3])
                     self.last_action = a
 
                     next_X[0] = self.X[0]
@@ -336,7 +342,7 @@ class F110_RL(object):
                     state = next_state
 
                     cumulated_reward += reward
-                    print("self.time_i = ", self.time_i,"  , cumulated_reward = ", cumulated_reward)
+                    # print("self.time_i = ", self.time_i,"  , cumulated_reward = ", cumulated_reward)
 
 
                     # Keep adding experience to the memory until

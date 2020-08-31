@@ -227,7 +227,7 @@ class F110Env(gym.Env):
             self.x = pose_x[0]
             self.y = pose_y[0]
             self.theta = pose_theta[0]
-            self.speed = 0.0
+            self.speed = 3.0
 
         else:
             # create reset proto
