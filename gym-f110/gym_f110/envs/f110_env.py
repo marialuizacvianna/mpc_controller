@@ -94,9 +94,10 @@ class F110Env(gym.Env):
         self.mass= 3.74
         self.l_r = 0.17145
         self.l_f = self.wheelbase - self.l_r
+        self.time_thresh = 5.0
 
 
-    def _check_done(self):
+    def _check_done(self,time):
         """
         Check if the episode is done
         This is in terms of the ego car
@@ -106,8 +107,11 @@ class F110Env(gym.Env):
         This assumes start is always (0, 0)
 
         """
+        done = 0
+        if(time >= self.time_thresh):
+            done = 1
 
-        return 0
+        return done
 
         # to do
         #fazer com base no tempo (?)
@@ -192,7 +196,7 @@ class F110Env(gym.Env):
 
         return obs
 
-    def step(self, action, state_map,last_action):
+    def step(self, action, state_map,last_action,time):
         # action is a list of steering angles + command velocities
         # also a ego car index
         # action should a DICT with {'ego_idx': int, 'speed':[], 'steer':[]}
@@ -207,7 +211,7 @@ class F110Env(gym.Env):
 
         self._update_state(obs)
 
-        done = self._check_done()
+        done = self._check_done(time)
 
         reward = self._compute_reward(last_action,requested_ang,obs, done, state_map)
 
@@ -239,6 +243,7 @@ class F110Env(gym.Env):
         action = {'ego_idx': self.ego_idx, 'speed': vels, 'steer': angs}
         ref_points = []
         last_action = 0.0
-        obs, reward, done = self.step(action, ref_points,last_action)
+        time = 0.0
+        obs, reward, done = self.step(action, ref_points,last_action,time)
 
         return obs, reward, done

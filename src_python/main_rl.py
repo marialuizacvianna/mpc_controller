@@ -72,7 +72,7 @@ class F110_RL(object):
         self.ref_x_vector_map = []
         self.ref_y_vector_map = []
 
-        self.path = 0 #line default
+        self.path = 1 #line default
         self.line_offset = 0 #default
 
         self.sinus_freq = 1.0
@@ -95,13 +95,13 @@ class F110_RL(object):
         self.ref_x_vector_w = []
         self.dt = self.racecar_env.dt
         self.X[3] = 3.0
-
+        self.time_i = 0.0
 
     def iterate(self):
         glViewport(0, 0, 2000,1000)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-100, 100, -50, 50, 0.0, 1.0)
+        glOrtho(-5, 35, -12, 12, 0.0, 1.0)
         glMatrixMode (GL_MODELVIEW)
         glLoadIdentity()
 
@@ -124,7 +124,7 @@ class F110_RL(object):
         glLineWidth(0.5)
         glColor3f(1.0, 0.0, 3.0) # Set the color to pink
         x=x.flatten()
-        M = r*np.array([[1,-1,0,0,-1,-1,0,0,-1,1,0,0,3,3,0], [-2,-2,-2,-1,-1,1,1,2,2,2,2,1,0.5,-0.5,-1]])
+        M = r*np.array([[1/5.0,-1/5.0,0,0,-1/5.0,-1/5.0,0,0,-1/5.0,1/5.0,0,0,3/5.0,3/5.0,0], [-2/5.0,-2/5.0,-2/5.0,-1/5.0,-1/5.0,1/5.0,1/5.0,2/5.0,2/5.0,2/5.0,2/5.0,1/5.0,0.5/5.0,-0.5/5.0,-1/5.0]])
         M=self.move_motif(M,x[0],x[1],x[2])
         glBegin(GL_LINE_STRIP)
         for i in range(15):
@@ -134,8 +134,8 @@ class F110_RL(object):
 
 
     def display(self):
-        time_i = self.time_step_counter*self.dt + self.ti
-        if(time_i >= self.tf):
+        self.time_i = self.time_step_counter*self.dt + self.ti
+        if(self.time_i >= self.tf):
             if(do_training):
                 x = np.zeros(5)
                 self.time_step_counter = 0
@@ -190,18 +190,18 @@ class F110_RL(object):
                 state_map.append(self.ref_y[i])
         elif(self.path == 1):
             #sinus
-            ref_v_x = (X[3])/sqrt(1+(np.sin(self.sinus_freq*(X[0]))**2))
+            ref_v_x = (X[3])/math.sqrt(1+(math.sin(self.sinus_freq*(X[0]))**2))
 
             for i in range(self.CONTROL_HORIZON):
                 if(X[0] > self.last_x):
                     self.ref_x[i] = X[0] + ref_v_x*self.dt*i
-                    self.ref_y[i] = self.line_offset + np.cos(self.sinus_freq*self.ref_x[i])
+                    self.ref_y[i] = self.line_offset + math.cos(self.sinus_freq*self.ref_x[i])
                     self.last_x = X[0]
-                    ref_v_x = (X[3])/sqrt(1+(np.sin(self.sinus_freq*self.ref_x[i])**2))
+                    ref_v_x = (X[3])/math.sqrt(1+(math.sin(self.sinus_freq*self.ref_x[i])**2))
                 else:
                     self.ref_x[i] = X[0] + ref_v_x*self.dt*i
-                    self.ref_y[i] = self.line_offset + np.cos(self.sinus_freq*self.ref_x[i])
-                    ref_v_x = (X[3])/sqrt(1+(np.sin(self.sinus_freq*self.ref_x[i])**2))
+                    self.ref_y[i] = self.line_offset + math.cos(self.sinus_freq*self.ref_x[i])
+                    ref_v_x = (X[3])/math.sqrt(1+(math.sin(self.sinus_freq*self.ref_x[i])**2))
 
                 self.ref_x_vector_map.append(self.ref_x[i])
                 self.ref_y_vector_map.append(self.ref_y[i])
@@ -308,7 +308,7 @@ class F110_RL(object):
                     action = {'ego_idx': 0, 'speed': [action_speed], 'steer': [a]}
 
 
-                    self.obs, reward, done = self.racecar_env.step(action,state_map,self.last_action)
+                    self.obs, reward, done = self.racecar_env.step(action,state_map,self.last_action,self.time_i)
                     # c = readchar.readchar()
                     self._update_sim_state()
 
@@ -330,7 +330,7 @@ class F110_RL(object):
                     state = next_state
 
                     cumulated_reward += reward
-
+                    print("cumulated_reward = ", cumulated_reward)
 
 
                     # Keep adding experience to the memory until
@@ -445,7 +445,7 @@ class F110_RL(object):
         glEnd()
 
     def run_mpc(self):
-        time_i = self.time_step_counter*self.dt + self.ti
+        self.time_i = self.time_step_counter*self.dt + self.ti
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) # Remove everything from screen (i.e. displays all white)
         glLoadIdentity() # Reset all graphic/shape's position
         self.iterate()
