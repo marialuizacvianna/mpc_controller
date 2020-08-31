@@ -315,7 +315,8 @@ class F110_RL(object):
                     next_X[0] = self.X[0]
                     next_X[1] = self.X[1]
                     next_X[2] = self.X[2]
-                    next_X[2] = self.X[3]
+                    next_X[3] = self.X[3]
+                    # print("self.X")
                     self.display()
                     next_state,state_map = self._find_state(next_X)
 
@@ -458,7 +459,7 @@ class F110_RL(object):
                 self.trans_corr  = self.trans_corr  + 1
                 self.trans_lastx = self.result_x[size_vector - 1]
         glTranslatef(-15 - (self.trans_corr*35),5,0)
-        print("self.X = ", self.X)
+
         self.draw_tank(np.array([[self.X[0]],[self.X[1]],[self.X[2]]]))
         self.drawReference()
         self.drawRobotReference()
@@ -501,8 +502,8 @@ class F110_RL(object):
         glutInitWindowSize(2000, 1000)   # Set the w and h of your window
         glutInitWindowPosition(0, 0)   # Set the position at which this windows should appear
         wind = glutCreateWindow("F110Env Simulation") # Set a window title
-        glutDisplayFunc(self.run_mpc)
-        glutIdleFunc(self.run_mpc) # Keeps the window open
+        glutDisplayFunc(self.run_rl)
+        glutIdleFunc(self.run_rl) # Keeps the window open
         # glutReshapeFunc (self.reshape_mpc)
         glutMainLoop()  # Keeps the above created window displaying/running in a loop
 
