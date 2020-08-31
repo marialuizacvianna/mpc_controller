@@ -72,7 +72,7 @@ class F110_RL(object):
         self.ref_x_vector_map = []
         self.ref_y_vector_map = []
 
-        self.path = 0 #line default
+        self.path = 2 #line default
         self.line_offset = 0 #default
 
         self.sinus_freq = 1.0
@@ -99,6 +99,23 @@ class F110_RL(object):
         self.dt = self.racecar_env.dt
         self.X[3] = 3.0
         self.time_i = 0.0
+
+        self.smallest_cost_file = "./../training/trained_nn/minimum/3108_1730"
+        self.final_cost_file = "./../training/trained_nn/final/3108_1730"
+        self.buffer_file = "./../training/trained_buffer/3108_1730"
+
+        if(not os.path.exists(self.buffer_file)):
+            os.makedirs(self.buffer_file)
+
+        if(not os.path.exists(self.final_cost_file)):
+            os.makedirs(self.final_cost_file)
+
+        if(not os.path.exists(self.smallest_cost_file)):
+            os.makedirs(self.smallest_cost_file)
+
+        self.learning_buffer_file = open(buffer_file + "/buffer_training", "w")
+        self.file_smallestcost_trained = open(self.smallest_cost_file+"/trained_nn", "w" )
+        self.file_final_trained = open(self.final_cost_file+"/trained_nn", "w" )
 
     def iterate(self):
         glViewport(0, 0, 2000,1000)
@@ -171,27 +188,28 @@ class F110_RL(object):
             circle_ray = self.angle2follow/3.14
 
             for i in range(self.CONTROL_HORIZON):
-                bound_up_x = X[0] > (circle_ray*np.cos(self.angle2follow) + cx - 1.0)
-                bound_down_x = X[0] < (circle_ray*np.cos(self.angle2follow) + cx + 1.0)
-                bound_up_y =X[1] > (circle_ray*np.sin(self.angle2follow) + cy - 1.0)
-                bound_down_y = X[1] < (circle_ray*np.sin(self.angle2follow) + cy + 1.0)
+                bound_up_x = X[0] > ( 5.0 + circle_ray*math.cos(self.angle2follow) + cx - 1.0)
+                bound_down_x = X[0] < ( 5.0 + circle_ray*math.cos(self.angle2follow) + cx + 1.0)
+                bound_up_y =X[1] > (circle_ray*math.sin(self.angle2follow) + cy - 1.0)
+                bound_down_y = X[1] < (circle_ray*math.sin(self.angle2follow) + cy + 1.0)
                 if(bound_up_x and bound_down_x and bound_up_y and bound_down_y):
                     angle2follow_it = self.angle2follow + i*self.dt
                     circle_ray = angle2follow_it/3.14
-                    self.ref_x[i] = circle_ray*np.cos(angle2follow_it) + cx
-                    self.ref_y[i] = circle_ray*np.sin(angle2follow_it) + cy
-                    self.angle2follow = angle2follow + 0.5*self.dt
+                    self.ref_x[i] = 5.0 + circle_ray*math.cos(angle2follow_it) + cx
+                    self.ref_y[i] = circle_ray*math.sin(angle2follow_it) + cy
+                    self.angle2follow = self.angle2follow + 0.5*self.dt
 
                 else:
                     angle2follow_it = self.angle2follow + i*self.dt
-                    self.ref_x[i] = circle_ray*np.cos(angle2follow_it) + cx
-                    self.ref_y[i] = circle_ray*np.sin(angle2follow_it) + cy
+                    self.ref_x[i] = 5.0 + circle_ray*math.cos(angle2follow_it) + cx
+                    self.ref_y[i] = circle_ray*math.sin(angle2follow_it) + cy
 
 
                 self.ref_x_vector_map.append(self.ref_x[i])
                 self.ref_y_vector_map.append(self.ref_y[i])
                 state_map.append(self.ref_x[i])
                 state_map.append(self.ref_y[i])
+
         elif(self.path == 1):
             if(X[0] > self.biggest_x):
                 self.biggest_x = X[0]
@@ -307,7 +325,7 @@ class F110_RL(object):
                 episode_steps = 0
 
                 self.biggest_x = 0.0
-
+                self.angle2follow = 0.0
                 while not done:
                     steps+=1
                     episode_steps+=1
@@ -321,9 +339,7 @@ class F110_RL(object):
 
                     self.obs, reward, done = self.racecar_env.step(action,state_map,self.last_action,self.time_i)
                     # c = readchar.readchar()
-                    print("self.X[3] before  = ", self.X[3])
                     self._update_sim_state()
-                    print("self.X[3] after  = ", self.X[3])
                     self.last_action = a
 
                     next_X[0] = self.X[0]
@@ -394,19 +410,21 @@ class F110_RL(object):
 
                 if self.highest_reward < cumulated_reward:
                     self.highest_reward = cumulated_reward
+                    self.agent.actor.save_network(self.smallest_cost_file)
 
                 if self.agent.exploration_rate > self.agent.exploration_min:
                     self.agent.exploration_rate *= self.agent.exploration_decay
 
-                rospy.loginfo("total episode_steps {}, reward {}/{}".format(episode_steps, cumulated_reward, self.highest_reward))
-                rospy.loginfo("Episode time {}, total {}".format(self.format_time(episode_time),
-                                                                self.format_time(total_time)))
-                rospy.loginfo("exploration_rate {}".format(self.agent.exploration_rate))
-                rospy.loginfo("steps: {} / self.sample_batch_size*200 : {} ".format(steps,self.sample_batch_size*200))
-
+                print("total episode_steps {}, reward {}/{}".format(episode_steps, cumulated_reward, self.highest_reward))
+                # print("Episode time {}, total {}".format(self.format_time(episode_time),
+                                                                # self.format_time(total_time)))
+                # print("exploration_rate {}".format(self.agent.exploration_rate))
+                print("steps: {} / self.sample_batch_size*200 : {} ".format(steps,self.sample_batch_size*200))
+                self.learning_buffer_file.writelines("total steps = " + str(episode_steps) + "," + "reward = "+ str(cumulated_reward) + '\n')
 
         finally:
             self.racecar_env.close()
+            self.learning_buffer_file.close()
 
     def propagate(self,u):
       self.X[0] = self.X[0] + self.X[3]*math.cos(self.X[2])*self.dt;

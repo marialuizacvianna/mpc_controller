@@ -76,6 +76,26 @@ class ActorNetwork(object):
         self.num_trainable_vars = len(self.network_params) + len(self.target_network_params)
 
 
+    def save_network(file):
+        no_of_hidden_layers = 1
+        no_of_neurons_0 = 50
+        file.writelines(str(self.s_dim) + '\n')
+        file.writelines(str(self.a_dim) + '\n')
+        file.writelines(str(no_of_hidden_layers) + '\n')
+        for i in range(no_of_hidden_layers):
+            file.writelines(str(no_of_neurons_0) + '\n')
+
+        for row_no in range(no_of_neurons_0):
+            for col_no in range(self.s_dim):
+                file_smallestcost_trained.writelines(str(w1_smallest[row_no, col_no]) + '\n')
+            file_smallestcost_trained.writelines(str(b1_smallest[row_no,0]) + '\n')
+
+    for row_no in range(no_of_outputs):
+        for col_no in range(hid1_size):
+            file_smallestcost_trained.writelines(str(wo_smallest[row_no, col_no]) + '\n')
+        file_smallestcost_trained.writelines(str(bo_smallest[row_no,0]) + '\n')
+
+    file_smallestcost_trained.close()
     # Create policy network with architecture provided.  The policy network is a mapping from states to actions.
     def create_actor_network(self, nn_type, name):
         # States are the input variable
