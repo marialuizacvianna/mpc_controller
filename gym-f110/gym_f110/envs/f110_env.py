@@ -153,9 +153,9 @@ class F110Env(gym.Env):
 
         map_dist = (first_ref_x - X)**2 + (first_ref_y - Y)**2
 
-        reward = reward - map_dist
-
-        # reward =  max(min(reward, 0), -10)
+        # reward = reward - map_dist
+        reward =  - map_dist
+        # reward =  max(min(reward, 0), -1)
 
         return reward
 

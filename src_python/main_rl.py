@@ -12,7 +12,7 @@ from utils import  Memory
 
 from memory import ReplayBuffer
 
-BUFFER_SIZE = 1000000
+BUFFER_SIZE = 10000
 RANDOM_SEED = 25
 LR_CYCLE = 100
 # Number of episodes to be run
@@ -72,7 +72,7 @@ class F110_RL(object):
         self.ref_x_vector_map = []
         self.ref_y_vector_map = []
 
-        self.path = 2 #line default
+        self.path = 0 #line default
         self.line_offset = 0 #default
 
         self.sinus_freq = 1.0
@@ -113,8 +113,8 @@ class F110_RL(object):
         if(not os.path.exists(self.smallest_cost_file)):
             os.makedirs(self.smallest_cost_file)
 
-        self.learning_buffer_file = open(buffer_file + "/buffer_training", "w")
-        self.file_smallestcost_trained = open(self.smallest_cost_file+"/trained_nn", "w" )
+        self.learning_buffer_file = open(self.buffer_file + "/buffer_training", "w")
+        # self.file_smallestcost_trained = open(self.smallest_cost_file+"/trained_nn", "w" )
         self.file_final_trained = open(self.final_cost_file+"/trained_nn", "w" )
 
     def iterate(self):
@@ -367,7 +367,7 @@ class F110_RL(object):
 
                     if save_interval >= self.sample_batch_size:
                         save_interval = 0
-                        s_batch, a_batch, r_batch, d_batch, s2_batch = replay_buffer.sample_batch(MINIBATCH_SIZE)
+                        s_batch, a_batch, r_batch, d_batch, s2_batch = replay_buffer.sample_batch(self.sample_batch_size)
 
                         # Find target estimate to use for updating the Q-function
 
@@ -410,7 +410,9 @@ class F110_RL(object):
 
                 if self.highest_reward < cumulated_reward:
                     self.highest_reward = cumulated_reward
-                    self.agent.actor.save_network(self.smallest_cost_file)
+                    # self.file_smallestcost_trained = open(self.smallest_cost_file+"/trained_nn", "w" )
+                    # self.agent.actor.save_network(self.file_smallestcost_trained)
+                    # self.file_smallestcost_trained.close()
 
                 if self.agent.exploration_rate > self.agent.exploration_min:
                     self.agent.exploration_rate *= self.agent.exploration_decay
@@ -423,8 +425,11 @@ class F110_RL(object):
                 self.learning_buffer_file.writelines("total steps = " + str(episode_steps) + "," + "reward = "+ str(cumulated_reward) + '\n')
 
         finally:
+            self.agent.actor.save_network(self.file_final_trained)
             self.racecar_env.close()
-            self.learning_buffer_file.close()
+            # self.learning_buffer_file.close()
+            # self.file_final_trained.close()
+
 
     def propagate(self,u):
       self.X[0] = self.X[0] + self.X[3]*math.cos(self.X[2])*self.dt;

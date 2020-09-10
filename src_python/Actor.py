@@ -28,7 +28,7 @@ class ActorNetwork(object):
 
 
         # Create non_target policy network
-        self.inputs, self.out, self.scaled_out = self.create_actor_network(nn_type = "non_target", name='non-target')
+        self.inputs, self.out, self.scaled_out,self.model = self.create_actor_network(nn_type = "non_target", name='non-target')
 
         # Find trainable variables that will be needed for gradient calculations
         self.network_params = tf.trainable_variables()
@@ -36,7 +36,7 @@ class ActorNetwork(object):
 
 
         # Create target policy network
-        self.target_inputs, self.target_out, self.target_scaled_out = self.create_actor_network(nn_type = "target", name='target')
+        self.target_inputs, self.target_out, self.target_scaled_out,self.model_target = self.create_actor_network(nn_type = "target", name='target')
 
         # Find trainable variables that will be needed for gradient calculations
         self.target_network_params = tf.trainable_variables()[len(self.network_params):]
@@ -76,7 +76,20 @@ class ActorNetwork(object):
         self.num_trainable_vars = len(self.network_params) + len(self.target_network_params)
 
 
-    def save_network(file):
+    def save_network(self,file):
+        print("nb layers = ",len(self.model.layers) )
+        # print("layer 1 = ", len(self.model.layers[0])) #imput layer has no attribute shape or len
+        # print("layer 1 = ", self.model.layers[1].shape) #'Flatten' object has no attribute 'shape'
+        # print("layer 1 = ", self.model.layers[2].shape) #'Dense' object has no attribute 'shape'
+        # print("layer 1 = ", self.model.layers[3].shape) #'Dense' object has no attribute 'shape'
+        w1_smallest = self.model.layers[2].get_weights()[0]
+        b1_smallest  = self.model.layers[2].get_weights()[1]
+        wo_smallest = self.model.layers[3].get_weights()[0]
+        bo_smallest  = self.model.layers[3].get_weights()[1]
+        # print("w1_smallest = ", w1_smallest.shape) #('w1_smallest = ', (40, 50))
+        # print("b1_smallest = ", b1_smallest.shape) #('b1_smallest = ', (50,))
+        # print("wo_smallest = ", wo_smallest.shape) #('wo_smallest = ', (50, 1))
+        # print("bo_smallest = ", bo_smallest.shape) #('bo_smallest = ', (1,))
         no_of_hidden_layers = 1
         no_of_neurons_0 = 50
         file.writelines(str(self.s_dim) + '\n')
@@ -85,17 +98,16 @@ class ActorNetwork(object):
         for i in range(no_of_hidden_layers):
             file.writelines(str(no_of_neurons_0) + '\n')
 
-        for row_no in range(no_of_neurons_0):
-            for col_no in range(self.s_dim):
-                file_smallestcost_trained.writelines(str(w1_smallest[row_no, col_no]) + '\n')
-            file_smallestcost_trained.writelines(str(b1_smallest[row_no,0]) + '\n')
+        for col_no in range(no_of_neurons_0):
+            for row_no in range(self.s_dim):
+                file.writelines(str(w1_smallest[row_no, col_no]) + '\n')
+            file.writelines(str(b1_smallest[col_no]) + '\n')
 
-    for row_no in range(no_of_outputs):
-        for col_no in range(hid1_size):
-            file_smallestcost_trained.writelines(str(wo_smallest[row_no, col_no]) + '\n')
-        file_smallestcost_trained.writelines(str(bo_smallest[row_no,0]) + '\n')
+        for col_no in range(self.a_dim):
+            for row_no in range(no_of_neurons_0):
+                file.writelines(str(wo_smallest[row_no, col_no]) + '\n')
+            file.writelines(str(bo_smallest[col_no]) + '\n')
 
-    file_smallestcost_trained.close()
     # Create policy network with architecture provided.  The policy network is a mapping from states to actions.
     def create_actor_network(self, nn_type, name):
         # States are the input variable
@@ -109,7 +121,9 @@ class ActorNetwork(object):
 
         act_scaled = Lambda(lambda x: x * self.action_bound, name=name + 'ols')(act_not_scaled)
 
-        return states, act_not_scaled, act_scaled
+        model = Model(states, act_not_scaled)
+
+        return states, act_not_scaled, act_scaled, model
 
 
     # The train function is how the "Learning" phase of the learning loop is implemented.  The policy neural network
