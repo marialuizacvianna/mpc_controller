@@ -161,12 +161,12 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   else if (no_of_neurons == 50){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1504_1500/trained_nn_50";//line relu
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_1414/trained_nn_50";//line and sinus relu
-    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/trained_nn_50";//line,sinus and spiral relu
+    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/trained_nn_50";//line,sinus and spiral relu
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/0505_1600/trained_nn_50";//line,sinus sigmoid
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1105_1400/trained_nn_50";//line,sinus  tanh
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_0808/trained_nn_50";//line,sinus and spiral sigmoid
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_1215/trained_nn_50";//line,sinus and spiral tanh
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1406_1500/trained_nn_50";//lines 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1406_1500/trained_nn_50";//lines 3 inp
   }
 
   else if (no_of_neurons == 55){
@@ -276,7 +276,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   angle2follow_nn = 0.0;
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
-    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_03_spiral.txt", std::ios_base::app);
+    dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_04_lines_sinus_spiral.txt", std::ios_base::app);
   }
 
   if(RESULTS_NN_FILE == 1){
@@ -518,7 +518,7 @@ void CalculateMPC(){
   Eigen::VectorXd poly_coeffs_nn = Polyfit(ref_x_nn, ref_y_nn,3);
   double ref_offset_nn = poly_coeffs_nn(0);
   double ref_theta_nn = -atan(poly_coeffs_nn(1));
-  std::cout <<"ref_theta_robot_poly  = "<< ref_theta_robot_poly << "  ,x(2)  = "<< x(2)<<std::endl;
+  // std::cout <<"ref_theta_robot_poly  = "<< ref_theta_robot_poly << "  ,x(2)  = "<< x(2)<<std::endl;
   x = Propagate(x,u);
   if (no_of_neurons > 0){
     x_nn = Propagate(x_nn,u_nn);
@@ -528,19 +528,19 @@ void CalculateMPC(){
   result_mpc = Solve_MPC(x,ref_x,ref_y,0.0,0.0);
 
   //inputs 40
-  // int count_idx = 0;
-  // Eigen::VectorXd inputs_nn (40);
-  // for(int i = 0; i < 40-1;  i = i +2){
-  //   inputs_nn(i) = ref_x_robot_nn(count_idx);
-  //   inputs_nn(i+1) = ref_y_robot_nn(count_idx);
-  //   if(INPUTS_NN_FILE == 1){
-  //     inputs_file_nn << std::to_string(inputs_nn(i));
-  //     inputs_file_nn << ",";
-  //     inputs_file_nn << std::to_string(inputs_nn(i+1));
-  //     inputs_file_nn << ",";
-  //   }
-  //   count_idx = count_idx +1;
-  // }
+  int count_idx = 0;
+  Eigen::VectorXd inputs_nn (40);
+  for(int i = 0; i < 40-1;  i = i +2){
+    inputs_nn(i) = ref_x_robot_nn(count_idx);
+    inputs_nn(i+1) = ref_y_robot_nn(count_idx);
+    if(INPUTS_NN_FILE == 1){
+      inputs_file_nn << std::to_string(inputs_nn(i));
+      inputs_file_nn << ",";
+      inputs_file_nn << std::to_string(inputs_nn(i+1));
+      inputs_file_nn << ",";
+    }
+    count_idx = count_idx +1;
+  }
 
 
   //inputs 21
@@ -551,10 +551,10 @@ void CalculateMPC(){
   // inputs_nn(20) = ref_theta_robot_nn;
 
   //inputs 3
-  Eigen::VectorXd inputs_nn (3);
-  inputs_nn(0) = ref_x_robot_nn(0);
-  inputs_nn(1) = ref_y_robot_nn(0);
-  inputs_nn(2) = ref_theta_robot_nn;
+  // Eigen::VectorXd inputs_nn (3);
+  // inputs_nn(0) = ref_x_robot_nn(0);
+  // inputs_nn(1) = ref_y_robot_nn(0);
+  // inputs_nn(2) = ref_theta_robot_nn;
 
   u(0) = result_mpc.at(0);
 
@@ -582,10 +582,10 @@ void CalculateMPC(){
         dataset_file << std::to_string(ref_y_robot(i));
         dataset_file << ", ";
       }
-      for(int i = 0; i<CONTROL_HORIZON; i ++){
-        dataset_file << std::to_string(ref_y_robot(i));
-        dataset_file << ", ";
-      }
+      // for(int i = 0; i<CONTROL_HORIZON; i ++){
+      //   dataset_file << std::to_string(ref_y_robot(i));
+      //   dataset_file << ", ";
+      // }
       dataset_file << std::to_string(ref_theta_robot_poly);
       dataset_file << ", ";
       dataset_file << std::to_string(ref_theta_world_poly);
@@ -933,6 +933,7 @@ void display() {
 
          std::cout << "restart x0 =  " << x0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << std::endl;
 
+         path = "circle";
          glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
          glInitMPC(x0,x1, x2,path,no_of_neurons,freq,file_name);
