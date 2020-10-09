@@ -114,7 +114,7 @@ double NN_CONTROLLER::Solve_NN(Eigen::VectorXd inputs){
   Eigen::VectorXd yo = Eigen::VectorXd::Zero(no_of_outputs_);
   yo = (W_.at(no_of_hidd_ )*inputs_i) + b_.at(no_of_hidd_);
 
-
+  yo = Tanh(yo)*0.836332;
   // Eigen::VectorXd y1 = Eigen::VectorXd::Zero(no_of_neurons_hidd_);
   //
   // y1 = (W1_*inputs) + b1_;
@@ -127,13 +127,13 @@ double NN_CONTROLLER::Solve_NN(Eigen::VectorXd inputs){
   //
   // yo = (W0_*y1) + b0_;
 
-  for(int i =0; i < no_of_outputs_; i ++){
-    if(yo(i) < -0.836332)
-      yo(i) = -0.836332;
-
-    else if(yo(i) > 0.836332)
-      yo(i) = 0.836332;
-  }
+  // for(int i =0; i < no_of_outputs_; i ++){
+  //   if(yo(i) < -0.836332)
+  //     yo(i) = -0.836332;
+  //
+  //   else if(yo(i) > 0.836332)
+  //     yo(i) = 0.836332;
+  // }
 
   output = yo(0);
 

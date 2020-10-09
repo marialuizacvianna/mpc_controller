@@ -32,6 +32,9 @@ int main(int argc, char *argv[]) {
   else if(atoi(argv[1]) == 3)
     path_to_follow = "quad";
 
+  else if(atoi(argv[1]) == 4)
+    path_to_follow = "race";
+
   int neurons =  atoi(argv[2]);
 
   double x1 =  atof(argv[3]);
