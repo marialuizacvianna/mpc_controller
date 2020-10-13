@@ -123,6 +123,33 @@ mpc/fast:
 	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/build
 .PHONY : mpc/fast
 
+src/distance_transform.o: src/distance_transform.cpp.o
+
+.PHONY : src/distance_transform.o
+
+# target to build an object file
+src/distance_transform.cpp.o:
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/distance_transform.cpp.o
+.PHONY : src/distance_transform.cpp.o
+
+src/distance_transform.i: src/distance_transform.cpp.i
+
+.PHONY : src/distance_transform.i
+
+# target to preprocess a source file
+src/distance_transform.cpp.i:
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/distance_transform.cpp.i
+.PHONY : src/distance_transform.cpp.i
+
+src/distance_transform.s: src/distance_transform.cpp.s
+
+.PHONY : src/distance_transform.s
+
+# target to generate assembly for a file
+src/distance_transform.cpp.s:
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/distance_transform.cpp.s
+.PHONY : src/distance_transform.cpp.s
+
 src/lib_io.o: src/lib_io.cpp.o
 
 .PHONY : src/lib_io.o
@@ -231,6 +258,33 @@ src/main.cpp.s:
 	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/scan_simulator_2d.o: src/scan_simulator_2d.cpp.o
+
+.PHONY : src/scan_simulator_2d.o
+
+# target to build an object file
+src/scan_simulator_2d.cpp.o:
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/scan_simulator_2d.cpp.o
+.PHONY : src/scan_simulator_2d.cpp.o
+
+src/scan_simulator_2d.i: src/scan_simulator_2d.cpp.i
+
+.PHONY : src/scan_simulator_2d.i
+
+# target to preprocess a source file
+src/scan_simulator_2d.cpp.i:
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/scan_simulator_2d.cpp.i
+.PHONY : src/scan_simulator_2d.cpp.i
+
+src/scan_simulator_2d.s: src/scan_simulator_2d.cpp.s
+
+.PHONY : src/scan_simulator_2d.s
+
+# target to generate assembly for a file
+src/scan_simulator_2d.cpp.s:
+	$(MAKE) -f CMakeFiles/mpc.dir/build.make CMakeFiles/mpc.dir/src/scan_simulator_2d.cpp.s
+.PHONY : src/scan_simulator_2d.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -240,6 +294,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... mpc"
 	@echo "... edit_cache"
+	@echo "... src/distance_transform.o"
+	@echo "... src/distance_transform.i"
+	@echo "... src/distance_transform.s"
 	@echo "... src/lib_io.o"
 	@echo "... src/lib_io.i"
 	@echo "... src/lib_io.s"
@@ -252,6 +309,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/scan_simulator_2d.o"
+	@echo "... src/scan_simulator_2d.i"
+	@echo "... src/scan_simulator_2d.s"
 .PHONY : help
 
 
