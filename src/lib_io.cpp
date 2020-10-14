@@ -707,8 +707,7 @@ void CalculateTrajectory(){
       else {
         follow_left = 1;
       }
-      // split = last_split ;
-      // std::cout <<" new split = " << split << std::endl;
+
       space = 0.0;
     }
     else{
@@ -720,8 +719,6 @@ void CalculateTrajectory(){
     last_split = split;
     int size_right_wall = ceil((double)split /coeff_filter_points);
     int size_left_wall = ceil((double)(points.rows() - split)/coeff_filter_points);
-
-    // std::cout <<"follow_left = " <<follow_left << ", follow_right = "<<follow_right << " , size_right_wall = "<< size_right_wall <<"  , size_left_wall  = "<< size_left_wall<<std::endl;
 
     Eigen::MatrixXd right_wall(size_right_wall,2);
     Eigen::MatrixXd left_wall(size_left_wall,2);
@@ -741,13 +738,7 @@ void CalculateTrajectory(){
         count_left ++ ;
       }
 
-    //
-    // if(follow_left == 0 && follow_right ==0){
-    //   drawWall(right_wall,size_right_wall,x);
-    //   drawWall(left_wall,size_left_wall,x);
-    // }
-    // drawWall(right_wall,size_right_wall,x);
-    // drawWall(left_wall,size_left_wall,x);
+
     std::vector<double> left_point(2) ;
     std::vector<double> target_point(2);
     std::vector<double> right_point(2);
@@ -757,52 +748,16 @@ void CalculateTrajectory(){
     std::cout  <<" point_idx out = " << point_idx.at(1) << std::endl;
     int nex_idx_in;
     int nex_idx_out;
-    int plus_idx_in = 0;
+    int plus_idx_in = 2;
     int plus_idx_out = 0;
 
-    // for(int i = 0; i < CONTROL_HORIZON; i++){
-    //   // std::cout << "traj_x.size() = " <<traj_x.size() << std::endl;
-    //   // std::cout << "point_idx + plus_idx+ i = " <<point_idx + plus_idx+ i << std::endl;
-    //   if(point_idx[0] + plus_idx_in + i < in_contour_x.size())
-    //     nex_idx_in = point_idx[0]  + i + plus_idx_in ;
-    //   else
-    //     nex_idx_in =  (point_idx[0]  + plus_idx_in+ i) - in_contour_x.size();
-    //
-    //   if(point_idx[1] + plus_idx_out+ i < out_contour_x.size())
-    //     nex_idx_out = point_idx[1]  + i + plus_idx_out ;
-    //   else
-    //     nex_idx_out =  (point_idx[1]  + plus_idx_out+ i) - out_contour_x.size();
-    //   // std::cout  <<" nex_idx_out = " << nex_idx_out << std::endl;
-    //
-    //   left_point.at(0) = in_contour_x.at(nex_idx_in);
-    //   left_point.at(1) = in_contour_y.at(nex_idx_in);
-    //
-    //   right_point.at(0) = out_contour_x.at(nex_idx_out);
-    //   right_point.at(1) = out_contour_y.at(nex_idx_out);
-    //    // std::cout  <<" nex_idx_out = " << nex_idx_out << " ,nex_idx_in = "<< nex_idx_in<<std::endl;
-    //   // if(point_idx.at(0) >= 355   && point_idx.at(1) >= 578){
-    //   //   target_point.at(0) = (  left_point.at(0) );
-    //   //   target_point.at(1) = (  left_point.at(1) );
-    //   // }
-    //   // else{
-    //     target_point.at(0) = (left_point.at(0) + right_point.at(0))/2.0;
-    //     target_point.at(1) = (left_point.at(1) + right_point.at(1))/2.0;
-    //   // }
-    //
-    //
-    //   // std::cout << "nex_idx = " <<nex_idx << std::endl;
-    //   ref_x(i) = target_point.at(0);
-    //   ref_y(i) = target_point.at(1);
-    //
-    //   ref_x_vector_w.push_back(ref_x(i));
-    //   ref_y_vector_w.push_back(ref_y(i));
-    // }
+
     std::vector<double> predicted_car_position(2);
     predicted_car_position.at(0) = 0.0;
     predicted_car_position.at(1) = 0.0;
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      if(point_idx.at(0) >= 355 && point_idx.at(0) <= 420 && point_idx.at(1) >= 578 && point_idx.at(1) <= 620){
+      if(point_idx.at(0) >= 350 && point_idx.at(0) <= 415 && point_idx.at(1) >= 570 && point_idx.at(1) <= 615){
         if(point_idx[0] + plus_idx_in + i < in_contour_x.size())
             nex_idx_in = point_idx[0]  + i + plus_idx_in ;
           else
@@ -819,20 +774,16 @@ void CalculateTrajectory(){
           left_point.at(1) = in_contour_y.at(nex_idx_in);
           right_point.at(0) = out_contour_x.at(nex_idx_out);
           right_point.at(1) = out_contour_y.at(nex_idx_out);
-          // std::cout  <<" left_point.at(0) = " << left_point.at(0)<<", left_point.at(1)  = "<< left_point.at(1) << std::endl;
-          // std::cout  <<" right_point.at(0) = " << right_point.at(0)<<", right_point.at(1)  = "<< right_point.at(1) << std::endl;
+
           target_point.at(0) = ( left_point.at(0) );
           target_point.at(1) = ( left_point.at(1) );
           std::cout  <<" left_point.at(0) = " << left_point.at(0)<<", left_point.at(1)  = "<< left_point.at(1) << std::endl;
-          target_point.at(0)  = sin(x(2)) * (left_point.at(0) - x(0)) - cos(x(2))*(left_point.at(1)- x(1))  - 1.0;
-          target_point.at(1) =  cos(x(2)) * (left_point.at(0) - x(0)) + sin(x(2))*(left_point.at(1) - x(1)) - scan_distance_to_base_link  - 0.5;
+          target_point.at(0)  = sin(x(2)) * (left_point.at(0) - x(0)) - cos(x(2))*(left_point.at(1)- x(1))  - 0.9;
+          target_point.at(1) =  cos(x(2)) * (left_point.at(0) - x(0)) + sin(x(2))*(left_point.at(1) - x(1)) - scan_distance_to_base_link  ;
 
-          // ref_x(i) = target_point.at(0);
-          // ref_y(i) = target_point.at(1);
         }
         else{
-          predicted_car_position.at(1) = 0.5 + 3.0*i*DT ;
-          // target_point = find_closest_point_map(predicted_car_position);
+          predicted_car_position.at(1) = 0.8 + 3.0*i*DT ;
           if(follow_right == 0 && follow_left == 0){
           left_point = get_closest_point(left_wall,predicted_car_position);
           right_point = get_closest_point(right_wall,predicted_car_position);
@@ -857,56 +808,130 @@ void CalculateTrajectory(){
         ref_x(i) = ((target_point.at(1)+ scan_distance_to_base_link)*cos(x(2)) + (target_point.at(0) )*sin(x(2))) + x(0);
         ref_y(i) = -((target_point.at(0))*cos(x(2)) - (target_point.at(1)+ scan_distance_to_base_link)*sin(x(2))) + x(1);
 
-        std::cout  <<" ref_x(i) = " << ref_x(i)<<", ref_y(i)  = "<< ref_y(i) << std::endl;
       ref_x_vector_w.push_back(ref_x(i));
       ref_y_vector_w.push_back(ref_y(i));
     }
 
-    // Eigen::MatrixXf points_nn;
-    // points_nn = get_scan_as_cartesian(current_scan_nn);
-    // int split_nn = find_left_right_border(points_nn);
-    // if (split_nn <= 0){
-    //   split_nn = last_split_nn ;
-    // }
-    //
-    // last_split_nn = split_nn;
-    // int size_right_wall_nn = ceil((double)split_nn /coeff_filter_points);
-    // int size_left_wall_nn = ceil((double)(points_nn.rows() - split_nn)/coeff_filter_points);
-    // Eigen::MatrixXd right_wall_nn(size_right_wall_nn,2);
-    // Eigen::MatrixXd left_wall_nn(size_left_wall_nn,2);
-    // count_right = 0;
-    // count_left = 0;
-    //
-    //
-    //   for(int i=0; i < split_nn; i = i+ coeff_filter_points){
-    //     right_wall_nn(count_right,0) = points_nn(i,0);
-    //     right_wall_nn(count_right,1) = points_nn(i,1);
-    //     count_right ++ ;
-    //   }
-    //
-    //   for(int i=split_nn; i < points_nn.rows(); i = i+ coeff_filter_points){
-    //     left_wall_nn(count_left,0) = points_nn(i,0);
-    //     left_wall_nn(count_left,1) = points_nn(i,1);
-    //     count_left ++ ;
-    //   }
-    //
-    // predicted_car_position.at(0) = 0.0;
-    // predicted_car_position.at(1) = 0.0;
+    Eigen::MatrixXf points_nn;
+    points_nn = get_scan_as_cartesian(current_scan_nn);
+    int split_nn = find_left_right_border(points_nn);
 
-    for(int i = 0; i < CONTROL_HORIZON; i++){
-      // predicted_car_position.at(1) = 0.2 + 3.0*i*DT ;
-      // left_point = get_closest_point(left_wall_nn,predicted_car_position);
-      // right_point = get_closest_point(right_wall_nn,predicted_car_position);
+    if (split_nn <= 0){
+      split_nn = -split_nn;
+      if((points_nn.rows() - split_nn) < (points_nn.rows()/2)){
+        //rightwall
+        follow_right = 1;
+      }
+      else {
+        follow_left = 1;
+      }
 
-      // target_point.at(0) = (left_point.at(0) + right_point.at(0))/2.0;
-      // target_point.at(1) = (left_point.at(1) + right_point.at(1))/2.0;
-      //
-      ref_x_nn(i) = 0.0;
-      ref_y_nn(i) = 0.0;
-
-      ref_x_vector_nn.push_back(0.0);
-      ref_y_vector_nn.push_back(0.0);
+      space = 0.0;
     }
+    else{
+      follow_left = 0;
+      follow_right = 0;
+      space = 0.5;
+    }
+    last_split_nn = split_nn;
+    int size_right_wall_nn = ceil((double)split_nn /coeff_filter_points);
+    int size_left_wall_nn = ceil((double)(points_nn.rows() - split_nn)/coeff_filter_points);
+    Eigen::MatrixXd right_wall_nn(size_right_wall_nn,2);
+    Eigen::MatrixXd left_wall_nn(size_left_wall_nn,2);
+    count_right = 0;
+    count_left = 0;
+
+
+      for(int i=0; i < split_nn; i = i+ coeff_filter_points){
+        right_wall_nn(count_right,0) = points_nn(i,0);
+        right_wall_nn(count_right,1) = points_nn(i,1);
+        count_right ++ ;
+      }
+
+      for(int i=split_nn; i < points_nn.rows(); i = i+ coeff_filter_points){
+        left_wall_nn(count_left,0) = points_nn(i,0);
+        left_wall_nn(count_left,1) = points_nn(i,1);
+        count_left ++ ;
+      }
+
+
+
+      predicted_car_position.at(0) = 0.0;
+      predicted_car_position.at(1) = 0.0;
+      std::vector<int>  point_idx_nn = find_closest_point_map(x_nn);
+
+      for(int i = 0; i < CONTROL_HORIZON; i++){
+        if(point_idx_nn.at(0) >= 350 && point_idx_nn.at(0) <= 415 && point_idx_nn.at(1) >= 570 && point_idx_nn.at(1) <= 615){
+          if(point_idx_nn[0] + plus_idx_in + i < in_contour_x.size())
+              nex_idx_in = point_idx_nn[0]  + i + plus_idx_in ;
+            else
+              nex_idx_in =  (point_idx_nn[0]  + plus_idx_in+ i) - in_contour_x.size();
+
+          if(point_idx_nn[1] + plus_idx_out+ i < out_contour_x.size())
+              nex_idx_out = point_idx_nn[1]  + i + plus_idx_out ;
+          else
+              nex_idx_out =  (point_idx_nn[1]  + plus_idx_out+ i) - out_contour_x.size();
+
+
+
+            left_point.at(0) = in_contour_x.at(nex_idx_in);
+            left_point.at(1) = in_contour_y.at(nex_idx_in);
+            right_point.at(0) = out_contour_x.at(nex_idx_out);
+            right_point.at(1) = out_contour_y.at(nex_idx_out);
+
+            target_point.at(0) = ( left_point.at(0) );
+            target_point.at(1) = ( left_point.at(1) );
+
+            target_point.at(0)  = sin(x_nn(2)) * (left_point.at(0) - x_nn(0)) - cos(x_nn(2))*(left_point.at(1)- x_nn(1))  - 0.9;
+            target_point.at(1) =  cos(x_nn(2)) * (left_point.at(0) - x_nn(0)) + sin(x_nn(2))*(left_point.at(1) - x_nn(1)) - scan_distance_to_base_link ;
+
+          }
+
+          else{
+            predicted_car_position.at(1) = 0.8 + 3.0*i*DT ;
+            if(follow_right == 0 && follow_left == 0){
+            left_point = get_closest_point(left_wall_nn,predicted_car_position);
+            right_point = get_closest_point(right_wall_nn,predicted_car_position);
+            target_point.at(0) = (left_point.at(0) + right_point.at(0))/2.0;
+            target_point.at(1) = (left_point.at(1) + right_point.at(1))/2.0;
+            }
+            else if(follow_right == 1 && follow_left == 0){
+              right_point = get_closest_point(right_wall_nn,predicted_car_position);
+              target_point.at(0) = (right_point.at(0)) ;
+              target_point.at(1) = (right_point.at(1) + 0.2 );
+            }
+            else if(follow_right == 0 && follow_left == 1){
+              left_point = get_closest_point(left_wall_nn,predicted_car_position);
+              target_point.at(0) = (left_point.at(0))  ;
+              target_point.at(1) = (left_point.at(1));
+            }
+
+
+          }
+
+
+          ref_x_nn(i) = ((target_point.at(1)+ scan_distance_to_base_link)*cos(x_nn(2)) + (target_point.at(0) )*sin(x_nn(2))) + x_nn(0);
+          ref_y_nn(i) = -((target_point.at(0))*cos(x_nn(2)) - (target_point.at(1)+ scan_distance_to_base_link)*sin(x_nn(2))) + x_nn(1);
+
+        ref_x_vector_nn.push_back(ref_x_nn(i));
+        ref_y_vector_nn.push_back(ref_y_nn(i));
+      }
+
+
+    // for(int i = 0; i < CONTROL_HORIZON; i++){
+    //   // predicted_car_position.at(1) = 0.2 + 3.0*i*DT ;
+    //   // left_point = get_closest_point(left_wall_nn,predicted_car_position);
+    //   // right_point = get_closest_point(right_wall_nn,predicted_car_position);
+    //
+    //   // target_point.at(0) = (left_point.at(0) + right_point.at(0))/2.0;
+    //   // target_point.at(1) = (left_point.at(1) + right_point.at(1))/2.0;
+    //   //
+    //   ref_x_nn(i) = 0.0;
+    //   ref_y_nn(i) = 0.0;
+    //
+    //   ref_x_vector_nn.push_back(0.0);
+    //   ref_y_vector_nn.push_back(0.0);
+    // }
 
     // int point_idx_nn = find_closest_point_map(x_nn);
     //
@@ -927,6 +952,8 @@ void CalculateTrajectory(){
 
     // ref_x = ref_x_nn;
     // ref_y = ref_y_nn;
+    // ref_x_nn = ref_x;
+    // ref_y_nn = ref_y;
   }
 
   else if(path == "quad"){
