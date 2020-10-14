@@ -18,7 +18,11 @@ std::ofstream results_file;
 std::ofstream dataset_file;
 std::ofstream dataset_file_nn;
 std::ofstream inputs_file_nn;
+std::ofstream save_map_file;
 std::ifstream traj_file;
+std::ifstream out_contour_file;
+std::ifstream in_contour_file;
+
 
 const double pi = std::acos(-1);
 
@@ -64,6 +68,13 @@ Eigen::VectorXd ref_x_robot_nn(CONTROL_HORIZON); //vector with reference x posit
 Eigen::VectorXd ref_y_robot_nn(CONTROL_HORIZON); //vector with reference y positions
 Eigen::VectorXd ref_theta_robot_nn(CONTROL_HORIZON); //vector with reference theta positions
 
+
+std::vector<double> out_contour_x;
+std::vector<double> out_contour_y;
+std::vector<double> in_contour_x;
+std::vector<double> in_contour_y;
+
+
 std::vector<double> traj_x;
 std::vector<double> traj_y;
 std::vector<double> traj_v;
@@ -92,6 +103,7 @@ int map_width;
 std::vector<double> map;
 
 std::vector<double> current_scan;
+std::vector<double> current_scan_nn;
 std::vector<double> scan_angles;
 std::vector<double> cosines;
 std::vector<double> car_distances;
@@ -108,6 +120,7 @@ double usable_laser_range = 3.83972;
 racecar_simulator::ScanSimulator2D scan_simulator;
 double margin_relative = 0.0;
 int last_split = 0;
+int last_split_nn = 0;
 
 int find_left_right_border(Eigen::MatrixXf points){
     int margin = (int)(points.rows() * margin_relative);
@@ -156,10 +169,11 @@ int find_left_right_border(Eigen::MatrixXf points){
       }
       count_iter ++ ;
     }
-    std::cout <<"max_dist = "<< max_dist<<std::endl;
-    std::cout <<"index = "<< index<<std::endl;
-    std::cout <<"points.rows() = "<< points.rows()<<std::endl;
-    if (index ==  0 || index == points.rows() - 1){
+
+    // std::cout <<"max_dist = " << max_dist<<std::endl;
+    // std::cout <<"index = " << index << std::endl;
+    // std::cout << "points.rows() = "<< points.rows() <<std::endl;
+    if (index ==  0 || index == points.rows() - 1 ){
       coeff = -1;
       value = index;
     }
@@ -220,6 +234,10 @@ Eigen::MatrixXf get_scan_as_cartesian(std::vector<double> msg){
 
 
 std::vector<double>  update_scan(Eigen::VectorXd x) {
+    // std::cout<<"begin update\n";
+    // std::cout<<"x[0] = " <<x[0]<<"\n";
+    // std::cout<<"x[1] = " <<x[1]<<"\n";
+    // std::cout<<"x[2] = " <<x[2]<<"\n";
     racecar_simulator::Pose2D scan_pose;
     scan_pose.x = x[0] + scan_distance_to_base_link*std::cos(x[2]);
     scan_pose.y = x[1] + scan_distance_to_base_link*std::sin(x[2]);
@@ -227,6 +245,7 @@ std::vector<double>  update_scan(Eigen::VectorXd x) {
     std::vector<double> scan = scan_simulator.scan(scan_pose);
     // for (int i =0; i< scan.size(); i++)
     //     std::cout <<"scan = "<< scan.at(i) <<std::endl;
+    // std::cout<<"end update\n";
     return scan;
 }
 
@@ -245,15 +264,15 @@ void init_map(){
   }
 
   inFile.close();
-  std::cout <<"map_height = "<<map_height<<std::endl;
-  std::cout <<"map_width = "<<map_width<<std::endl;
+  // std::cout <<"map_height = "<<map_height<<std::endl;
+  // std::cout <<"map_width = "<<map_width<<std::endl;
   free_thresh = 0.6;
   map_resolution = 0.05;
   origin.x =  -11.606540;
   origin.y =  -26.520793;
   origin.theta = 0.000000;
   map_init = 1;
-  std::cout <<"len(map)= "<<map.size()<<std::endl;
+  // std::cout <<"len(map)= "<<map.size()<<std::endl;
 
 
 
@@ -282,6 +301,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   scan_simulator = racecar_simulator::ScanSimulator2D(scan_beams, scan_fov, scan_std_dev);
   scan_simulator.set_map(map,map_height,map_width,map_resolution,origin,free_thresh);
   current_scan = std::vector<double>(scan_beams);
+  current_scan_nn = std::vector<double>(scan_beams);
   scan_angles = std::vector<double>(scan_beams);
   scan_ang_incr = scan_simulator.get_angle_increment();
 
@@ -324,8 +344,9 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     }
 
   current_scan = update_scan(x);
-  Eigen::MatrixXf points;
-  points = get_scan_as_cartesian(current_scan);
+  current_scan_nn = update_scan(x_nn);
+  // Eigen::MatrixXf points;
+  // points = get_scan_as_cartesian(current_scan);
   if (no_of_neurons == 0 ){
     trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/3 neurons/training_minimum_cost/1903_1019/trained_nn_3";
   }
@@ -456,7 +477,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   else if (no_of_neurons == 100){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/100 neurons/training_minimum_cost/2304_0930/trained_nn_100";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/100 neurons/training_minimum_cost/2304_0930/trained_nn_100";
     trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_100neurons_dataset2_activationf0";//with keras 10000 epoch
   }
 
@@ -512,7 +533,8 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     u(i) = 0.0;
     u_nn(i) = 0.0;
   }
-
+  // std::cout <<"u begin all= "<<u<<std::endl;
+  // std::cout <<"u_nn begin all= "<<u_nn<<std::endl;
   last_x = x0;
   last_x_nn = x0;
 
@@ -531,10 +553,41 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     inputs_file_nn.open("../inputs_nn/line_tanh.txt");
   }
 
-  traj_file.open("/home/maria/f110_ws/src/f1tenth_lix_ifac_2020/gen_traj/traj_result/berlin-optimal_trajectory_xy.txt");
+  // save_map_file.open("berlin_pts.txt");
+  traj_file.open("../berlin_pts.txt");
+  out_contour_file.open("../out_contour_berlin.txt");
+  in_contour_file.open("../in_contour_berlin.txt");
 
   std::string line;
 
+  while (std::getline(out_contour_file, line)){
+    std::vector<double> elems;
+    std::stringstream ss(line);
+    std::string number;
+    while(std::getline(ss, number, ',')) {
+        elems.push_back(std::stod(number));
+    }
+    out_contour_x.push_back(elems[0]);
+    out_contour_y.push_back(elems[1]);
+
+  }
+  std::reverse( out_contour_x.begin(), out_contour_x.end() );
+  std::reverse( out_contour_y.begin(), out_contour_y.end() );
+  while (std::getline(in_contour_file, line)){
+    std::vector<double> elems;
+    std::stringstream ss(line);
+    std::string number;
+    while(std::getline(ss, number, ',')) {
+        elems.push_back(std::stod(number));
+    }
+    in_contour_x.push_back(elems[0]);
+    in_contour_y.push_back(elems[1]);
+
+  }
+  // std::reverse( in_contour_x.begin(), in_contour_x.end() );
+  // std::reverse( in_contour_y.begin(), in_contour_y.end() );
+  in_contour_file.close();
+  out_contour_file.close();
   while (std::getline(traj_file, line)){
     // std::vector<std::string> results;
     // std::replace(line.begin(), line.end(), ':', ' ');  // replace ':' by ' '
@@ -551,44 +604,63 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     std::vector<double> elems;
     std::stringstream ss(line);
     std::string number;
-    while(std::getline(ss, number, ' ')) {
+    while(std::getline(ss, number, ',')) {
         elems.push_back(std::stod(number));
     }
     traj_x.push_back(elems[0]);
     traj_y.push_back(elems[1]);
-    traj_v.push_back(elems[4]);
-    traj_yaw.push_back(elems[2]);
+
   }
 
   traj_file.close();
 
 }
 
-int find_closest_point_map(Eigen::VectorXd x){
+std::vector<int>  find_closest_point_map(Eigen::VectorXd  x){
+    std::vector<int> indexes(2);//in first and then out
     double x_r = x[0];
     double y_r = x[1];
-
+    std::cout <<"x = "<<x_r <<" , "<<y_r<<std::endl;
     int result;
 
-    double distance ;
+    double distance_in ;
+    double distance_out ;
     double x_i;
     double y_i ;
-    double smallest =10000;
-    int index_smallest;
 
-    for(int i=0; i < traj_x.size();i++){
-      x_i = traj_x.at(i) - x_r;
-      y_i = traj_y.at(i) - y_r;
-      distance = sqrt((x_i*x_i) + (y_i*y_i));
+    double smallest_in =10000;
+    double smallest_out =10000;
+    int index_smallest_in,index_smallest_out;
 
-      if(distance < smallest){
-        smallest = distance;
-        index_smallest = i;
+    for(int i=0; i < in_contour_x.size();i++){
+      x_i = in_contour_x.at(i) - x_r;
+      y_i = in_contour_y.at(i) - y_r;
+      distance_in = sqrt((x_i*x_i) + (y_i*y_i));
+
+      if(distance_in < smallest_in){
+        smallest_in = distance_in;
+        index_smallest_in = i;
       }
     }
 
-    result = index_smallest;
-    return result;
+    for(int i=0; i < out_contour_x.size();i++){
+      x_i = out_contour_x.at(i) - x_r;
+      y_i = out_contour_y.at(i) - y_r;
+      distance_out = sqrt((x_i*x_i) + (y_i*y_i));
+
+      if(distance_out < smallest_out){
+        smallest_out = distance_out;
+        index_smallest_out = i;
+      }
+    }
+
+    // std::vector<double> target_point(2);
+    //
+    indexes.at(0) = index_smallest_in;
+    indexes.at(1) = index_smallest_out;
+
+
+    return indexes;
 
 
 }
@@ -620,16 +692,37 @@ std::vector<double> get_closest_point(Eigen::MatrixXd wall,std::vector<double> p
 void CalculateTrajectory(){
   if (path == "race"){
     Eigen::MatrixXf points;
-    double coeff_filter_points = 1.0;
+    int coeff_filter_points = 1;
+    double space = 0.0;
     points = get_scan_as_cartesian(current_scan);
     int split = find_left_right_border(points);
+    int follow_right = 0;
+    int follow_left  = 0;
     if (split <= 0){
-      split = last_split ;
-      std::cout <<" new split = " << split << std::endl;
+      split = -split;
+      if((points.rows() - split) < (points.rows()/2)){
+        //rightwall
+        follow_right = 1;
+      }
+      else {
+        follow_left = 1;
+      }
+      // split = last_split ;
+      // std::cout <<" new split = " << split << std::endl;
+      space = 0.0;
     }
+    else{
+      follow_left = 0;
+      follow_right = 0;
+      space = 0.5;
+    }
+
     last_split = split;
     int size_right_wall = ceil((double)split /coeff_filter_points);
     int size_left_wall = ceil((double)(points.rows() - split)/coeff_filter_points);
+
+    // std::cout <<"follow_left = " <<follow_left << ", follow_right = "<<follow_right << " , size_right_wall = "<< size_right_wall <<"  , size_left_wall  = "<< size_left_wall<<std::endl;
+
     Eigen::MatrixXd right_wall(size_right_wall,2);
     Eigen::MatrixXd left_wall(size_left_wall,2);
     int count_right = 0;
@@ -648,27 +741,58 @@ void CalculateTrajectory(){
         count_left ++ ;
       }
 
+    //
+    // if(follow_left == 0 && follow_right ==0){
+    //   drawWall(right_wall,size_right_wall,x);
+    //   drawWall(left_wall,size_left_wall,x);
+    // }
     // drawWall(right_wall,size_right_wall,x);
     // drawWall(left_wall,size_left_wall,x);
     std::vector<double> left_point(2) ;
     std::vector<double> target_point(2);
     std::vector<double> right_point(2);
 
-    // int point_idx = find_closest_point_map(x);
-
-    int nex_idx;
-    int plus_idx = 4;
+    std::vector<int>  point_idx = find_closest_point_map(x);
+    std::cout  <<" point_idx in = " << point_idx.at(0) << std::endl;
+    std::cout  <<" point_idx out = " << point_idx.at(1) << std::endl;
+    int nex_idx_in;
+    int nex_idx_out;
+    int plus_idx_in = 0;
+    int plus_idx_out = 0;
 
     // for(int i = 0; i < CONTROL_HORIZON; i++){
     //   // std::cout << "traj_x.size() = " <<traj_x.size() << std::endl;
     //   // std::cout << "point_idx + plus_idx+ i = " <<point_idx + plus_idx+ i << std::endl;
-    //   if(point_idx + plus_idx+ i < traj_x.size())
-    //     nex_idx = point_idx + i + plus_idx ;
+    //   if(point_idx[0] + plus_idx_in + i < in_contour_x.size())
+    //     nex_idx_in = point_idx[0]  + i + plus_idx_in ;
     //   else
-    //     nex_idx =  (point_idx + plus_idx+ i) - traj_x.size();
+    //     nex_idx_in =  (point_idx[0]  + plus_idx_in+ i) - in_contour_x.size();
+    //
+    //   if(point_idx[1] + plus_idx_out+ i < out_contour_x.size())
+    //     nex_idx_out = point_idx[1]  + i + plus_idx_out ;
+    //   else
+    //     nex_idx_out =  (point_idx[1]  + plus_idx_out+ i) - out_contour_x.size();
+    //   // std::cout  <<" nex_idx_out = " << nex_idx_out << std::endl;
+    //
+    //   left_point.at(0) = in_contour_x.at(nex_idx_in);
+    //   left_point.at(1) = in_contour_y.at(nex_idx_in);
+    //
+    //   right_point.at(0) = out_contour_x.at(nex_idx_out);
+    //   right_point.at(1) = out_contour_y.at(nex_idx_out);
+    //    // std::cout  <<" nex_idx_out = " << nex_idx_out << " ,nex_idx_in = "<< nex_idx_in<<std::endl;
+    //   // if(point_idx.at(0) >= 355   && point_idx.at(1) >= 578){
+    //   //   target_point.at(0) = (  left_point.at(0) );
+    //   //   target_point.at(1) = (  left_point.at(1) );
+    //   // }
+    //   // else{
+    //     target_point.at(0) = (left_point.at(0) + right_point.at(0))/2.0;
+    //     target_point.at(1) = (left_point.at(1) + right_point.at(1))/2.0;
+    //   // }
+    //
+    //
     //   // std::cout << "nex_idx = " <<nex_idx << std::endl;
-    //   ref_x(i) = traj_x.at(nex_idx);
-    //   ref_y(i) = traj_y.at(nex_idx);
+    //   ref_x(i) = target_point.at(0);
+    //   ref_y(i) = target_point.at(1);
     //
     //   ref_x_vector_w.push_back(ref_x(i));
     //   ref_y_vector_w.push_back(ref_y(i));
@@ -678,36 +802,128 @@ void CalculateTrajectory(){
     predicted_car_position.at(1) = 0.0;
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      predicted_car_position.at(1) = 0.0 + 3.0*i*DT ;
-      left_point = get_closest_point(left_wall,predicted_car_position);
-      right_point = get_closest_point(right_wall,predicted_car_position);
+      if(point_idx.at(0) >= 355 && point_idx.at(0) <= 420 && point_idx.at(1) >= 578 && point_idx.at(1) <= 620){
+        if(point_idx[0] + plus_idx_in + i < in_contour_x.size())
+            nex_idx_in = point_idx[0]  + i + plus_idx_in ;
+          else
+            nex_idx_in =  (point_idx[0]  + plus_idx_in+ i) - in_contour_x.size();
 
-      target_point.at(0) = (left_point.at(0) + right_point.at(0))/2.0;
-      target_point.at(1) = (left_point.at(1) + right_point.at(1))/2.0;
+        if(point_idx[1] + plus_idx_out+ i < out_contour_x.size())
+            nex_idx_out = point_idx[1]  + i + plus_idx_out ;
+        else
+            nex_idx_out =  (point_idx[1]  + plus_idx_out+ i) - out_contour_x.size();
 
-      ref_x(i) = ((target_point.at(1)+ 0.275)*cos(x(2)) + (target_point.at(0) )*sin(x(2))) + x(0);
-      ref_y(i) = -((target_point.at(0))*cos(x(2)) - (target_point.at(1)+ 0.265)*sin(x(2))) + x(1);
 
+
+          left_point.at(0) = in_contour_x.at(nex_idx_in);
+          left_point.at(1) = in_contour_y.at(nex_idx_in);
+          right_point.at(0) = out_contour_x.at(nex_idx_out);
+          right_point.at(1) = out_contour_y.at(nex_idx_out);
+          // std::cout  <<" left_point.at(0) = " << left_point.at(0)<<", left_point.at(1)  = "<< left_point.at(1) << std::endl;
+          // std::cout  <<" right_point.at(0) = " << right_point.at(0)<<", right_point.at(1)  = "<< right_point.at(1) << std::endl;
+          target_point.at(0) = ( left_point.at(0) );
+          target_point.at(1) = ( left_point.at(1) );
+          std::cout  <<" left_point.at(0) = " << left_point.at(0)<<", left_point.at(1)  = "<< left_point.at(1) << std::endl;
+          target_point.at(0)  = sin(x(2)) * (left_point.at(0) - x(0)) - cos(x(2))*(left_point.at(1)- x(1))  - 1.0;
+          target_point.at(1) =  cos(x(2)) * (left_point.at(0) - x(0)) + sin(x(2))*(left_point.at(1) - x(1)) - scan_distance_to_base_link  - 0.5;
+
+          // ref_x(i) = target_point.at(0);
+          // ref_y(i) = target_point.at(1);
+        }
+        else{
+          predicted_car_position.at(1) = 0.5 + 3.0*i*DT ;
+          // target_point = find_closest_point_map(predicted_car_position);
+          if(follow_right == 0 && follow_left == 0){
+          left_point = get_closest_point(left_wall,predicted_car_position);
+          right_point = get_closest_point(right_wall,predicted_car_position);
+          target_point.at(0) = (left_point.at(0) + right_point.at(0))/2.0;
+          target_point.at(1) = (left_point.at(1) + right_point.at(1))/2.0;
+          }
+          else if(follow_right == 1 && follow_left == 0){
+            right_point = get_closest_point(right_wall,predicted_car_position);
+            target_point.at(0) = (right_point.at(0)) ;
+            target_point.at(1) = (right_point.at(1) + 0.2 );
+          }
+          else if(follow_right == 0 && follow_left == 1){
+            left_point = get_closest_point(left_wall,predicted_car_position);
+            target_point.at(0) = (left_point.at(0))  ;
+            target_point.at(1) = (left_point.at(1));
+          }
+
+
+        }
+
+
+        ref_x(i) = ((target_point.at(1)+ scan_distance_to_base_link)*cos(x(2)) + (target_point.at(0) )*sin(x(2))) + x(0);
+        ref_y(i) = -((target_point.at(0))*cos(x(2)) - (target_point.at(1)+ scan_distance_to_base_link)*sin(x(2))) + x(1);
+
+        std::cout  <<" ref_x(i) = " << ref_x(i)<<", ref_y(i)  = "<< ref_y(i) << std::endl;
       ref_x_vector_w.push_back(ref_x(i));
       ref_y_vector_w.push_back(ref_y(i));
     }
 
-    int point_idx_nn = find_closest_point_map(x_nn);
+    // Eigen::MatrixXf points_nn;
+    // points_nn = get_scan_as_cartesian(current_scan_nn);
+    // int split_nn = find_left_right_border(points_nn);
+    // if (split_nn <= 0){
+    //   split_nn = last_split_nn ;
+    // }
+    //
+    // last_split_nn = split_nn;
+    // int size_right_wall_nn = ceil((double)split_nn /coeff_filter_points);
+    // int size_left_wall_nn = ceil((double)(points_nn.rows() - split_nn)/coeff_filter_points);
+    // Eigen::MatrixXd right_wall_nn(size_right_wall_nn,2);
+    // Eigen::MatrixXd left_wall_nn(size_left_wall_nn,2);
+    // count_right = 0;
+    // count_left = 0;
+    //
+    //
+    //   for(int i=0; i < split_nn; i = i+ coeff_filter_points){
+    //     right_wall_nn(count_right,0) = points_nn(i,0);
+    //     right_wall_nn(count_right,1) = points_nn(i,1);
+    //     count_right ++ ;
+    //   }
+    //
+    //   for(int i=split_nn; i < points_nn.rows(); i = i+ coeff_filter_points){
+    //     left_wall_nn(count_left,0) = points_nn(i,0);
+    //     left_wall_nn(count_left,1) = points_nn(i,1);
+    //     count_left ++ ;
+    //   }
+    //
+    // predicted_car_position.at(0) = 0.0;
+    // predicted_car_position.at(1) = 0.0;
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      // std::cout << "traj_x.size()nn = " <<traj_x.size() << std::endl;
-      // std::cout << "point_idx_nn + plus_idx+ i nn= " <<point_idx_nn + plus_idx+ i << std::endl;
-      if(point_idx_nn + plus_idx+ i < traj_x.size())
-        nex_idx = point_idx_nn + i + plus_idx ;
-      else
-        nex_idx =  (point_idx_nn + plus_idx+ i) - traj_x.size();
-      // std::cout << "nex_idx nn = " <<nex_idx << std::endl;
-      ref_x_nn(i) = traj_x.at(nex_idx);
-      ref_y_nn(i) = traj_y.at(nex_idx);
+      // predicted_car_position.at(1) = 0.2 + 3.0*i*DT ;
+      // left_point = get_closest_point(left_wall_nn,predicted_car_position);
+      // right_point = get_closest_point(right_wall_nn,predicted_car_position);
 
-      ref_x_vector_nn.push_back(ref_x(i));
-      ref_y_vector_nn.push_back(ref_y(i));
+      // target_point.at(0) = (left_point.at(0) + right_point.at(0))/2.0;
+      // target_point.at(1) = (left_point.at(1) + right_point.at(1))/2.0;
+      //
+      ref_x_nn(i) = 0.0;
+      ref_y_nn(i) = 0.0;
+
+      ref_x_vector_nn.push_back(0.0);
+      ref_y_vector_nn.push_back(0.0);
     }
+
+    // int point_idx_nn = find_closest_point_map(x_nn);
+    //
+    // for(int i = 0; i < CONTROL_HORIZON; i++){
+    //   // std::cout << "traj_x.size()nn = " <<traj_x.size() << std::endl;
+    //   // std::cout << "point_idx_nn + plus_idx+ i nn= " <<point_idx_nn + plus_idx+ i << std::endl;
+    //   if(point_idx_nn + plus_idx+ i < traj_x.size())
+    //     nex_idx = point_idx_nn + i + plus_idx ;
+    //   else
+    //     nex_idx =  (point_idx_nn + plus_idx+ i) - traj_x.size();
+    //   // std::cout << "nex_idx nn = " <<nex_idx << std::endl;
+    //   ref_x_nn(i) = traj_x.at(nex_idx);
+    //   ref_y_nn(i) = traj_y.at(nex_idx);
+    //
+    //   ref_x_vector_nn.push_back(ref_x(i));
+    //   ref_y_vector_nn.push_back(ref_y(i));
+    // }
 
     // ref_x = ref_x_nn;
     // ref_y = ref_y_nn;
@@ -934,7 +1150,10 @@ void CalculateMPC(){
   Eigen::VectorXd poly_coeffs_robot_nn = Polyfit(ref_x_robot_nn, ref_y_robot_nn,3);
   double ref_offset_robot_nn = poly_coeffs_robot_nn(0);
   double ref_theta_robot_nn = -atan(poly_coeffs_robot_nn(1));
-
+  // std::cout <<"poly_coeffs_robot_nn(1) = "<<poly_coeffs_robot_nn(1)<<std::endl;
+  if(std::isnan(ref_theta_robot_nn ) ){
+    ref_theta_robot_nn = atan((ref_y_robot_nn(CONTROL_HORIZON - 1) - ref_y_robot_nn(0))/(ref_x_robot_nn(CONTROL_HORIZON - 1) - ref_x_robot_nn(0)));
+  }
   Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y,3);
   double ref_offset_poly = poly_coeffs(0);
   double ref_theta_world_poly = -atan(poly_coeffs(1));
@@ -945,28 +1164,35 @@ void CalculateMPC(){
   // std::cout <<"ref_theta_robot_poly  = "<< ref_theta_robot_poly << "  ,x(2)  = "<< x(2)<<std::endl;
   x = Propagate(x,u);
   if (no_of_neurons > 0){
+    // std::cout<<"u_nn = "<<u_nn<<std::endl;
     x_nn = Propagate(x_nn,u_nn);
   }
 
   current_scan = update_scan(x);
-
+  current_scan_nn = update_scan(x_nn);
   std::vector<double> result_mpc;
   result_mpc = Solve_MPC(x,ref_x,ref_y,0.0,0.0);
 
   //inputs 40
-  // int count_idx = 0;
-  // Eigen::VectorXd inputs_nn (40);
-  // for(int i = 0; i < 40-1;  i = i +2){
-  //   inputs_nn(i) = ref_x_robot_nn(count_idx);
-  //   inputs_nn(i+1) = ref_y_robot_nn(count_idx);
-  //   if(INPUTS_NN_FILE == 1){
-  //     inputs_file_nn << std::to_string(inputs_nn(i));
-  //     inputs_file_nn << ",";
-  //     inputs_file_nn << std::to_string(inputs_nn(i+1));
-  //     inputs_file_nn << ",";
-  //   }
-  //   count_idx = count_idx +1;
-  // }
+  int count_idx = 0;
+  Eigen::VectorXd inputs_nn (40);
+  for(int i = 0; i < 40-1;  i = i +2){
+    inputs_nn(i) = ref_x_robot_nn(count_idx);
+    inputs_nn(i+1) = ref_y_robot_nn(count_idx);
+    if(INPUTS_NN_FILE == 1){
+      inputs_file_nn << std::to_string(inputs_nn(i));
+      inputs_file_nn << ",";
+      inputs_file_nn << std::to_string(inputs_nn(i+1));
+      inputs_file_nn << ",";
+    }
+    count_idx = count_idx +1;
+  }
+
+  //
+  // save_map_file << std::to_string(ref_x(0));
+  // save_map_file << ",";
+  // save_map_file << std::to_string(ref_y(0));
+  // save_map_file << "\n";
 
 
   //inputs 21
@@ -977,12 +1203,12 @@ void CalculateMPC(){
   // inputs_nn(20) = ref_theta_robot_nn;
 
   //inputs 3
-  Eigen::VectorXd inputs_nn (3);
-  inputs_nn(0) = ref_x_robot_nn(0);
-  inputs_nn(1) = ref_y_robot_nn(0);
-  inputs_nn(2) = ref_theta_robot_nn;
+  // Eigen::VectorXd inputs_nn (3);
+  // inputs_nn(0) = ref_x_robot_nn(0);
+  // inputs_nn(1) = ref_y_robot_nn(0);
+  // inputs_nn(2) = ref_theta_robot_nn;
 
-  u(0) = result_mpc.at(0);
+  u(0) =result_mpc.at(0);
 
   if (no_of_neurons == 0){
     u_nn(0) = 0.0;
@@ -991,7 +1217,9 @@ void CalculateMPC(){
     // double output = neural_controller.Solve_NN(inputs_nn);
     // double slope = (2.0 + 2.0) / (0.836332 + 0.836332);
     // u_nn(0) = -2.0 + slope * (output + 0.836332);
+    // std::cout <<"inputs_nn= "<<inputs_nn<<std::endl;
     u_nn(0) = neural_controller.Solve_NN(inputs_nn);
+    // std::cout <<"u_nn(0)= "<<u_nn(0)<<std::endl;
     // std::cout<< "mpc = "<<  u(0) << ",  output = "<< output<< ",  u_nn(0) = " << u_nn(0) << std::endl;
   }
 
@@ -1240,30 +1468,52 @@ void drawRobotReference() {
 
 void drawReference() {
     // Reference line
+    // glLineWidth(0.5);
+    // glColor3f(1.0, 0.0, 0.0);
+    // glBegin(GL_LINES);
+    // for(int i = 0; i < ref_x_vector_w.size(); i++){
+    //   glVertex2f(ref_x_vector_w.at(i),ref_y_vector_w.at(i));
+    // }
+    //
+    // glEnd();
+
+
     glLineWidth(0.5);
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINES);
-    for(int i = 0; i < ref_x_vector_w.size(); i++){
-      glVertex2f(ref_x_vector_w.at(i),ref_y_vector_w.at(i));
+    for(int i = 0; i < in_contour_x.size(); i++){
+      glVertex2f(in_contour_x.at(i),in_contour_y.at(i));
+    }
+
+    glEnd();
+
+
+    glLineWidth(0.5);
+    glColor3f(1.0, 0.0, 0.0);
+    glBegin(GL_LINES);
+    for(int i = 0; i < out_contour_x.size(); i++){
+      glVertex2f(out_contour_x.at(i),out_contour_y.at(i));
     }
 
     glEnd();
 }
 
-void drawWall(Eigen::MatrixXd wall,int size,Eigen::VectorXd x) {
-
-    // Reference line
-    glLineWidth(0.5);
-    glColor3f(1.0, 0.0, 0.0);
-    glBegin(GL_LINES);
-    for(int i = 0; i <size; i++){
-      double x_wall = ((wall(i,1)+ 0.275)*std::cos(x(2)) + (wall(i,0))*std::sin(x(2))) + x(0);
-      double y_wall = -((wall(i,0))*std::cos(x(2)) - (wall(i,1)+ 0.265)*std::sin(x(2))) + x(1);
-      glVertex2f(x_wall,y_wall);
-    }
-
-    glEnd();
-}
+// void drawWall(Eigen::MatrixXd wall,int size,Eigen::VectorXd x) {
+//     double x_wall;
+//     double y_wall;
+//     glLineWidth(0.5);
+//     glColor3f(1.0, 0.0, 0.0);
+//     glBegin(GL_LINES);
+//
+//     for(int i = 0; i <size; i++){
+//       x_wall = ((wall(i,1)+ 0.275)*std::cos(x(2)) + (wall(i,0))*std::sin(x(2))) + x(0);
+//       y_wall = -((wall(i,0))*std::cos(x(2)) - (wall(i,1)+ 0.265)*std::sin(x(2))) + x(1);
+//       std::cout<<"wall(i,0),wall(i,1) = "<<x_wall<<","<<y_wall<<std::endl;
+//       glVertex2f(x_wall,y_wall );
+//     }
+//
+//     glEnd();
+// }
 
 
 void display() {
