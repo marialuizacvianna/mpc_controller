@@ -12,7 +12,8 @@
 class NN_CONTROLLER
 {
   public:
-    NN_CONTROLLER(std::string file_name);
+    NN_CONTROLLER();
+    void initialize_nn(std::string file_name);
     int no_of_inputs_;
     std::vector<int>  no_of_neurons_hidd_;
     int no_of_hidd_;

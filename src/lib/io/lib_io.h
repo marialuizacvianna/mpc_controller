@@ -41,7 +41,8 @@ void initgLOptions();
 void glInitMPC(double x0,double x1,double x2,std::string path_option,int neurons,double freq_choice, std::string file_name);
 void CalculateMPC();
 void CalculateTrajectory();
-std::vector<double>  find_closest_point_map(std::vector<double>  x);
+// std::vector<double>  find_closest_point_map(std::vector<double>  x);
+int find_closest_point_map(Eigen::VectorXd  x);
 void init_map();
 //Translate and Rotate tank points matrix
 Eigen::MatrixXd move_motif(Eigen::MatrixXd M, float x, float y,float psi);

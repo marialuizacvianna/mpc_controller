@@ -15,11 +15,13 @@
 #define LF                 1.0
 #define DT                 0.01
 #define CONTROL_HORIZON    20
-#define T                  30
+#define T                  44
 #define LINE               0.0
 #define RESULTS_FILE        0
+#define RESULTS_MPC_FILE    0
 #define RESULTS_NN_FILE     0
 #define INPUTS_NN_FILE      0
+#define REVERSE             0
 
 //intial conditions
 #define X0                 0.0 //x

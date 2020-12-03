@@ -17,13 +17,16 @@ const double PI = 3.141592653;
 std::ofstream results_file;
 std::ofstream dataset_file;
 std::ofstream dataset_file_nn;
+std::ofstream result_file_mpc;
 std::ofstream inputs_file_nn;
-std::ofstream save_map_file;
+// std::ofstream save_map_file;
 std::ifstream traj_file;
 std::ifstream out_contour_file;
 std::ifstream in_contour_file;
 
-
+double time_mpc = 0.0;
+double time_nn = 0.0;
+int count_time = 0;
 const double pi = std::acos(-1);
 
 namespace plt = matplotlibcpp;
@@ -44,6 +47,8 @@ std::vector<double> result_psi;
 std::vector<double> result_psi_nn;
 double result_cost;
 
+int point_idx;
+int point_idx_nn;
 
 std::vector<double> ref_x_vector_w;
 std::vector<double> ref_y_vector_w;
@@ -68,7 +73,7 @@ Eigen::VectorXd ref_x_robot_nn(CONTROL_HORIZON); //vector with reference x posit
 Eigen::VectorXd ref_y_robot_nn(CONTROL_HORIZON); //vector with reference y positions
 Eigen::VectorXd ref_theta_robot_nn(CONTROL_HORIZON); //vector with reference theta positions
 
-
+NN_CONTROLLER neural_controller;
 std::vector<double> out_contour_x;
 std::vector<double> out_contour_y;
 std::vector<double> in_contour_x;
@@ -80,7 +85,10 @@ std::vector<double> traj_y;
 std::vector<double> traj_v;
 std::vector<double> traj_yaw;
 
-double last_x,last_y,last_x_nn,angle2follow,angle2follow_nn;
+double last_x,last_y,last_x_nn;
+
+double angle2follow;
+double angle2follow_nn;
 
 std::string trained_nn_file;
 
@@ -88,10 +96,11 @@ int no_of_neurons;
 
 std::string path;
 
-double y_idx = 40.0;
+double y_idx = 100.0;
 double theta_idx = 0.0;
 double freq = 1.0;
-int next_neuron = 5;
+int next_neuron = 100;
+int next_inputs = 40;
 int configuration = 1;
 
 int map_init = 0;
@@ -286,6 +295,7 @@ void init_map(){
 
 void glInitMPC(double x0,double x1, double x2, std::string path_option,int neurons,double freq_choice, std::string file_name){
   no_of_neurons = neurons;
+  std::cout <<"no_of_neurons = "<<no_of_neurons<<std::endl;
   freq = freq_choice;
   x(0) = x0; //fx
   x(1) = x1; //y
@@ -298,6 +308,16 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   x_nn(2) = x2; //theta
   x_nn(3) = X3; //speed
   init_map();
+
+  if(REVERSE){
+    angle2follow = 20.0;
+    angle2follow_nn = 20.0;
+  }
+  else{
+    angle2follow = 0.0;
+    angle2follow_nn = 0.0;
+  }
+
   scan_simulator = racecar_simulator::ScanSimulator2D(scan_beams, scan_fov, scan_std_dev);
   scan_simulator.set_map(map,map_height,map_width,map_resolution,origin,free_thresh);
   current_scan = std::vector<double>(scan_beams);
@@ -368,56 +388,99 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2704_2244/trained_nn_10";//line,sinus and spiral
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/1905_1730/trained_nn_10";//line,sinus and spiral tanh 9 couches
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2705_1550/trained_nn_10";//line,sinus and spiral relu 9 couches
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/1406_1500/trained_nn_10";//lines 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/1406_1500/trained_nn_10";//lines 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_10neurons_dataset2_activationf0";//keras 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_10neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_20neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_10neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/30_10/training_final_cost_40inp_3hiddlay_30neurons_dataset0_activationf0";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/30_10/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf2";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/30_10/training_final_cost_40inp_3hiddlay_30neurons_dataset1_activationf0";
   }
 
   else if (no_of_neurons == 15){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1200/trained_nn_15";//line
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/15 neurons/training_minimum_cost/2704_1414/trained_nn_15";//line and sinus
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/15 neurons/training_minimum_cost/2704_2244/trained_nn_15";//line,sinus and spiral
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/15 neurons/training_minimum_cost/1406_1500/trained_nn_15";//lines 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/15 neurons/training_minimum_cost/1406_1500/trained_nn_15";//lines 3 inp
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_30neurons_dataset2_activationf0";
   }
 
   else if (no_of_neurons == 20){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/20 neurons/training_minimum_cost/1504_1500/trained_nn_20";//line
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/20 neurons/training_minimum_cost/2704_1414/trained_nn_20";//line and sinus
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/20 neurons/training_minimum_cost/2704_2244/trained_nn_20";//line,sinus and spiral
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/20 neurons/training_minimum_cost/1406_1500/trained_nn_20";//lines 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/20 neurons/training_minimum_cost/1406_1500/trained_nn_20";//lines 3 inp
+
+
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_20neurons_dataset2_activationf0";//keras
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_20neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_20neurons_dataset2_activationf0";
+
+
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_20neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_40neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/16_10/training_final_cost_40inp_3hiddlay_20neurons_dataset2_activationf0";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_60neurons_dataset2_activationf0";
   }
 
   else if (no_of_neurons == 25){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/25 neurons/training_minimum_cost/1504_1500/trained_nn_25";//line
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/25 neurons/training_minimum_cost/2704_1414/trained_nn_25";//line and sinus
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/25 neurons/training_minimum_cost/2704_2244/trained_nn_25";//line,sinus and spiral
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/25 neurons/training_minimum_cost/1406_1500/trained_nn_25";//lines 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/25 neurons/training_minimum_cost/1406_1500/trained_nn_25";//lines 3 inp
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_50neurons_dataset2_activationf0";
   }
 
   else if (no_of_neurons == 30){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/30 neurons/training_minimum_cost/1504_1500/trained_nn_30";//line
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/30 neurons/training_minimum_cost/2704_1414/trained_nn_30";//line and sinus
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/30 neurons/training_minimum_cost/2704_2244/trained_nn_30";//line,sinus and spiral
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/30 neurons/training_minimum_cost/1406_1500/trained_nn_30";//lines 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/30 neurons/training_minimum_cost/1406_1500/trained_nn_30";//lines 3 inp
+
+
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_30neurons_dataset2_activationf0";//keras
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_30neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_30neurons_dataset2_activationf0";
+
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_30neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/16_10/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_60neurons_dataset2_activationf0";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_90neurons_dataset2_activationf0";
   }
 
   else if (no_of_neurons == 35){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/35 neurons/training_minimum_cost/1504_1500/trained_nn_35";//line
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/35 neurons/training_minimum_cost/2704_1414/trained_nn_35";//line and sinus
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/35 neurons/training_minimum_cost/2704_2244/trained_nn_35";//line,sinus and spiral
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/35 neurons/training_minimum_cost/1406_1500/trained_nn_35";//lines 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/35 neurons/training_minimum_cost/1406_1500/trained_nn_35";//lines 3 inp
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_70neurons_dataset2_activationf0";
   }
 
   else if (no_of_neurons == 40){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/40 neurons/training_minimum_cost/1504_1500/trained_nn_40";//line
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/40 neurons/training_minimum_cost/2704_1414/trained_nn_40";//line and sinus
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/40 neurons/training_minimum_cost/2704_2244/trained_nn_40";//line,sinus and spiral
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/40 neurons/training_minimum_cost/1406_1500/trained_nn_40";//lines 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/40 neurons/training_minimum_cost/1406_1500/trained_nn_40";//lines 3 inp
+
+
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_40neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_40neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_40neurons_dataset2_activationf0";
+
+
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_80neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/16_10/training_final_cost_40inp_3hiddlay_40neurons_dataset2_activationf0";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_120neurons_dataset2_activationf0";
   }
 
   else if (no_of_neurons == 45){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/45 neurons/training_minimum_cost/1504_1500/trained_nn_45";//line
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/45 neurons/training_minimum_cost/2704_1414/trained_nn_45";//line and sinus
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/45 neurons/training_minimum_cost/2704_2244/trained_nn_45";//line,sinus and spiral
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/45 neurons/training_minimum_cost/1406_1500/trained_nn_45";//lines 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/45 neurons/training_minimum_cost/1406_1500/trained_nn_45";//lines 3 inp
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_90neurons_dataset2_activationf0";
   }
 
   else if (no_of_neurons == 50){
@@ -429,8 +492,17 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_0808/trained_nn_50";//line,sinus and spiral sigmoid
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_1215/trained_nn_50";//line,sinus and spiral tanh
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1406_1500/trained_nn_50";//lines 3 inp
-    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/08_10/training_final_cost_40inp_1hiddlay_50neurons_dataset2_activationf0";//with keras 150 epochs
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/08_10/training_final_cost_40inp_1hiddlay_50neurons_dataset2_activationf0";//with keras 150 epochs
+
+
     // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_50neurons_dataset2_activationf0";//with keras 10000 epochs3 inputs
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_50neurons_dataset2_activationf0";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_50neurons_dataset2_activationf0";
+
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_100neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_50neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/16_10/training_final_cost_40inp_3hiddlay_50neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_150neurons_dataset2_activationf0";
   }
 
   else if (no_of_neurons == 55){
@@ -444,7 +516,13 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/60 neurons/training_minimum_cost/2304_0930/trained_nn_60";//line
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/60 neurons/training_minimum_cost/2704_1414/trained_nn_60";//line and sinus
     // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/60 neurons/training_minimum_cost/2704_2244/trained_nn_60";//line,sinus and spiral
-    trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/60 neurons/training_minimum_cost/1406_1500/trained_nn_60";//lines 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/60 neurons/training_minimum_cost/1406_1500/trained_nn_60";//lines 3 inp
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_60neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_60neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_60neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_60neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_2hiddlay_120neurons_dataset2_activationf0";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_180neurons_dataset2_activationf0";
   }
 
   else if (no_of_neurons == 65){
@@ -452,7 +530,13 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   else if (no_of_neurons == 70){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/70 neurons/training_minimum_cost/2304_0930/trained_nn_70";//line
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/70 neurons/training_minimum_cost/2304_0930/trained_nn_70";//line
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_70neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_70neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_70neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_70neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_2hiddlay_140neurons_dataset2_activationf0";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_210neurons_dataset2_activationf0";
   }
 
 
@@ -461,15 +545,28 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   else if (no_of_neurons == 80){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/80 neurons/training_minimum_cost/2304_0930/trained_nn_80";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/80 neurons/training_minimum_cost/2304_0930/trained_nn_80";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_80neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_80neurons_dataset2_activationf0";
+      // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_80neurons_dataset2_activationf0";
+      // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_80neurons_dataset2_activationf0";
+      // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_2hiddlay_160neurons_dataset2_activationf0";
+      trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_240neurons_dataset2_activationf0";
   }
+
 
   else if (no_of_neurons == 85){
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/85 neurons/training_minimum_cost/2304_0930/trained_nn_85";
   }
 
   else if (no_of_neurons == 90){
-    trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/90 neurons/training_minimum_cost/2304_0930/trained_nn_90";
+    // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/90 neurons/training_minimum_cost/2304_0930/trained_nn_90";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_90neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_90neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_90neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_90neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_2hiddlay_180neurons_dataset2_activationf0";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_270neurons_dataset2_activationf0";
   }
 
   else if (no_of_neurons == 95){
@@ -478,8 +575,15 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
 
   else if (no_of_neurons == 100){
     // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/100 neurons/training_minimum_cost/2304_0930/trained_nn_100";
-    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_100neurons_dataset2_activationf0";//with keras 10000 epoch
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_100neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_100neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_100neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_100neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_2hiddlay_200neurons_dataset2_activationf0";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_300neurons_dataset2_activationf0";
   }
+
+
 
   else if (no_of_neurons == 105){
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/105 neurons/training_minimum_cost/2304_0930/trained_nn_105";
@@ -525,6 +629,32 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/155 neurons/training_minimum_cost/2304_0930/trained_nn_155";
   }
 
+  else if (no_of_neurons == 400){
+    // trained_nn_file = "/home/maria/Documents/DDPG_1/trained_nn/neurocar2111-v0-20000_trainednn";
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar2-v0-6800_trainednn";
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0212-v4-1800_trainednn";
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0212-v6-1800_trainednn";
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0212-v7-28000_trainednn";
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0212-v8-600_trainednn"; //first with 0.8 -  the best one- plus index 20
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0212-v9-21000_trainednn"; //igual a v8 mas com mais tempo de treino - nao funciona bem
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0212-v8-1000_trainednn";
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0212-v8-12000_trainednn";
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0312-v0-2000_trainednn"; //plus idx 10
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0312-v0-3000_trainednn";
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0312-v1-2800_trainednn"; //using eric reward plus idx 10
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0312-v2-4400_trainednn"; //using eric reward with sigmoid plus idx20
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0312-v3-1400_trainednn"; //using ancient reward with sigmoid
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0312-v3-13200_trainednn"; //using ancient reward with sigmoid
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0312-v4-600_trainednn"; //using ancient reward with sigmoid plus_idx = 0
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0312-v5-2400_trainednn"; //v5 = v4 plus_idx = 0
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0312-v6-600_trainednn"; //2 inputs  plus_idx = 10
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0312-v6-1000_trainednn"; //2 inputs best result plus_idx = 10
+    trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/neurocar0312-v6-1000_trainednn"; //2 inputs best result plus_idx = 10
+
+  }
+
+
+
   time_step_counter = 0;
   pause_flag = 0;
   trans_corr = -1;
@@ -534,15 +664,19 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     u_nn(i) = 0.0;
   }
   // std::cout <<"u begin all= "<<u<<std::endl;
-  // std::cout <<"u_nn begin all= "<<u_nn<<std::endl;
+  //  <<"u_nn begin all= "<<u_nn<<std::endl;
   last_x = x0;
   last_x_nn = x0;
 
-  angle2follow = 0.0;
-  angle2follow_nn = 0.0;
+  //angle2follow = 0.0;
+  // angle2follow_nn = 0.0;
   // Send column names to the stream
   if(RESULTS_FILE == 1 && !dataset_file.is_open()){
     dataset_file.open("/home/maria/Documents/MPC/mpc_controller/dataset/dataset_04_lines_sinus_spiral.txt", std::ios_base::app);
+  }
+
+  if (RESULTS_MPC_FILE== 1){
+    result_file_mpc.open("/home/maria/Documents/MPC/mpc_controller/spiral_mpc.txt");
   }
 
   if(RESULTS_NN_FILE == 1){
@@ -553,7 +687,7 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
     inputs_file_nn.open("../inputs_nn/line_tanh.txt");
   }
 
-  // save_map_file.open("berlin_pts.txt");
+  // save_map_file.open("../berlin_pts.txt");
   traj_file.open("../berlin_pts.txt");
   out_contour_file.open("../out_contour_berlin.txt");
   in_contour_file.open("../in_contour_berlin.txt");
@@ -613,54 +747,89 @@ void glInitMPC(double x0,double x1, double x2, std::string path_option,int neuro
   }
 
   traj_file.close();
+  neural_controller.initialize_nn(trained_nn_file);
 
 }
 
-std::vector<int>  find_closest_point_map(Eigen::VectorXd  x){
-    std::vector<int> indexes(2);//in first and then out
+// std::vector<int>  find_closest_point_map(Eigen::VectorXd  x){
+//     std::vector<int> indexes(2);//in first and then out
+//     double x_r = x[0];
+//     double y_r = x[1];
+//     //  <<"x = "<<x_r <<" , "<<y_r<<std::endl;
+//     int result;
+//
+//     double distance_in ;
+//     double distance_out ;
+//     double x_i;
+//     double y_i ;
+//
+//     double smallest_in =10000;
+//     double smallest_out =10000;
+//     int index_smallest_in,index_smallest_out;
+//
+//     for(int i=0; i < in_contour_x.size();i++){
+//       x_i = in_contour_x.at(i) - x_r;
+//       y_i = in_contour_y.at(i) - y_r;
+//       distance_in = sqrt((x_i*x_i) + (y_i*y_i));
+//
+//       if(distance_in < smallest_in){
+//         smallest_in = distance_in;
+//         index_smallest_in = i;
+//       }
+//     }
+//
+//     for(int i=0; i < out_contour_x.size();i++){
+//       x_i = out_contour_x.at(i) - x_r;
+//       y_i = out_contour_y.at(i) - y_r;
+//       distance_out = sqrt((x_i*x_i) + (y_i*y_i));
+//
+//       if(distance_out < smallest_out){
+//         smallest_out = distance_out;
+//         index_smallest_out = i;
+//       }
+//     }
+//
+//     // std::vector<double> target_point(2);
+//     //
+//     indexes.at(0) = index_smallest_in;
+//     indexes.at(1) = index_smallest_out;
+//
+//
+//     return indexes;
+//
+//
+// }
+
+int find_closest_point_map(Eigen::VectorXd  x){
+    int index;//in first and then out
     double x_r = x[0];
     double y_r = x[1];
-    std::cout <<"x = "<<x_r <<" , "<<y_r<<std::endl;
+
     int result;
 
-    double distance_in ;
-    double distance_out ;
+    double distance;
     double x_i;
     double y_i ;
 
-    double smallest_in =10000;
-    double smallest_out =10000;
-    int index_smallest_in,index_smallest_out;
+    double smallest =10000;
 
-    for(int i=0; i < in_contour_x.size();i++){
-      x_i = in_contour_x.at(i) - x_r;
-      y_i = in_contour_y.at(i) - y_r;
-      distance_in = sqrt((x_i*x_i) + (y_i*y_i));
+    int index_smallest;
 
-      if(distance_in < smallest_in){
-        smallest_in = distance_in;
-        index_smallest_in = i;
+    for(int i=0; i < traj_x.size();i++){
+      x_i = traj_x.at(i) - x_r;
+      y_i = traj_y.at(i) - y_r;
+      distance = sqrt((x_i*x_i) + (y_i*y_i));
+
+      if(distance < smallest){
+        smallest = distance;
+        index_smallest = i;
       }
     }
 
-    for(int i=0; i < out_contour_x.size();i++){
-      x_i = out_contour_x.at(i) - x_r;
-      y_i = out_contour_y.at(i) - y_r;
-      distance_out = sqrt((x_i*x_i) + (y_i*y_i));
-
-      if(distance_out < smallest_out){
-        smallest_out = distance_out;
-        index_smallest_out = i;
-      }
-    }
-
-    // std::vector<double> target_point(2);
-    //
-    indexes.at(0) = index_smallest_in;
-    indexes.at(1) = index_smallest_out;
+    index = index_smallest;
 
 
-    return indexes;
+    return index;
 
 
 }
@@ -691,269 +860,58 @@ std::vector<double> get_closest_point(Eigen::MatrixXd wall,std::vector<double> p
 
 void CalculateTrajectory(){
   if (path == "race"){
-    Eigen::MatrixXf points;
-    int coeff_filter_points = 1;
-    double space = 0.0;
-    points = get_scan_as_cartesian(current_scan);
-    int split = find_left_right_border(points);
-    int follow_right = 0;
-    int follow_left  = 0;
-    if (split <= 0){
-      split = -split;
-      if((points.rows() - split) < (points.rows()/2)){
-        //rightwall
-        follow_right = 1;
-      }
-      else {
-        follow_left = 1;
-      }
+    int plus_idx = 0;
+    int nex_idx = 0;
 
-      space = 0.0;
-    }
-    else{
-      follow_left = 0;
-      follow_right = 0;
-      space = 0.5;
-    }
-
-    last_split = split;
-    int size_right_wall = ceil((double)split /coeff_filter_points);
-    int size_left_wall = ceil((double)(points.rows() - split)/coeff_filter_points);
-
-    Eigen::MatrixXd right_wall(size_right_wall,2);
-    Eigen::MatrixXd left_wall(size_left_wall,2);
-    int count_right = 0;
-    int count_left = 0;
-
-
-      for(int i=0; i < split; i = i+ coeff_filter_points){
-        right_wall(count_right,0) = points(i,0);
-        right_wall(count_right,1) = points(i,1);
-        count_right ++ ;
-      }
-
-      for(int i=split; i < points.rows(); i = i+ coeff_filter_points){
-        left_wall(count_left,0) = points(i,0);
-        left_wall(count_left,1) = points(i,1);
-        count_left ++ ;
-      }
-
-
-    std::vector<double> left_point(2) ;
-    std::vector<double> target_point(2);
-    std::vector<double> right_point(2);
-
-    std::vector<int>  point_idx = find_closest_point_map(x);
-    std::cout  <<" point_idx in = " << point_idx.at(0) << std::endl;
-    std::cout  <<" point_idx out = " << point_idx.at(1) << std::endl;
-    int nex_idx_in;
-    int nex_idx_out;
-    int plus_idx_in = 2;
-    int plus_idx_out = 0;
-
-
-    std::vector<double> predicted_car_position(2);
-    predicted_car_position.at(0) = 0.0;
-    predicted_car_position.at(1) = 0.0;
+    point_idx = find_closest_point_map(x);
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      if(point_idx.at(0) >= 350 && point_idx.at(0) <= 415 && point_idx.at(1) >= 570 && point_idx.at(1) <= 615){
-        if(point_idx[0] + plus_idx_in + i < in_contour_x.size())
-            nex_idx_in = point_idx[0]  + i + plus_idx_in ;
-          else
-            nex_idx_in =  (point_idx[0]  + plus_idx_in+ i) - in_contour_x.size();
-
-        if(point_idx[1] + plus_idx_out+ i < out_contour_x.size())
-            nex_idx_out = point_idx[1]  + i + plus_idx_out ;
+      if (!REVERSE){
+        if(point_idx + plus_idx+ i < traj_x.size())
+          nex_idx = point_idx + i + plus_idx ;
         else
-            nex_idx_out =  (point_idx[1]  + plus_idx_out+ i) - out_contour_x.size();
+          nex_idx =  (point_idx + plus_idx+ i) - traj_x.size();
+      }
+      else{
+        if(point_idx - plus_idx - i >= 0)
+          nex_idx = point_idx - plus_idx - i;
+        else
+          nex_idx =  (point_idx - plus_idx - i) + traj_x.size();
+      }
 
+      ref_x(i) = traj_x.at(nex_idx);
+      ref_y(i) = traj_y.at(nex_idx);
 
-
-          left_point.at(0) = in_contour_x.at(nex_idx_in);
-          left_point.at(1) = in_contour_y.at(nex_idx_in);
-          right_point.at(0) = out_contour_x.at(nex_idx_out);
-          right_point.at(1) = out_contour_y.at(nex_idx_out);
-
-          target_point.at(0) = ( left_point.at(0) );
-          target_point.at(1) = ( left_point.at(1) );
-          std::cout  <<" left_point.at(0) = " << left_point.at(0)<<", left_point.at(1)  = "<< left_point.at(1) << std::endl;
-          target_point.at(0)  = sin(x(2)) * (left_point.at(0) - x(0)) - cos(x(2))*(left_point.at(1)- x(1))  - 0.9;
-          target_point.at(1) =  cos(x(2)) * (left_point.at(0) - x(0)) + sin(x(2))*(left_point.at(1) - x(1)) - scan_distance_to_base_link  ;
-
-        }
-        else{
-          predicted_car_position.at(1) = 0.8 + 3.0*i*DT ;
-          if(follow_right == 0 && follow_left == 0){
-          left_point = get_closest_point(left_wall,predicted_car_position);
-          right_point = get_closest_point(right_wall,predicted_car_position);
-          target_point.at(0) = (left_point.at(0) + right_point.at(0))/2.0;
-          target_point.at(1) = (left_point.at(1) + right_point.at(1))/2.0;
-          }
-          else if(follow_right == 1 && follow_left == 0){
-            right_point = get_closest_point(right_wall,predicted_car_position);
-            target_point.at(0) = (right_point.at(0)) ;
-            target_point.at(1) = (right_point.at(1) + 0.2 );
-          }
-          else if(follow_right == 0 && follow_left == 1){
-            left_point = get_closest_point(left_wall,predicted_car_position);
-            target_point.at(0) = (left_point.at(0))  ;
-            target_point.at(1) = (left_point.at(1));
-          }
-
-
-        }
-
-
-        ref_x(i) = ((target_point.at(1)+ scan_distance_to_base_link)*cos(x(2)) + (target_point.at(0) )*sin(x(2))) + x(0);
-        ref_y(i) = -((target_point.at(0))*cos(x(2)) - (target_point.at(1)+ scan_distance_to_base_link)*sin(x(2))) + x(1);
 
       ref_x_vector_w.push_back(ref_x(i));
       ref_y_vector_w.push_back(ref_y(i));
     }
 
-    Eigen::MatrixXf points_nn;
-    points_nn = get_scan_as_cartesian(current_scan_nn);
-    int split_nn = find_left_right_border(points_nn);
-
-    if (split_nn <= 0){
-      split_nn = -split_nn;
-      if((points_nn.rows() - split_nn) < (points_nn.rows()/2)){
-        //rightwall
-        follow_right = 1;
+    point_idx_nn = find_closest_point_map(x_nn);
+    plus_idx = 10;
+    for(int i = 0; i < CONTROL_HORIZON; i++){
+      if (!REVERSE){
+        if(point_idx_nn + plus_idx+ i < traj_x.size())
+          nex_idx = point_idx_nn + i + plus_idx ;
+        else
+          nex_idx =  (point_idx_nn + plus_idx+ i) - traj_x.size();
       }
-      else {
-        follow_left = 1;
+      else{
+        if(point_idx_nn - plus_idx - i >= 0)
+          nex_idx = point_idx_nn - plus_idx - i;
+        else
+          nex_idx =  (point_idx_nn - plus_idx - i) + traj_x.size();
       }
 
-      space = 0.0;
+      ref_x_nn(i) = traj_x.at(nex_idx);
+      ref_y_nn(i) = traj_y.at(nex_idx);
+
+      // ref_x_nn(i) = ref_x(i);
+      // ref_y_nn(i) = ref_y(i);
+
+      ref_x_vector_nn.push_back(ref_x_nn(i));
+      ref_y_vector_nn.push_back(ref_y_nn(i));
     }
-    else{
-      follow_left = 0;
-      follow_right = 0;
-      space = 0.5;
-    }
-    last_split_nn = split_nn;
-    int size_right_wall_nn = ceil((double)split_nn /coeff_filter_points);
-    int size_left_wall_nn = ceil((double)(points_nn.rows() - split_nn)/coeff_filter_points);
-    Eigen::MatrixXd right_wall_nn(size_right_wall_nn,2);
-    Eigen::MatrixXd left_wall_nn(size_left_wall_nn,2);
-    count_right = 0;
-    count_left = 0;
-
-
-      for(int i=0; i < split_nn; i = i+ coeff_filter_points){
-        right_wall_nn(count_right,0) = points_nn(i,0);
-        right_wall_nn(count_right,1) = points_nn(i,1);
-        count_right ++ ;
-      }
-
-      for(int i=split_nn; i < points_nn.rows(); i = i+ coeff_filter_points){
-        left_wall_nn(count_left,0) = points_nn(i,0);
-        left_wall_nn(count_left,1) = points_nn(i,1);
-        count_left ++ ;
-      }
-
-
-
-      predicted_car_position.at(0) = 0.0;
-      predicted_car_position.at(1) = 0.0;
-      std::vector<int>  point_idx_nn = find_closest_point_map(x_nn);
-
-      for(int i = 0; i < CONTROL_HORIZON; i++){
-        if(point_idx_nn.at(0) >= 350 && point_idx_nn.at(0) <= 415 && point_idx_nn.at(1) >= 570 && point_idx_nn.at(1) <= 615){
-          if(point_idx_nn[0] + plus_idx_in + i < in_contour_x.size())
-              nex_idx_in = point_idx_nn[0]  + i + plus_idx_in ;
-            else
-              nex_idx_in =  (point_idx_nn[0]  + plus_idx_in+ i) - in_contour_x.size();
-
-          if(point_idx_nn[1] + plus_idx_out+ i < out_contour_x.size())
-              nex_idx_out = point_idx_nn[1]  + i + plus_idx_out ;
-          else
-              nex_idx_out =  (point_idx_nn[1]  + plus_idx_out+ i) - out_contour_x.size();
-
-
-
-            left_point.at(0) = in_contour_x.at(nex_idx_in);
-            left_point.at(1) = in_contour_y.at(nex_idx_in);
-            right_point.at(0) = out_contour_x.at(nex_idx_out);
-            right_point.at(1) = out_contour_y.at(nex_idx_out);
-
-            target_point.at(0) = ( left_point.at(0) );
-            target_point.at(1) = ( left_point.at(1) );
-
-            target_point.at(0)  = sin(x_nn(2)) * (left_point.at(0) - x_nn(0)) - cos(x_nn(2))*(left_point.at(1)- x_nn(1))  - 0.9;
-            target_point.at(1) =  cos(x_nn(2)) * (left_point.at(0) - x_nn(0)) + sin(x_nn(2))*(left_point.at(1) - x_nn(1)) - scan_distance_to_base_link ;
-
-          }
-
-          else{
-            predicted_car_position.at(1) = 0.8 + 3.0*i*DT ;
-            if(follow_right == 0 && follow_left == 0){
-            left_point = get_closest_point(left_wall_nn,predicted_car_position);
-            right_point = get_closest_point(right_wall_nn,predicted_car_position);
-            target_point.at(0) = (left_point.at(0) + right_point.at(0))/2.0;
-            target_point.at(1) = (left_point.at(1) + right_point.at(1))/2.0;
-            }
-            else if(follow_right == 1 && follow_left == 0){
-              right_point = get_closest_point(right_wall_nn,predicted_car_position);
-              target_point.at(0) = (right_point.at(0)) ;
-              target_point.at(1) = (right_point.at(1) + 0.2 );
-            }
-            else if(follow_right == 0 && follow_left == 1){
-              left_point = get_closest_point(left_wall_nn,predicted_car_position);
-              target_point.at(0) = (left_point.at(0))  ;
-              target_point.at(1) = (left_point.at(1));
-            }
-
-
-          }
-
-
-          ref_x_nn(i) = ((target_point.at(1)+ scan_distance_to_base_link)*cos(x_nn(2)) + (target_point.at(0) )*sin(x_nn(2))) + x_nn(0);
-          ref_y_nn(i) = -((target_point.at(0))*cos(x_nn(2)) - (target_point.at(1)+ scan_distance_to_base_link)*sin(x_nn(2))) + x_nn(1);
-
-        ref_x_vector_nn.push_back(ref_x_nn(i));
-        ref_y_vector_nn.push_back(ref_y_nn(i));
-      }
-
-
-    // for(int i = 0; i < CONTROL_HORIZON; i++){
-    //   // predicted_car_position.at(1) = 0.2 + 3.0*i*DT ;
-    //   // left_point = get_closest_point(left_wall_nn,predicted_car_position);
-    //   // right_point = get_closest_point(right_wall_nn,predicted_car_position);
-    //
-    //   // target_point.at(0) = (left_point.at(0) + right_point.at(0))/2.0;
-    //   // target_point.at(1) = (left_point.at(1) + right_point.at(1))/2.0;
-    //   //
-    //   ref_x_nn(i) = 0.0;
-    //   ref_y_nn(i) = 0.0;
-    //
-    //   ref_x_vector_nn.push_back(0.0);
-    //   ref_y_vector_nn.push_back(0.0);
-    // }
-
-    // int point_idx_nn = find_closest_point_map(x_nn);
-    //
-    // for(int i = 0; i < CONTROL_HORIZON; i++){
-    //   // std::cout << "traj_x.size()nn = " <<traj_x.size() << std::endl;
-    //   // std::cout << "point_idx_nn + plus_idx+ i nn= " <<point_idx_nn + plus_idx+ i << std::endl;
-    //   if(point_idx_nn + plus_idx+ i < traj_x.size())
-    //     nex_idx = point_idx_nn + i + plus_idx ;
-    //   else
-    //     nex_idx =  (point_idx_nn + plus_idx+ i) - traj_x.size();
-    //   // std::cout << "nex_idx nn = " <<nex_idx << std::endl;
-    //   ref_x_nn(i) = traj_x.at(nex_idx);
-    //   ref_y_nn(i) = traj_y.at(nex_idx);
-    //
-    //   ref_x_vector_nn.push_back(ref_x(i));
-    //   ref_y_vector_nn.push_back(ref_y(i));
-    // }
-
-    // ref_x = ref_x_nn;
-    // ref_y = ref_y_nn;
-    // ref_x_nn = ref_x;
-    // ref_y_nn = ref_y;
   }
 
   else if(path == "quad"){
@@ -1023,13 +981,16 @@ void CalculateTrajectory(){
     double circle_ray_nn = angle2follow_nn/3.14;
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      if(x(0) > (circle_ray*cos(angle2follow) + cx - 1.0) && x(0) < (circle_ray*cos(angle2follow) + cx + 1.0)
-        && x(1) > (circle_ray*sin(angle2follow) + cy - 1.0) && x(1) < (circle_ray*sin(angle2follow) + cy + 1.0)){
-        double angle2follow_it = angle2follow + i*DT;
+      if(x(0) > (circle_ray*cos(angle2follow) + cx - 1.5) && x(0) < (circle_ray*cos(angle2follow) + cx + 1.5)
+        && x(1) > (circle_ray*sin(angle2follow) + cy - 1.5) && x(1) < (circle_ray*sin(angle2follow) + cy + 1.5)){
+        double angle2follow_it = angle2follow + 1.0*i*DT;
         circle_ray = angle2follow_it/3.14;
         ref_x(i) = circle_ray*cos(angle2follow_it) + cx;
         ref_y(i) = circle_ray*sin(angle2follow_it) + cy;
-        angle2follow = angle2follow + 0.5*DT;
+        if(!REVERSE)
+          angle2follow = angle2follow + 0.5*DT;
+        else
+          angle2follow = angle2follow - 0.5*DT;
       }
       else{
         double angle2follow_it = angle2follow + i*DT;
@@ -1042,13 +1003,16 @@ void CalculateTrajectory(){
     }
 
     for(int i = 0; i < CONTROL_HORIZON; i++){
-      if(x_nn(0) > (circle_ray_nn*cos(angle2follow_nn) + cx - 1.0) && x_nn(0) < (circle_ray_nn*cos(angle2follow_nn) + cx + 1.0)
-        && x_nn(1) > (circle_ray_nn*sin(angle2follow_nn) + cy - 1.0) && x_nn(1) < (circle_ray_nn*sin(angle2follow_nn) + cy + 1.0)){
-        double angle2follow_it = angle2follow_nn + i*DT;
+      if(x_nn(0) > (circle_ray_nn*cos(angle2follow_nn) + cx - 1.5) && x_nn(0) < (circle_ray_nn*cos(angle2follow_nn) + cx + 1.5)
+        && x_nn(1) > (circle_ray_nn*sin(angle2follow_nn) + cy - 1.5) && x_nn(1) < (circle_ray_nn*sin(angle2follow_nn) + cy + 1.5)){
+        double angle2follow_it = angle2follow_nn + 1.0*i*DT;
         circle_ray_nn = angle2follow_it/3.14;
         ref_x_nn(i) = circle_ray_nn*cos(angle2follow_it) + cx;
         ref_y_nn(i) = circle_ray_nn*sin(angle2follow_it) + cy;
-        angle2follow_nn = angle2follow_nn + 0.5*DT;
+        if(!REVERSE)
+          angle2follow_nn = angle2follow_nn + 0.5*DT;
+        else
+          angle2follow_nn = angle2follow_nn - 0.5*DT;
       }
       else{
         double angle2follow_it = angle2follow_nn + i*DT;
@@ -1074,7 +1038,7 @@ void CalculateTrajectory(){
       // }
       // else{
         const_aux = 0.0;
-        const_nn = 0.0;
+        const_nn = 0.5;
       // }
       double ref_v_x = (x(3))/sqrt(1+(sin(freq*(x(0) +const_aux))*sin(freq*(x(0) +const_aux))));
       for(int i = 0; i < CONTROL_HORIZON; i++){
@@ -1149,16 +1113,16 @@ void CalculateTrajectory(){
   }
 }
 void CalculateMPC(){
-  NN_CONTROLLER neural_controller(trained_nn_file);
+  // NN_CONTROLLER neural_controller(trained_nn_file);
   result_x.push_back(x(0));
   result_y.push_back(x(1));
   result_x_nn.push_back(x_nn(0));
   result_y_nn.push_back(x_nn(1));
   result_psi.push_back(x(2));
   result_psi_nn.push_back(x_nn(2));
-
+  // std::cout <<"begin CalculateTrajectory\n"<<std::endl;
   CalculateTrajectory();
-
+  // std::cout <<"end CalculateTrajectory\n"<<std::endl;
   for(int i = 0; i < CONTROL_HORIZON; i++){
     ref_y_robot(i) = (ref_y(i) - x(1))*cos(x(2)) - (ref_x(i) - x(0))*sin(x(2));
     ref_x_robot(i) = (ref_x(i) - x(0))*cos(x(2)) + (ref_y(i) - x(1))*sin(x(2));
@@ -1167,8 +1131,9 @@ void CalculateMPC(){
   for(int i = 0; i < CONTROL_HORIZON; i++){
     ref_y_robot_nn(i) = (ref_y_nn(i) - x_nn(1))*cos(x_nn(2)) - (ref_x_nn(i) - x_nn(0))*sin(x_nn(2));
     ref_x_robot_nn(i) = (ref_x_nn(i) - x_nn(0))*cos(x_nn(2)) + (ref_y_nn(i) - x_nn(1))*sin(x_nn(2));
+    // std::cout <<"ref_x_nn(i) = " <<ref_x_nn(i)<<" ,ref_y_nn(i) = " << ref_y_nn(i) <<std::endl;
   }
-
+  // std::cout <<"end change repere\n"<<std::endl;
   Eigen::VectorXd poly_coeffs_robot = Polyfit(ref_x_robot, ref_y_robot,3);
   double ref_offset_robot_poly = poly_coeffs_robot(0);
   double ref_theta_robot_poly = -atan(poly_coeffs_robot(1));
@@ -1179,7 +1144,10 @@ void CalculateMPC(){
   double ref_theta_robot_nn = -atan(poly_coeffs_robot_nn(1));
   // std::cout <<"poly_coeffs_robot_nn(1) = "<<poly_coeffs_robot_nn(1)<<std::endl;
   if(std::isnan(ref_theta_robot_nn ) ){
-    ref_theta_robot_nn = atan((ref_y_robot_nn(CONTROL_HORIZON - 1) - ref_y_robot_nn(0))/(ref_x_robot_nn(CONTROL_HORIZON - 1) - ref_x_robot_nn(0)));
+    if((ref_x_robot_nn(CONTROL_HORIZON - 1) - ref_x_robot_nn(0)) != 0.0 )
+      ref_theta_robot_nn = atan((ref_y_robot_nn(CONTROL_HORIZON - 1) - ref_y_robot_nn(0))/(ref_x_robot_nn(CONTROL_HORIZON - 1) - ref_x_robot_nn(0)));
+    else
+      ref_theta_robot_nn = pi/2.0;
   }
   Eigen::VectorXd poly_coeffs = Polyfit(ref_x, ref_y,3);
   double ref_offset_poly = poly_coeffs(0);
@@ -1191,49 +1159,65 @@ void CalculateMPC(){
   // std::cout <<"ref_theta_robot_poly  = "<< ref_theta_robot_poly << "  ,x(2)  = "<< x(2)<<std::endl;
   x = Propagate(x,u);
   if (no_of_neurons > 0){
-    // std::cout<<"u_nn = "<<u_nn<<std::endl;
     x_nn = Propagate(x_nn,u_nn);
   }
-
+  // std::cout <<"end propagate\n"<<std::endl;
   current_scan = update_scan(x);
   current_scan_nn = update_scan(x_nn);
+  // std::cout <<"end update_scan\n"<<std::endl;
   std::vector<double> result_mpc;
+  std::vector<double> result_mpc_nn;
+  clock_t begin_time_mpc = std::clock();
   result_mpc = Solve_MPC(x,ref_x,ref_y,0.0,0.0);
-
-  //inputs 40
-  int count_idx = 0;
-  Eigen::VectorXd inputs_nn (40);
-  for(int i = 0; i < 40-1;  i = i +2){
-    inputs_nn(i) = ref_x_robot_nn(count_idx);
-    inputs_nn(i+1) = ref_y_robot_nn(count_idx);
-    if(INPUTS_NN_FILE == 1){
-      inputs_file_nn << std::to_string(inputs_nn(i));
-      inputs_file_nn << ",";
-      inputs_file_nn << std::to_string(inputs_nn(i+1));
-      inputs_file_nn << ",";
-    }
-    count_idx = count_idx +1;
-  }
+  clock_t end_time_mpc = std::clock();
+  // std::cout <<"mpc time = " << float( end_time_mpc - begin_time_mpc ) / CLOCKS_PER_SEC <<std::endl;;
+  time_mpc = time_mpc + double( end_time_mpc - begin_time_mpc ) / CLOCKS_PER_SEC;
+  result_mpc_nn = Solve_MPC(x_nn,ref_x_nn,ref_y_nn,0.0,0.0);
+  // std::cout <<"end Solve_MPC\n"<<std::endl;
+  // inputs 40
+  // int count_idx = 0;
+  // Eigen::VectorXd inputs_nn (2*CONTROL_HORIZON);
+  // for(int i = 0; i < (2*CONTROL_HORIZON)-1;  i = i +2){
+  //   inputs_nn(i) = ref_x_robot_nn(count_idx);
+  //   inputs_nn(i+1) = ref_y_robot_nn(count_idx);
+  //   if(INPUTS_NN_FILE == 1){
+  //     inputs_file_nn << std::to_string(inputs_nn(i));
+  //     inputs_file_nn << ",";
+  //     inputs_file_nn << std::to_string(inputs_nn(i+1));
+  //     inputs_file_nn << ",";
+  //   }
+  //   count_idx = count_idx +1;
+  // }
 
   //
-  // save_map_file << std::to_string(ref_x(0));
+  // save_map_file << std::to_string(x(0));
   // save_map_file << ",";
-  // save_map_file << std::to_string(ref_y(0));
+  // save_map_file << std::to_string(x(1));
   // save_map_file << "\n";
 
 
   //inputs 21
-  // Eigen::VectorXd inputs_nn (21);
-  // for(int i = 0; i < 20;  i = i + 1){
+  // Eigen::VectorXd inputs_nn (CONTROL_HORIZON + 1);
+  // for(int i = 0; i < CONTROL_HORIZON;  i = i + 1){
   //   inputs_nn(i) = ref_y_robot_nn(i);
   // }
-  // inputs_nn(20) = ref_theta_robot_nn;
+  // inputs_nn(CONTROL_HORIZON) = ref_theta_robot_nn;
 
-  //inputs 3
+  // inputs 3
   // Eigen::VectorXd inputs_nn (3);
   // inputs_nn(0) = ref_x_robot_nn(0);
   // inputs_nn(1) = ref_y_robot_nn(0);
-  // inputs_nn(2) = ref_theta_robot_nn;
+  // inputs_nn(2) = x(2) - ref_theta_robot_nn;
+
+  // inputs 2
+  Eigen::VectorXd inputs_nn (2);
+  inputs_nn(0) = ref_x_robot_nn(0);
+  inputs_nn(1) = ref_y_robot_nn(0);
+  // inputs_nn(2) = x(2) - ref_theta_robot_nn;
+
+  // std::cout<<"inputs_nn(0) = "<<inputs_nn(0)<<std::endl;
+  // std::cout<<"inputs_nn(1) = "<<inputs_nn(1)<<std::endl;
+  // std::cout<<"inputs_nn(2) = "<<inputs_nn(2)<<std::endl;
 
   u(0) =result_mpc.at(0);
 
@@ -1245,10 +1229,19 @@ void CalculateMPC(){
     // double slope = (2.0 + 2.0) / (0.836332 + 0.836332);
     // u_nn(0) = -2.0 + slope * (output + 0.836332);
     // std::cout <<"inputs_nn= "<<inputs_nn<<std::endl;
+    clock_t begin_time_nn = std::clock();
     u_nn(0) = neural_controller.Solve_NN(inputs_nn);
+    clock_t end_time_nn = std::clock();
+    // std::cout <<"nn time = " << float( end_time_nn - begin_time_nn ) / CLOCKS_PER_SEC <<std::endl;
+    time_nn = time_nn + double( end_time_nn - begin_time_nn ) / CLOCKS_PER_SEC;
+    // std::cout <<"end Solve_NN\n"<<std::endl;
     // std::cout <<"u_nn(0)= "<<u_nn(0)<<std::endl;
     // std::cout<< "mpc = "<<  u(0) << ",  output = "<< output<< ",  u_nn(0) = " << u_nn(0) << std::endl;
   }
+  count_time = count_time +1;
+  // std::cout <<" count_time = "<<count_time<<std::endl;
+  // std::cout <<" time_nn = "<<time_nn<<std::endl;
+  // std::cout <<" time_mpc = "<<time_mpc<<std::endl;
 
   if(INPUTS_NN_FILE == 1){
     inputs_file_nn << u_nn(0);
@@ -1279,23 +1272,32 @@ void CalculateMPC(){
       dataset_file << "\n";
   }
 
+  if(RESULTS_MPC_FILE == 1){
+      result_file_mpc << std::to_string(x(0));
+      result_file_mpc << ",";
+      result_file_mpc << std::to_string(x(1));
+      result_file_mpc << ",";
+      result_file_mpc << std::to_string(x(2));
+      result_file_mpc << ",";
+      result_file_mpc << std::to_string(u(0));
+      result_file_mpc << "\n";
+  }
+
   if(RESULTS_NN_FILE == 1){
-      dataset_file_nn << std::to_string(ref_x_nn(0));
-      dataset_file_nn << ",";
-      dataset_file_nn << std::to_string(ref_y_nn(0));
+      dataset_file_nn << std::to_string(point_idx_nn);
       dataset_file_nn << ",";
       dataset_file_nn << std::to_string(x_nn(0));
       dataset_file_nn << ",";
       dataset_file_nn << std::to_string(x_nn(1));
       dataset_file_nn << ",";
-      dataset_file_nn << std::to_string(ref_x(0));
+      dataset_file_nn << std::to_string(x_nn(2));
       dataset_file_nn << ",";
-      dataset_file_nn << std::to_string(ref_y(0));
-      dataset_file_nn << ",";
-      dataset_file_nn << std::to_string(x(0));
-      dataset_file_nn << ",";
-      dataset_file_nn << std::to_string(x(1));
-      dataset_file_nn << ",";
+      for(int i = 0; i<CONTROL_HORIZON; i ++){
+        dataset_file_nn << std::to_string(ref_x_nn(i));
+        dataset_file_nn << ", ";
+        dataset_file_nn << std::to_string(ref_y_nn(i));
+        dataset_file_nn << ", ";
+      }
       dataset_file_nn << std::to_string(u_nn(0));
       dataset_file_nn << ",";
       dataset_file_nn << std::to_string(u(0));
@@ -1367,7 +1369,7 @@ void drawTank() {
     glEnd();
 
 
-    glColor3f(1.0, 1.0, 0.0);
+    glColor3f(0.0, 0.0, 0.0);
     glBegin(GL_LINE_STRIP);
     for(int i = 0; i < 15; i ++){
       glVertex3d(M_nn(0,i),  M_nn(1,i),  0.0);
@@ -1375,7 +1377,7 @@ void drawTank() {
     glEnd();
 
 
-    glColor3f(1.0, 1.0, 0.0);
+    glColor3f(0.0, 0.0, 0.0);
     glBegin(GL_LINE_STRIP);
     for(int i = 0; i <= size_vector - 1; i ++)
       glVertex3d(result_x_nn.at(i),  result_y_nn.at(i),  0.0);
@@ -1425,15 +1427,15 @@ void drawRobotReference() {
     double size_vector_ref_nn = ref_x_vector_nn.size();
     double size_vector_result = result_x_nn.size();
 
-    glLineWidth(10.0);
-    glColor3f(255,255,255);
-    glBegin(GL_LINE_STRIP);
-
-
-    for (int i=0; i < CONTROL_HORIZON; i ++){
-        glVertex2f(ref_x_robot(i), ref_y_robot(i));
-    }
-    glEnd();
+    // glLineWidth(10.0);
+    // glColor3f(255,255,255);
+    // glBegin(GL_LINE_STRIP);
+    //
+    //
+    // for (int i=0; i < CONTROL_HORIZON; i ++){
+    //     glVertex2f(ref_x_robot(i), ref_y_robot(i));
+    // }
+    // glEnd();
 
     glLineWidth(10.0);
     glColor3f(255,20,147);
@@ -1504,6 +1506,13 @@ void drawReference() {
     //
     // glEnd();
 
+    glLineWidth(5.0);
+    glColor3f(1.0, 0.0, 0.0);
+    glBegin(GL_POINTS);
+    glVertex2f(-0.234908,-3.9336);
+    glVertex2f(-0.177147,-3.949818);
+    glVertex2f(-0.205924,-3.94134);
+    glEnd();
 
     glLineWidth(0.5);
     glColor3f(1.0, 0.0, 0.0);
@@ -1550,12 +1559,13 @@ void display() {
     double x2 ;
     double deltax;
     double time = time_step_counter*DT + ti;
+    // std::cout <<"time = "<<time<<std::endl;
     double size_vector;
     std::string file_name;
     if(time >= tf){
       inputs_file_nn.close();
       if(RESULTS_NN_FILE == 1){
-        if(next_neuron ==  60 && configuration == 4){
+        if(next_neuron == 100){
           glutDestroyWindow(1);
           if(RESULTS_NN_FILE == 1)
             dataset_file_nn.close();
@@ -1563,56 +1573,34 @@ void display() {
 
         else{
           dataset_file_nn.close();
-          file_name = "/home/maria/Documents/nn_mpc/trained_nn/"; //55 neurons/training_minimum_cost/1504_1500/result_circle.txt";
+          file_name = "/home/maria/Documents/nn_mpc/src/keras_result_files/18_10/result_race_";//3inp_1hiddlay_10neurons_dataset2_activationf0.txt";
 
-          if (configuration == 4){
-            next_neuron = next_neuron +  5;
-            configuration = 1;
-          }
+          // if (next_neuron == 100){
+          //   if (next_inputs == 3){
+          //     next_inputs = 21;
+          //   }
+          //   else{//next_inputs == 21
+          //     next_inputs = 40;
+          //   }
+          // }
+          //
+          // else{
+            next_neuron = next_neuron + 10;
+            next_inputs = next_inputs;
+          // }
 
-          else{
-            configuration = configuration + 1;
-          }
-
-          file_name = file_name + std::to_string(next_neuron) + " neurons/training_minimum_cost/1406_1500/result_";
+          file_name = file_name + std::to_string(next_inputs) + "inp_2hiddlay_"+std::to_string(next_neuron)+"neurons_dataset2_activationf0.txt";
           time = 0.0;
           time_step_counter = 0.0;
 
           x0 = 0.0;
-
-          if(configuration == 1){
-            x1 = 3.0;
-            x2 = 0.5;
-            path = "line";
-            file_name = file_name + "line.txt";
-          }
-
-          if(configuration == 2){
-            x1 = 3.0;
-            x2 = 2.7;
-            freq = 0.5;
-            path = "sinus";
-            file_name = file_name + "sinus.txt";
-          }
-
-          if(configuration == 3){
-            x1 = 3.0;
-            x2 = 0.0;
-            freq = 1.0;
-            path = "sinus";
-            file_name = file_name + "sinus_2.txt";
-          }
-
-          if(configuration == 4){
-            x1 = 0.0;
-            x2 = 0.0;
-            path = "circle";
-            file_name = file_name + "circle.txt";
-          }
-
+          x1 = 0.0;
+          x2 = 0.0;
+          freq = 1.0;
+          path = "race";
           std::cout << "restart x0 =  " << x0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << ", path =  " << path << std::endl;
 
-          glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
+          glClearColor(1.0f, 1.0f, 1.0f, 1.0f );
           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
           glInitMPC(x0,x1, x2,path,next_neuron,freq,file_name);
         }
@@ -1652,7 +1640,7 @@ void display() {
          std::cout << "restart x0 =  " << x0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << std::endl;
 
          path = "circle";
-         glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
+         glClearColor(1.0f, 1.0f, 1.0f, 1.0f );
          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
          glInitMPC(x0,x1, x2,path,no_of_neurons,freq,file_name);
        }
@@ -1671,7 +1659,7 @@ void display() {
 
     //Initialize window parameters
     glutTimerFunc(ms_per_frame,timer,1);
-    glClearColor (0.0,0.0,0.0,1.0);
+    glClearColor (1.0,1.0,1.0,1.0);
     glClear (GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
 
@@ -1687,7 +1675,7 @@ void display() {
         }
     }
 
-    glTranslatef(-15 - (trans_corr*35),10,-25);
+    glTranslatef(-15 - (trans_corr*35),10,-35);
     glColor3f(1,1,1);
 
 

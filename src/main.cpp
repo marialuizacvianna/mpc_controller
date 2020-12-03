@@ -44,18 +44,20 @@ int main(int argc, char *argv[]) {
   double freq = atof(argv[5]);
 
   std::string file_name;
-  file_name = "/home/maria/Documents/nn_mpc/trained_nn/5 neurons/training_minimum_cost/1406_1500/result_line.txt";
+  file_name = "/home/maria/Documents/neurocar_ddpg/trained_nn/result_files/0312_v6_1200_race";
 
-  if(RESULTS_NN_FILE == 1){
-    x1 = 3.0;
-    x2 = 0.5;
-    path_to_follow = "line";
-  }
-
-  std::cout << "restart x0 =  " << 0.0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << std::endl;
-
+  // if(RESULTS_NN_FILE == 1){
+  //   x1 = 3.0;
+  //   x2 = 0.5;
+  //   path_to_follow = "line";
+  // }
+  //
+  // std::cout << "restart x0 =  " << 0.0 << ", x1 =  " << x1 << "  , x2 = " <<x2 << ", freq = "<< freq << std::endl;
+  double x0 = X0;
+  if(path_to_follow ==  "circle" && REVERSE)
+    x0 = -5;
   srand (time(NULL));
-  glInitMPC(X0,x1,x2,path_to_follow,neurons,freq,file_name);
+  glInitMPC(x0,x1,x2,path_to_follow,neurons,freq,file_name);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);
