@@ -63,7 +63,7 @@ Sinus sinus_nn(CONTROL_HORIZON,DT,0.5);
 Line line_mpc(CONTROL_HORIZON,DT,0.0);
 Line line_nn(CONTROL_HORIZON,DT,0.0);
 
-void glInitMPC(double x0,double y0, double theta0, std::string  path_choice){
+void glInitMPC(double x0,double y0, double theta0, std::string  path_choice,double freq){
   //initiate MPC robot
   x(0) = x0; //x
   x(1) = y0; //y
@@ -80,6 +80,8 @@ void glInitMPC(double x0,double y0, double theta0, std::string  path_choice){
 
   //init trajectories
   path = path_choice;
+  sinus_mpc.change_f(freq);
+  sinus_nn.change_f(freq);
 
   //load nn controller
   trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/30_10/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf2";
@@ -129,7 +131,6 @@ void CalculateMPC(){
   x_nn = Propagate(x_nn,u_nn);
 
   std::vector<double> result_mpc;
-  std::vector<double> result_mpc_nn;
   clock_t begin_time_mpc = std::clock();
   int index_iteration = 0;
   if(ref_x_vector_w.size() > CONTROL_HORIZON){
@@ -142,8 +143,6 @@ void CalculateMPC(){
   result_mpc = Solve_MPC(x,ref_x,ref_y);
   clock_t end_time_mpc = std::clock();
   time_mpc = time_mpc + double( end_time_mpc - begin_time_mpc )/ CLOCKS_PER_SEC;
-  result_mpc_nn = Solve_MPC(x_nn,ref_x_nn,ref_y_nn);
-
 
   // inputs 40
   int count_idx = 0;
@@ -277,12 +276,15 @@ void drawRobotReference() {
 
 
     glLineWidth(10.0);
-    glColor3f(255,20,147);
+    glColor3f(0,255,0);
     glBegin(GL_LINE_STRIP);
 
+    int begin = 0;
+    if(ref_x_vector_w.size()>CONTROL_HORIZON)
+      begin = ref_x_vector_w.size()-CONTROL_HORIZON;
 
-    for (int i=0; i < CONTROL_HORIZON; i ++){
-        glVertex2f(ref_x(i), ref_y(i));
+    for (int i=begin; i < CONTROL_HORIZON + begin; i ++){
+        glVertex2f(ref_x_vector_w.at(i), ref_y_vector_w.at(i));
     }
     glEnd();
 
@@ -291,8 +293,8 @@ void drawRobotReference() {
     glBegin(GL_LINE_STRIP);
 
 
-    for (int i=0; i < CONTROL_HORIZON; i ++){
-        glVertex2f(ref_x_nn(i), ref_y_nn(i));
+    for (int i=begin; i < CONTROL_HORIZON + begin; i ++){
+        glVertex2f(ref_x_vector_nn.at(i), ref_y_vector_nn.at(i));
     }
     glEnd();
 
@@ -317,7 +319,7 @@ void drawReference() {
       }
 
       glEnd();
-      
+
       glBegin(GL_LINES);
       for(int i = 0; i < race_track.out_contour_x.size(); i++){
         glVertex2f(race_track.out_contour_x.at(i),race_track.out_contour_y.at(i));

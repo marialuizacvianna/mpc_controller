@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
   double theta0 = 0.0;
   int parse_help = 0;
   int reverse_traj = 0;
+  double frequence = 1.0;
   std::string path_choice = "line";
 
   if(argc > 1){
@@ -51,6 +52,10 @@ int main(int argc, char *argv[]) {
             path_choice = argv[i+1];
             parse_help = 1;
           }
+          else if(strcmp(argv[i],"-freq") == 0){
+            frequence = atof(argv[i+1]);
+            parse_help = 1;
+          }
           else{
             parse_help = 0;
           }
@@ -60,7 +65,7 @@ int main(int argc, char *argv[]) {
 
 
   srand (time(NULL));
-  glInitMPC(x0,y0,theta0,path_choice);
+  glInitMPC(x0,y0,theta0,path_choice,frequence);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);

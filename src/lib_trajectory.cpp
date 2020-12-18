@@ -138,24 +138,34 @@ Circle::Circle(double x_center,double y_center, double ray,int c,double time_ste
 void Circle::get_reference(Eigen::VectorXd x,std::vector<double>& ref_x_vector ,std::vector<double>& ref_y_vector,Eigen::VectorXd& ref_x_robot,Eigen::VectorXd& ref_y_robot){
   double angle2follow_i;
   double circle_ray_i;
+  double ref_x,ref_y;
   this->circle_ray = this->angle2follow/3.14;
 
-  if(x(0) > (this->circle_ray*cos(this->angle2follow) + cx - 1.5) && x(0) < (this->circle_ray*cos(this->angle2follow) + cx + 1.5)
-    && x(1) > (this->circle_ray*sin(this->angle2follow) + cy - 1.5) && x(1) < (this->circle_ray*sin(this->angle2follow) + cy + 1.5)){
-      this->angle2follow = this->angle2follow + 0.5*this->dt;
-  }
   for(int i = 0; i < this->control_horizon; i++){
-    angle2follow_i = this->angle2follow + 1.0*i*this->dt;
-    circle_ray_i = angle2follow_i/3.14;
-      // if(!REVERSE)
-      // else
-      //   angle2follow = angle2follow - 0.5*DT
-    ref_x_vector.push_back(circle_ray_i*cos(angle2follow_i) + cx);
-    ref_y_vector.push_back(circle_ray_i*sin(angle2follow_i) + cy);
+      if(x(0) > (this->circle_ray*cos(this->angle2follow) + cx - 1.5) && x(0) < (this->circle_ray*cos(this->angle2follow) + cx + 1.5)
+        && x(1) > (this->circle_ray*sin(this->angle2follow) + cy - 1.5) && x(1) < (circle_ray*sin(this->angle2follow) + cy + 1.5)){
+        double angle2follow_it =this->angle2follow + 1.0*i*this->dt;
+        this->circle_ray = angle2follow_it/3.14;
+        ref_x = this->circle_ray*cos(angle2follow_it) + cx;
+        ref_y = this->circle_ray*sin(angle2follow_it) + cy;
+        // if(!REVERSE)
+          this->angle2follow = this->angle2follow + 0.5*this->dt;
+        // else
+          // angle2follow = angle2follow - 0.5*this->dt;
+      }
+      else{
+        double angle2follow_it = this->angle2follow + i*this->dt;
+        ref_x = this->circle_ray*cos(angle2follow_it) + cx;
+        ref_y = this->circle_ray*sin(angle2follow_it) + cy;
+      }
 
-    ref_y_robot(i) = (ref_y_vector[ref_y_vector.size() - 1] - x(1))*cos(x(2)) - (ref_x_vector[ref_x_vector.size() - 1] - x(0))*sin(x(2));
-    ref_x_robot(i) = (ref_x_vector[(ref_x_vector.size() -1)] - x(0))*cos(x(2)) + (ref_y_vector[(ref_y_vector.size() - 1)] - x(1))*sin(x(2));
-  }
+      ref_x_vector.push_back(ref_x);
+      ref_y_vector.push_back(ref_y);
+
+      ref_y_robot(i) = (ref_y_vector[ref_y_vector.size() - 1] - x(1))*cos(x(2)) - (ref_x_vector[ref_x_vector.size() - 1] - x(0))*sin(x(2));
+      ref_x_robot(i) = (ref_x_vector[(ref_x_vector.size() -1)] - x(0))*cos(x(2)) + (ref_y_vector[(ref_y_vector.size() - 1)] - x(1))*sin(x(2));
+    }
+
 
 }
 
