@@ -3,3 +3,4 @@ build/mpc
 build/CMakeCache.txt
 build/cmake_install.cmake
 src_python/__pycache__/lib_draw_network.cpython-36.pyc
+dataset/
