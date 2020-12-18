@@ -82,7 +82,7 @@ void glInitMPC(double x0,double y0, double theta0, std::string  path_choice,doub
   sinus_nn.change_f(freq);
 
   //load nn controller
-  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/30_10/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf2";
+  trained_nn_file = "../trained_nn/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf2";
   neural_controller.initialize_nn(trained_nn_file);
 
   //useful parameters
