@@ -38,7 +38,7 @@ void drawRobotReference();
 void display();
 void reshape (int w, int h);
 void initgLOptions();
-void glInitMPC(double x0,double y0,double theta0);
+void glInitMPC(double x0,double y0,double theta0,std::string );
 void CalculateMPC();
 void CalculateTrajectory();
 // std::vector<double>  find_closest_point_map(std::vector<double>  x);

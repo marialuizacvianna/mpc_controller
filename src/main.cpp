@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
   double theta0 = 0.0;
   int parse_help = 0;
   int reverse_traj = 0;
+  std::string path_choice = "line";
 
   if(argc > 1){
     if(strcmp(argv[1],"-h") == 0){
@@ -34,16 +35,20 @@ int main(int argc, char *argv[]) {
             x0 = atof(argv[i+1]);
             parse_help = 1;
           }
-          else if(strcmp(argv[i],"-y0")){
+          else if(strcmp(argv[i],"-y0") == 0){
             y0 = atof(argv[i+1]);
             parse_help = 1;
           }
-          else if(strcmp(argv[i],"-t0")){
+          else if(strcmp(argv[i],"-t0") == 0){
             theta0 = atof(argv[i+1]);
             parse_help = 1;
           }
-          else if(strcmp(argv[i],"-r")){
+          else if(strcmp(argv[i],"-r") == 0){
             reverse_traj = atoi(argv[i+1]);
+            parse_help = 1;
+          }
+          else if(strcmp(argv[i],"-traj") == 0){
+            path_choice = argv[i+1];
             parse_help = 1;
           }
           else{
@@ -55,7 +60,7 @@ int main(int argc, char *argv[]) {
 
 
   srand (time(NULL));
-  glInitMPC(x0,y0,theta0);
+  glInitMPC(x0,y0,theta0,path_choice);
   glutInit (&argc, argv);
   glutInitDisplayMode (GLUT_DOUBLE);
   glutInitWindowSize (2000, 1000);
