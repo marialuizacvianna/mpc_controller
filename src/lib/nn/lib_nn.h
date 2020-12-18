@@ -25,12 +25,6 @@ class NN_CONTROLLER
     std::vector<Eigen::MatrixXd> W_;
 
     std::vector<Eigen::VectorXd> b_;
-    // Eigen::MatrixXd W0_;
-    // Eigen::VectorXd b0_;
-    //
-    // Eigen::MatrixXd W1_;
-    // Eigen::VectorXd b1_;
-
     std::string trained_nn_file_name_;
 
     Eigen::VectorXd Sigmoid(Eigen::VectorXd x);

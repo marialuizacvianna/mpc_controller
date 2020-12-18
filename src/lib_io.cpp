@@ -7,8 +7,6 @@
 #include <stdio.h>
 #include <sstream>
 #include "lib/nn/lib_nn.h"
-#include "lib/scan/scan_simulator_2d.hpp"
-#include "lib/scan/pose_2d.hpp"
 #include "lib/traj/lib_trajectory.h"
 
 double time_mpc = 0.0;
@@ -127,9 +125,6 @@ void CalculateMPC(){
 
   CalculateTrajectory();
 
-  x = Propagate(x,u);
-  x_nn = Propagate(x_nn,u_nn);
-
   std::vector<double> result_mpc;
   clock_t begin_time_mpc = std::clock();
   int index_iteration = 0;
@@ -161,6 +156,8 @@ void CalculateMPC(){
   clock_t end_time_nn = std::clock();
   time_nn = time_nn + double( end_time_nn - begin_time_nn ) / CLOCKS_PER_SEC;
 
+  x = Propagate(x,u);
+  x_nn = Propagate(x_nn,u_nn);
 
 }
 

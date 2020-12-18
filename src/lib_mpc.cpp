@@ -10,37 +10,10 @@ size_t v_start = psi_start + CONTROL_HORIZON;
 size_t delta_start = v_start + CONTROL_HORIZON;
 // size_t a_start = delta_start + CONTROL_HORIZON - 1;
 
-
 // Set the number of model variables (includes both states and inputs).
 size_t n_vars = SIZE_STATE*CONTROL_HORIZON + SIZE_INPUT*(CONTROL_HORIZON-1);
 // Set the number of constraints
-size_t n_constraints = (SIZE_STATE*CONTROL_HORIZON) ;//+ (CONTROL_HORIZON - 1);
-
-// Fit a polynomial.
-// Adapted from
-// https://github.com/JuliaMath/Polynomials.jl/blob/master/src/Polynomials.jl#L676-L716
-Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n) {
-  // std::cout << "\n\n\n Inside polyfit" << x << std::endl;
-  // std::cout << "x = " << x << std::endl;
-  // std::cout << "y = " << y << std::endl;
-  assert(x.size() == y.size());
-  assert(n >= 1 && n <= x.size() - 1);
-  Eigen::MatrixXd A(x.size(), n + 1);
-
-  for (int i = 0; i < x.size(); i++) {
-    A(i, 0) = 1.0;
-  }
-
-  for (int j = 0; j < x.size(); j++) {
-    for (int i = 0; i < n; i++) {
-      A(j, i + 1) = A(j, i) * x(j);
-    }
-  }
-
-  auto Q = A.householderQr();
-  auto result = Q.solve(y);
-  return result;
-}
+size_t n_constraints = (SIZE_STATE*CONTROL_HORIZON);//+ (CONTROL_HORIZON - 1);
 
 //Following the example from:
 //https://www.coin-or.org/CppAD/Doc/ipopt_solve_get_started.cpp.htm
@@ -77,11 +50,6 @@ class FG_eval
       fg[0] += CppAD::pow(vars[x_start + t]  - this->ref_x(t), 2);
     }
 
-    //Minimize the use of actuators
-    // for (int t = 0; t < CONTROL_HORIZON - 1; t++)
-    // {
-    //   fg[0] += 0.1*CppAD::pow(vars[delta_start + t], 2);
-    // }
 
     for (int t = 0; t < CONTROL_HORIZON - 2; t++)
     {
@@ -117,12 +85,6 @@ class FG_eval
       CppAD::AD<double> delta0 = vars[delta_start + t - 1];
       // CppAD::AD<double> a0 = vars[a_start + t - 1];
 
-
-      // equations for the model:
-      // x_[t] = x[t-1] + v[t-1] * cos(psi[t-1]) * dt
-      // y_[t] = y[t-1] + v[t-1] * sin(psi[t-1]) * dt
-      // psi_[t] = psi[t-1] +  delta[t-1] * dt
-      // v_[t] = v[t-1] + a[t-1] * dt
 
       fg[1 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * DT);
       fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * DT);
@@ -180,12 +142,6 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eige
     vars_upperbound[i] = 0.836332;//0.836332
   }
 
-  // Acceleration/decceleration upper and lower limits.
-  // for (int i = a_start; i < n_vars; i++)
-  // {
-  //   vars_lowerbound[i] = -0.1;
-  //   vars_upperbound[i] = 0.1;
-  // }
 
   // Lower and upper limits for the constraints
   // Should be 0 besides initial state.
