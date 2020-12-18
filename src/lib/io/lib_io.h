@@ -38,7 +38,7 @@ void drawRobotReference();
 void display();
 void reshape (int w, int h);
 void initgLOptions();
-void glInitMPC(double x0,double x1,double x2,std::string path_option,int neurons,double freq_choice, std::string file_name);
+void glInitMPC(double x0,double y0,double theta0);
 void CalculateMPC();
 void CalculateTrajectory();
 // std::vector<double>  find_closest_point_map(std::vector<double>  x);

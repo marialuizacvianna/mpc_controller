@@ -19,20 +19,15 @@
 #define LINE               0.0
 #define RESULTS_FILE        0
 #define RESULTS_MPC_FILE    0
-#define RESULTS_NN_FILE     0
+#define RESULTS_NN_FILE     1
 #define INPUTS_NN_FILE      0
 #define REVERSE             0
-
-//intial conditions
-#define X0                 0.0 //x
-#define X1                 0.0 //y
-#define X2                 0.0//yaw
-#define X3                 3.0 // speed
+#define V_CTE               3.0
 
 
-Eigen::VectorXd Propagate(Eigen::VectorXd,Eigen::VectorXd);
+Eigen::VectorXd Propagate(Eigen::VectorXd,double);
 Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n);
-std::vector<double> Solve_MPC(Eigen::VectorXd state,Eigen::VectorXd ref_x_world,Eigen::VectorXd ref_y_world,double ref_theta,double ref_theta_r);
+std::vector<double> Solve_MPC(Eigen::VectorXd state,Eigen::VectorXd ref_x_world,Eigen::VectorXd ref_y_world);
 Eigen::VectorXd Polyfit(Eigen::VectorXd x, Eigen::VectorXd y,int n);
 std::vector<std::string> split(const std::string &s, char delim);
 

@@ -12,8 +12,8 @@ find_package(OpenCV REQUIRED)
 set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS "${CXX_FLAGS}" )
 
-set(sources src/scan_simulator_2d.cpp src/distance_transform.cpp src/lib_nn.cpp src/lib_mpc.cpp src/lib_io.cpp src/main.cpp)
-
+set(sources src/lib_nn.cpp src/lib_mpc.cpp  src/lib_io.cpp src/lib_trajectory.cpp src/main.cpp)
+#src/scan_simulator_2d.cpp src/distance_transform.cpp src/lib_nn.cpp src/lib_mpc.cpp src/lib_io.cpp
 include_directories(/usr/local/include)
 include_directories(${PYTHON_INCLUDE_DIRS})
 link_directories(/usr/local/lib)

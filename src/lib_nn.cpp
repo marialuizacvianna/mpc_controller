@@ -112,15 +112,16 @@ double NN_CONTROLLER::Solve_NN(Eigen::VectorXd inputs){
   for(int i = 0; i < no_of_hidd_; i++){
     // std::cout <<" i = " << i <<std::endl;
     Eigen::VectorXd y_aux = Eigen::VectorXd::Zero(no_of_neurons_hidd_.at(i));
+    // std::cout <<" y_aux before relu= " << y_aux <<std::endl;
     y_aux = W_.at(i)*inputs_i + b_.at(i);
     // std::cout <<" W_.at(i) = " << W_.at(i) <<std::endl;
     // std::cout <<" b_.at(i) = " << b_.at(i) <<std::endl;
     // std::cout <<" W_.at(i).rows() = " << W_.at(i).rows() <<std::endl;
     // std::cout <<" W_.at(i).cols() = " << W_.at(i).cols() <<std::endl;
     // y_aux = Tanh(y_aux);
-    y_aux = ReLu(y_aux);
-    // y_aux = Sigmoid(y_aux);
-    // std::cout <<" y_aux = " << y_aux <<std::endl;
+    // y_aux = ReLu(y_aux);
+    y_aux = Sigmoid(y_aux);
+    // std::cout <<" y_aux after relu= " << y_aux <<std::endl;
     // std::cout <<" y_aux ReLu= " << y_aux <<std::endl;
     inputs_i = y_aux;
   }
@@ -129,6 +130,7 @@ double NN_CONTROLLER::Solve_NN(Eigen::VectorXd inputs){
   Eigen::VectorXd yo = Eigen::VectorXd::Zero(no_of_outputs_);
   yo = (W_.at(no_of_hidd_ )*inputs_i) + b_.at(no_of_hidd_);
   // std::cout <<" W_.at(no_of_hidd_ ).rows() = " << W_.at(no_of_hidd_ ).rows() <<std::endl;
+  // std::cout <<"yo = " << yo <<std::endl;
   // std::cout <<"Tanh(yo) = " << Tanh(yo) <<std::endl;
   yo = Tanh(yo)*0.836332;
 

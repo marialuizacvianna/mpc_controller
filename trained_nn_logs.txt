@@ -1,0 +1,293 @@
+if (no_of_neurons == 0 ){
+  trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/3 neurons/training_minimum_cost/1903_1019/trained_nn_3";
+}
+
+else if (no_of_neurons == 3 ){
+  trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/3 neurons/training_minimum_cost/0104_1700/trained_nn_3";//line
+}
+
+else if (no_of_neurons == 5 ){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/5 neurons/training_minimum_cost/0904_1200/trained_nn_5";//line
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/5 neurons/training_minimum_cost/2704_1414/trained_nn_5";//line and sinus
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/5 neurons/training_minimum_cost/2704_2244/trained_nn_5";//line,sinus and spiral
+  trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/5 neurons/training_minimum_cost/1406_1500/trained_nn_5";//lines 3 inp
+}
+
+else if (no_of_neurons == 10){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/10 neurons/training_minimum_cost/0904_1200/trained_nn_10";//line
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2704_1414/trained_nn_10";//line and sinus
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2704_2244/trained_nn_10";//line,sinus and spiral
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/1905_1730/trained_nn_10";//line,sinus and spiral tanh 9 couches
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/2705_1550/trained_nn_10";//line,sinus and spiral relu 9 couches
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/10 neurons/training_minimum_cost/1406_1500/trained_nn_10";//lines 3 inp
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_10neurons_dataset2_activationf0";//keras 3 inp
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_10neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_20neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_10neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/30_10/training_final_cost_40inp_3hiddlay_30neurons_dataset0_activationf0";
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/30_10/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf2";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/30_10/training_final_cost_40inp_3hiddlay_30neurons_dataset1_activationf0";
+}
+
+else if (no_of_neurons == 15){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/15 neurons/training_minimum_cost/0904_1200/trained_nn_15";//line
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/15 neurons/training_minimum_cost/2704_1414/trained_nn_15";//line and sinus
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/15 neurons/training_minimum_cost/2704_2244/trained_nn_15";//line,sinus and spiral
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/15 neurons/training_minimum_cost/1406_1500/trained_nn_15";//lines 3 inp
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_30neurons_dataset2_activationf0";
+}
+
+else if (no_of_neurons == 20){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/20 neurons/training_minimum_cost/1504_1500/trained_nn_20";//line
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/20 neurons/training_minimum_cost/2704_1414/trained_nn_20";//line and sinus
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/20 neurons/training_minimum_cost/2704_2244/trained_nn_20";//line,sinus and spiral
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/20 neurons/training_minimum_cost/1406_1500/trained_nn_20";//lines 3 inp
+
+
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_20neurons_dataset2_activationf0";//keras
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_20neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_20neurons_dataset2_activationf0";
+
+
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_20neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_40neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/16_10/training_final_cost_40inp_3hiddlay_20neurons_dataset2_activationf0";
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_60neurons_dataset2_activationf0";
+}
+
+else if (no_of_neurons == 25){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/25 neurons/training_minimum_cost/1504_1500/trained_nn_25";//line
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/25 neurons/training_minimum_cost/2704_1414/trained_nn_25";//line and sinus
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/25 neurons/training_minimum_cost/2704_2244/trained_nn_25";//line,sinus and spiral
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/25 neurons/training_minimum_cost/1406_1500/trained_nn_25";//lines 3 inp
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_50neurons_dataset2_activationf0";
+}
+
+else if (no_of_neurons == 30){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/30 neurons/training_minimum_cost/1504_1500/trained_nn_30";//line
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/30 neurons/training_minimum_cost/2704_1414/trained_nn_30";//line and sinus
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/30 neurons/training_minimum_cost/2704_2244/trained_nn_30";//line,sinus and spiral
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/30 neurons/training_minimum_cost/1406_1500/trained_nn_30";//lines 3 inp
+
+
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_30neurons_dataset2_activationf0";//keras
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_30neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_30neurons_dataset2_activationf0";
+
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_30neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/16_10/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_60neurons_dataset2_activationf0";
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_90neurons_dataset2_activationf0";
+}
+
+else if (no_of_neurons == 35){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/35 neurons/training_minimum_cost/1504_1500/trained_nn_35";//line
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/35 neurons/training_minimum_cost/2704_1414/trained_nn_35";//line and sinus
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/35 neurons/training_minimum_cost/2704_2244/trained_nn_35";//line,sinus and spiral
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/35 neurons/training_minimum_cost/1406_1500/trained_nn_35";//lines 3 inp
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_70neurons_dataset2_activationf0";
+}
+
+else if (no_of_neurons == 40){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/40 neurons/training_minimum_cost/1504_1500/trained_nn_40";//line
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/40 neurons/training_minimum_cost/2704_1414/trained_nn_40";//line and sinus
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/40 neurons/training_minimum_cost/2704_2244/trained_nn_40";//line,sinus and spiral
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/40 neurons/training_minimum_cost/1406_1500/trained_nn_40";//lines 3 inp
+
+
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_40neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_40neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_40neurons_dataset2_activationf0";
+
+
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_80neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/16_10/training_final_cost_40inp_3hiddlay_40neurons_dataset2_activationf0";
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_120neurons_dataset2_activationf0";
+}
+
+else if (no_of_neurons == 45){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/45 neurons/training_minimum_cost/1504_1500/trained_nn_45";//line
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/45 neurons/training_minimum_cost/2704_1414/trained_nn_45";//line and sinus
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/45 neurons/training_minimum_cost/2704_2244/trained_nn_45";//line,sinus and spiral
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/45 neurons/training_minimum_cost/1406_1500/trained_nn_45";//lines 3 inp
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_90neurons_dataset2_activationf0";
+}
+
+else if (no_of_neurons == 50){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1504_1500/trained_nn_50";//line relu
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_1414/trained_nn_50";//line and sinus relu
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/2704_2244/trained_nn_50";//line,sinus and spiral relu
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/0505_1600/trained_nn_50";//line,sinus sigmoid
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1105_1400/trained_nn_50";//line,sinus  tanh
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_0808/trained_nn_50";//line,sinus and spiral sigmoid
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1805_1215/trained_nn_50";//line,sinus and spiral tanh
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/50 neurons/training_minimum_cost/1406_1500/trained_nn_50";//lines 3 inp
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/08_10/training_final_cost_40inp_1hiddlay_50neurons_dataset2_activationf0";//with keras 150 epochs
+
+
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_50neurons_dataset2_activationf0";//with keras 10000 epochs3 inputs
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_50neurons_dataset2_activationf0";
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_50neurons_dataset2_activationf0";
+
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_100neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_50neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/16_10/training_final_cost_40inp_3hiddlay_50neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_150neurons_dataset2_activationf0";
+}
+
+else if (no_of_neurons == 55){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/55 neurons/training_minimum_cost/1504_1500/trained_nn_55";//line
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/55 neurons/training_minimum_cost/2704_1414/trained_nn_55";//line and sinus
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/55 neurons/training_minimum_cost/2704_2244/trained_nn_55";//line,sinus and spiral
+  trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/55 neurons/training_minimum_cost/1406_1500/trained_nn_55";//lines 3 inp
+}
+
+else if (no_of_neurons == 60){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/60 neurons/training_minimum_cost/2304_0930/trained_nn_60";//line
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/60 neurons/training_minimum_cost/2704_1414/trained_nn_60";//line and sinus
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/60 neurons/training_minimum_cost/2704_2244/trained_nn_60";//line,sinus and spiral
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/trained_nn/60 neurons/training_minimum_cost/1406_1500/trained_nn_60";//lines 3 inp
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_60neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_60neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_60neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_60neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_2hiddlay_120neurons_dataset2_activationf0";
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_180neurons_dataset2_activationf0";
+}
+
+else if (no_of_neurons == 65){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/65 neurons/training_minimum_cost/2304_0930/trained_nn_65";//line
+}
+
+else if (no_of_neurons == 70){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/70 neurons/training_minimum_cost/2304_0930/trained_nn_70";//line
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_70neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_70neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_70neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_70neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_2hiddlay_140neurons_dataset2_activationf0";
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_210neurons_dataset2_activationf0";
+}
+
+
+else if (no_of_neurons == 75){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/75 neurons/training_minimum_cost/2304_0930/trained_nn_75";
+}
+
+else if (no_of_neurons == 80){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/80 neurons/training_minimum_cost/2304_0930/trained_nn_80";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_80neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_80neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_80neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_80neurons_dataset2_activationf0";
+    // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_2hiddlay_160neurons_dataset2_activationf0";
+    trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_240neurons_dataset2_activationf0";
+}
+
+
+else if (no_of_neurons == 85){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/85 neurons/training_minimum_cost/2304_0930/trained_nn_85";
+}
+
+else if (no_of_neurons == 90){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/90 neurons/training_minimum_cost/2304_0930/trained_nn_90";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_90neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_90neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_90neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_90neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_2hiddlay_180neurons_dataset2_activationf0";
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_270neurons_dataset2_activationf0";
+}
+
+else if (no_of_neurons == 95){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/95 neurons/training_minimum_cost/2304_0930/trained_nn_95";
+}
+
+else if (no_of_neurons == 100){
+  // trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/100 neurons/training_minimum_cost/2304_0930/trained_nn_100";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_3inp_1hiddlay_100neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_21inp_1hiddlay_100neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/09_10/training_final_cost_40inp_1hiddlay_100neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/18_10/training_final_cost_40inp_2hiddlay_100neurons_dataset2_activationf0";
+  // trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_2hiddlay_200neurons_dataset2_activationf0";
+  trained_nn_file = "/home/maria/Documents/nn_mpc/src/keras_trained_nn/26_10/training_final_cost_40inp_3hiddlay_300neurons_dataset2_activationf0";
+}
+
+
+
+else if (no_of_neurons == 105){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/105 neurons/training_minimum_cost/2304_0930/trained_nn_105";
+}
+
+else if (no_of_neurons == 110){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/110 neurons/training_minimum_cost/2304_0930/trained_nn_110";
+}
+
+else if (no_of_neurons == 115){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/115 neurons/training_minimum_cost/2304_0930/trained_nn_115";
+}
+
+else if (no_of_neurons == 120){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/120 neurons/training_minimum_cost/2304_0930/trained_nn_120";
+}
+
+else if (no_of_neurons == 125){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/125 neurons/training_minimum_cost/2304_0930/trained_nn_125";
+}
+
+else if (no_of_neurons == 130){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/130 neurons/training_minimum_cost/2304_0930/trained_nn_130";
+}
+
+else if (no_of_neurons == 135){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/135 neurons/training_minimum_cost/2304_0930/trained_nn_135";
+}
+
+else if (no_of_neurons == 140){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/140 neurons/training_minimum_cost/2304_0930/trained_nn_140";
+}
+
+else if (no_of_neurons == 145){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/145 neurons/training_minimum_cost/2304_0930/trained_nn_145";
+}
+
+else if (no_of_neurons == 150){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/150 neurons/training_minimum_cost/2304_0930/trained_nn_150";
+}
+
+else if (no_of_neurons == 155){
+  trained_nn_file = "/home/maria/Documents/Neural Network MPC/nn_mpc/trained_nn/155 neurons/training_minimum_cost/2304_0930/trained_nn_155";
+}
+
+else if (no_of_neurons == 400){
+  if(choice_net == 0){
+    trained_nn_file = "/home/maria/Documents/trained_nn_rl/neurocar0212-v8-600_trainednn"; //first with 0.8 -  second video working- idx 20 - antigo 40 inp
+    plus_idx_nn  = 20;
+  }
+  else if(choice_net == 1){
+    trained_nn_file = "/home/maria/Documents/trained_nn_rl/neurocar0312-v6-1000_trainednn"; //2 inputs best result ,idx 10, ERIC REWARD with sigmoid - best result 2 inp
+    plus_idx_nn  = 10;
+  }
+  else if(choice_net == 2){
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/race_car_0_nn";
+    // plus_idx_nn  = 0;
+    // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/circle_car_nn";
+    // plus_idx_nn  = 10;
+    trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/race_car_1712_v4_nn"; //trained with smaller distance lf
+    plus_idx_nn  = 0;
+
+  }
+  else if(choice_net == 3){
+    trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/race_car_0_2inp_nn";
+    plus_idx_nn  = 0;
+  }
+  // trained_nn_file = "/home/maria/Documents/trained_nn_rl/neurocar0312-v6-1000_trainednn"; //2 inputs best result ,idx 10, ERIC REWARD with sigmoid - best result 2 inp
+  // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/line_car_nn"; //new keras
+  // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/sinus_car_v2_nn"; //new keras
+  // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/circle_car_nn"; //new keras
+  // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/race_car_0_nn"; //new keras
+
+  // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/race_car_0_2inp_nn"; //new keras
+  // trained_nn_file = "/home/maria/Documents/neurocar_ddpg/trained_nn/race_car_10_v2"; //new keras
+}

@@ -50,13 +50,9 @@ class FG_eval
   // Fitted polynomial coefficients
   Eigen::VectorXd ref_x;
   Eigen::VectorXd ref_y;
-  double ref_t;
-  double ref_t_r;
-  FG_eval(Eigen::VectorXd ref_x, Eigen::VectorXd ref_y, double ref_theta, double ref_theta_r) {
+  FG_eval(Eigen::VectorXd ref_x, Eigen::VectorXd ref_y) {
     this->ref_x = ref_x;
     this->ref_y = ref_y;
-    this->ref_t = ref_theta;
-    this->ref_t_r = ref_theta_r;
   }
 
   typedef CPPAD_TESTVECTOR(CppAD::AD<double>) ADvector;
@@ -138,16 +134,16 @@ class FG_eval
 };
 
 
-Eigen::VectorXd Propagate(Eigen::VectorXd x ,Eigen::VectorXd u) {
+Eigen::VectorXd Propagate(Eigen::VectorXd x ,double u) {
   Eigen::VectorXd x_propagate(SIZE_STATE);
   x_propagate(0) = x(0) + x(3)*cos(x(2))*DT;
   x_propagate(1) = x(1) + x(3)*sin(x(2))*DT;
-  x_propagate(2) = x(2) + 3.0*u(0)/(0.3302 - 0.17145)*DT;
+  x_propagate(2) = x(2) + 3.0*u/(0.3302 - 0.17145)*DT;
   x_propagate(3) = x(3);
   return x_propagate;
 };
 
-std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eigen::VectorXd ref_y_world, double ref_theta, double ref_theta_r){
+std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eigen::VectorXd ref_y_world){
   typedef CPPAD_TESTVECTOR(double) Dvector;
   bool ok = true;
   std::vector<double> x_pred_vals;
@@ -216,7 +212,7 @@ std::vector<double> Solve_MPC(Eigen::VectorXd x,Eigen::VectorXd ref_x_world,Eige
   //Following the example from:
   //https://www.coin-or.org/CppAD/Doc/ipopt_solve_get_started.cpp.htm
   // object that computes objective and constraints
-  FG_eval fg_eval(ref_x_world, ref_y_world, ref_theta,ref_theta_r);
+  FG_eval fg_eval(ref_x_world, ref_y_world);
   //
   // NOTE: You don't have to worry about these options
   //
