@@ -82,7 +82,8 @@ void glInitMPC(double x0,double y0, double theta0, std::string  path_choice,doub
   sinus_nn.change_f(freq);
 
   //load nn controller
-  trained_nn_file = "../trained_nn/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf2";
+  // trained_nn_file = "../trained_nn/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf2"; //supervised approach
+  trained_nn_file = "../trained_nn/race_car_1712_v4_nn"; //RL approach
   neural_controller.initialize_nn(trained_nn_file);
 
   //useful parameters
