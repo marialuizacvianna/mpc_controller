@@ -47,6 +47,7 @@ class Sinus{
     void get_reference(Eigen::VectorXd x,std::vector<double>& ref_x_vector ,std::vector<double>& ref_y_vector,Eigen::VectorXd& ref_x_robot,Eigen::VectorXd& ref_y_robot);
     double f;
     double last_x;
+    double last_y;
     void change_f(double new_value);
     void reset();
 };
