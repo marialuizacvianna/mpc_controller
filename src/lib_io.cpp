@@ -82,8 +82,8 @@ void glInitMPC(double x0,double y0, double theta0, std::string  path_choice,doub
   sinus_nn.change_f(freq);
 
   //load nn controller
-  // trained_nn_file = "../trained_nn/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf2"; //supervised approach
-  trained_nn_file = "../trained_nn/race_car_1712_v4_nn"; //RL approach
+  trained_nn_file = "../trained_nn/training_final_cost_40inp_3hiddlay_30neurons_dataset2_activationf2"; //supervised approach
+  // trained_nn_file = "../trained_nn/race_car_1712_v4_nn"; //RL approach
   neural_controller.initialize_nn(trained_nn_file);
 
   //useful parameters
@@ -124,6 +124,7 @@ void CalculateMPC(){
   result_y_nn.push_back(x_nn(1));
   result_psi_nn.push_back(x_nn(2));
 
+
   CalculateTrajectory();
 
   std::vector<double> result_mpc;
@@ -149,8 +150,8 @@ void CalculateMPC(){
     count_idx = count_idx +1;
   }
 
-
   u =result_mpc.at(0);
+
 
   clock_t begin_time_nn = std::clock();
   u_nn = neural_controller.Solve_NN(inputs_nn);
@@ -161,7 +162,6 @@ void CalculateMPC(){
   x_nn = Propagate(x_nn,u_nn);
 
 }
-
 
 void printString(const char *str, double x, double y, double size) {
    glPushMatrix();

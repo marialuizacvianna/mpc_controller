@@ -31,13 +31,17 @@ contours, _= cv2.findContours(threshold, cv2.RETR_TREE,
                                cv2.CHAIN_APPROX_SIMPLE)
 
 count = 0
+x_cnt1 = []
+y_cnt1 = []
+x_cnt2 = []
+y_cnt2 = []
 # Going through every contours found in the image.
 for cnt in contours :
     count = count + 1
-    approx = cv2.approxPolyDP(cnt, 0.000001 * cv2.arcLength(cnt, True), True)
+    approx = cv2.approxPolyDP(cnt, 0.0001 * cv2.arcLength(cnt, True), True)
 
     # draws boundary of contours.
-    cv2.drawContours(img2, [approx], 0, (0, 0, 255), 5)
+    cv2.drawContours(img2, [approx], 0, (0, 0, 255), 2)
 
     # Used to flatted the array containing
     # the co-ordinates of the vertices.
@@ -61,6 +65,28 @@ for cnt in contours :
         else:
             in_contour_file.writelines(str(x) + "," +  str(y) + '\n')
 
+        if(count == 1):
+            x_cnt1.append(point[0][0])
+            y_cnt1.append(point[0][1])
+        else:
+            x_cnt2.append(point[0][0])
+            y_cnt2.append(point[0][1])
+
+approx1 = cv2.approxPolyDP(contours[0], 0.000001 * cv2.arcLength(cnt, True), True)
+new_contour = approx1.copy()
+for i in range(len(x_cnt1)):
+    x1 = x_cnt1[i]
+    y1 = y_cnt1[i]
+    distances = np.sqrt((x_cnt2 - x1)**2 + (y_cnt2 - y1)**2)
+    idx = np.where(distances == np.min(distances))
+    x2 = x_cnt2[idx[0][0]]
+    y2 = y_cnt2[idx[0][0]]
+    x_m = (x1+x2)/2.0
+    y_m = (y1+y2)/2.0
+    new_contour[i][0][0] = x_m
+    new_contour[i][0][1] = y_m
+
+cv2.drawContours(img2, [new_contour], 0, (0, 0, 0), 1)
 
 
 out_contour_file.close()
