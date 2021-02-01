@@ -180,6 +180,7 @@ Sinus::Sinus(int c,double time_step,double freq){
   this->dt = time_step;
   this->f = freq;
   this->last_x = 0.0;
+  this->last_y = 1.0;
 }
 
 void Sinus::get_reference(Eigen::VectorXd x,std::vector<double>& ref_x_vector ,std::vector<double>& ref_y_vector,Eigen::VectorXd& ref_x_robot,Eigen::VectorXd& ref_y_robot){
@@ -189,12 +190,13 @@ void Sinus::get_reference(Eigen::VectorXd x,std::vector<double>& ref_x_vector ,s
 
   if( x(0) + const_aux > this->last_x){
      this->last_x = x(0);
+     this->last_y = std::cos(x(0));
   }
 
   ref_v_x = (x(3))/sqrt(1+pow(sin(this->f*(this->last_x +const_aux)),2));
   for(int i = 0; i < this->control_horizon; i++){
     ref_x = this->last_x +const_aux + (ref_v_x*this->dt*i);
-    ref_y = std::cos(this->f*ref_x);
+    ref_y = std::cos(this->f*ref_x); //or ==  this->last_y -(std::sin(this->f*ref_x)*ref_v_x*this->dt*i);
     ref_v_x = (x(3))/sqrt(1+pow(sin(this->f*ref_x),2));
 
     ref_x_vector.push_back(ref_x);
