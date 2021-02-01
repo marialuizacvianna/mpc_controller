@@ -194,8 +194,16 @@ void Sinus::get_reference(Eigen::VectorXd x,std::vector<double>& ref_x_vector ,s
   }
 
   ref_v_x = (x(3))/sqrt(1+pow(sin(this->f*(this->last_x +const_aux)),2));
-  for(int i = 0; i < this->control_horizon; i++){
-    ref_x = this->last_x +const_aux + (ref_v_x*this->dt*i);
+  ref_x = this->last_x +const_aux;
+  ref_y = std::cos(this->f*ref_x);
+  ref_x_vector.push_back(ref_x);
+  ref_y_vector.push_back(ref_y);
+
+  ref_y_robot(0) = (ref_y_vector[ref_y_vector.size() - 1] - x(1))*cos(x(2)) - (ref_x_vector[ref_x_vector.size() - 1] - x(0))*sin(x(2));
+  ref_x_robot(0) = (ref_x_vector[(ref_x_vector.size() -1)] - x(0))*cos(x(2)) + (ref_y_vector[(ref_y_vector.size() - 1)] - x(1))*sin(x(2));
+
+  for(int i = 1; i < this->control_horizon; i++){
+    ref_x = ref_x + (ref_v_x*this->dt);
     ref_y = std::cos(this->f*ref_x); //or ==  this->last_y -(std::sin(this->f*ref_x)*ref_v_x*this->dt*i);
     ref_v_x = (x(3))/sqrt(1+pow(sin(this->f*ref_x),2));
 
