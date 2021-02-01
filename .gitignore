@@ -5,3 +5,4 @@ build/cmake_install.cmake
 src_python/__pycache__/lib_draw_network.cpython-36.pyc
 dataset/
 build/CMakeFiles/mpc.dir
+src_python
